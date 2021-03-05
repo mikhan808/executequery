@@ -1,7 +1,7 @@
 /*
  * RecentlyOpenFileRepositoryImpl.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,10 +20,6 @@
 
 package org.executequery.repository.spi;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.executequery.Constants;
 import org.executequery.EventMediator;
 import org.executequery.event.DefaultRecentOpenFileEvent;
@@ -34,8 +30,12 @@ import org.underworldlabs.util.FileUtils;
 import org.underworldlabs.util.MiscUtils;
 import org.underworldlabs.util.SystemProperties;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 public class RecentlyOpenFileRepositoryImpl extends AbstractUserSettingsRepository
-                                            implements RecentlyOpenFileRepository {
+        implements RecentlyOpenFileRepository {
 
     private static final String RECENT_FILE_LIST_FILE = "recent.files";
 
@@ -67,7 +67,7 @@ public class RecentlyOpenFileRepositoryImpl extends AbstractUserSettingsReposito
 
         ensureFilesLoaded();
 
-        return (String[])files.toArray(new String[files.size()]);
+        return (String[]) files.toArray(new String[files.size()]);
     }
 
     public String getId() {
@@ -90,7 +90,7 @@ public class RecentlyOpenFileRepositoryImpl extends AbstractUserSettingsReposito
             FileUtils.writeFile(getRecentFileListFilePath(), sb.toString());
 
             EventMediator.fireEvent(new DefaultRecentOpenFileEvent(
-                            this, RecentOpenFileEvent.RECENT_FILES_UPDATED));
+                    this, RecentOpenFileEvent.RECENT_FILES_UPDATED));
 
         } catch (IOException e) {
 
@@ -126,7 +126,6 @@ public class RecentlyOpenFileRepositoryImpl extends AbstractUserSettingsReposito
 
         appendToFront(file);
     }
-
 
 
     private int indexOfFile(String file) {
@@ -173,7 +172,7 @@ public class RecentlyOpenFileRepositoryImpl extends AbstractUserSettingsReposito
             } else {
 
                 String[] recentFilesArray =
-                    MiscUtils.splitSeparatedValues(recentFiles, "\n");
+                        MiscUtils.splitSeparatedValues(recentFiles, "\n");
 
                 files = new ArrayList<String>(recentFilesArray.length);
 
@@ -220,6 +219,7 @@ public class RecentlyOpenFileRepositoryImpl extends AbstractUserSettingsReposito
     }
 
 }
+
 
 
 

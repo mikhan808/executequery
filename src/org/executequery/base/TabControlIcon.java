@@ -1,7 +1,7 @@
 /*
  * TabControlIcon.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,29 +20,31 @@
 
 package org.executequery.base;
 
-import java.awt.Color;
-
-import javax.swing.Icon;
-import javax.swing.UIManager;
-
 import org.underworldlabs.swing.plaf.UIUtils;
 
+import javax.swing.*;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1498 $
- * @date     $Date: 2015-09-18 10:16:35 +1000 (Fri, 18 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public interface TabControlIcon extends Icon {
-    
-    /** the icon width */
+
+    /**
+     * the icon width
+     */
     public static final int ICON_WIDTH = 7;
-    
-    /** the icon height */
+
+    /**
+     * the icon height
+     */
     public static final int ICON_HEIGHT = 7;
 
-    /** The icon image colour */
-    public static final Color ICON_COLOR = 
+    /**
+     * The icon image colour
+     */
+    public static final Color ICON_COLOR =
             UIUtils.getColour("executequery.TabbedPane.icon", UIManager.getColor("controlShadow").darker().darker());
-    
+
 }
+

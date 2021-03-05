@@ -1,7 +1,7 @@
 /*
  * UserPreferenceEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,22 +20,19 @@
 
 package org.executequery.event;
 
-/** 
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+/**
+ * @author Takis Diakoumis
  */
 public interface UserPreferenceEvent extends ApplicationEvent {
 
     int ALL = 0;
-    
+
     int QUERY_EDITOR = 1;
-    
+
     int TOOL_BAR = 2;
-    
+
     int LOG = 3;
- 
+
     int PROXY = 4;
 
     int KEYBOARD_SHORTCUTS = 5;
@@ -43,15 +40,18 @@ public interface UserPreferenceEvent extends ApplicationEvent {
     int LAYOUT_VIEW = 7;
 
     int DOCKED_COMPONENT_CLOSED = 8;
-    
+
     int DOCKED_COMPONENT_OPENED = 9;
-    
-    /** Method name for preferences changed event */
+
+    /**
+     * Method name for preferences changed event
+     */
     String PREFERENCES_CHANGED = "preferencesChanged";
 
     int getEventType();
-    
+
     String getKey();
-    
+
 }
+
 

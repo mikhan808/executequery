@@ -1,7 +1,7 @@
 /*
  * ColumnConstraintTableModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,54 +20,68 @@
 
 package org.executequery.gui.databaseobjects;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.executequery.Constants;
 import org.executequery.databaseobjects.impl.ColumnConstraint;
 import org.executequery.databaseobjects.impl.DatabaseTableColumn;
 import org.executequery.databaseobjects.impl.TableColumnConstraint;
 import org.underworldlabs.swing.print.AbstractPrintableTableModel;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Table model for db objects display.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
-    
-    protected String[] header = {"",
-                                 "Name", 
-                                 "Type", 
-                                 "Table Column", 
-                                 "Reference Schema",
-                                 "Reference Table", 
-                                 "Reference Column"};
 
-    /** the constraints list */
+    protected String[] header = {"",
+            "Name",
+            "Type",
+            "Table Column",
+            "Reference Schema",
+            "Reference Table",
+            "Reference Column",
+            "Check",
+            "Update rule",
+            "Delete rule"
+    };
+
+    /**
+     * the constraints list
+     */
     private List<ColumnConstraint> constraints;
-    
-    /** indicates whether this model is editable */
+
+    /**
+     * indicates whether this model is editable
+     */
     private boolean editable;
 
-    /** Creates a new instance of ColumnConstraintTableModel */
+    /**
+     * Creates a new instance of ColumnConstraintTableModel
+     */
     public ColumnConstraintTableModel() {
         this(null);
     }
 
-    /** Creates a new instance of ColumnConstraintTableModel */
+    /**
+     * Creates a new instance of ColumnConstraintTableModel
+     */
     public ColumnConstraintTableModel(List<ColumnConstraint> constraints) {
         this(constraints, false);
     }
 
-    /** Creates a new instance of ColumnConstraintTableModel */
+    /**
+     * Creates a new instance of ColumnConstraintTableModel
+     */
     public ColumnConstraintTableModel(boolean editable) {
         this(null, editable);
     }
 
-    /** Creates a new instance of ColumnConstraintTableModel */
+    /**
+     * Creates a new instance of ColumnConstraintTableModel
+     */
     public ColumnConstraintTableModel(
             List<ColumnConstraint> constraints, boolean editable) {
         this.constraints = constraints;
@@ -101,7 +115,7 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
         int newRow = getRowCount() - 1;
         fireTableRowsInserted(newRow, newRow);
     }
-    
+
     /**
      * Removes the column value at the specified index.
      *
@@ -109,10 +123,10 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
      */
     public void deleteConstraintAt(int index) {
         if (constraints != null) {
-            
+
             ColumnConstraint columnConstraint = constraints.get(index);
             columnConstraint.detachFromColumn();
-            
+
             constraints.remove(index);
             fireTableRowsDeleted(index, index);
         }
@@ -151,17 +165,17 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
         }
 
         ColumnConstraint constraint = constraints.get(row);
-        
+
         // if its not currently modified or isn't new
         // ensure a copy is made for later comparison 
         // and SQL text generation.
         if (!constraint.isNewConstraint() && !constraint.isAltered()) {
-            
-            ((TableColumnConstraint)constraint).makeCopy();
+
+            ((TableColumnConstraint) constraint).makeCopy();
         }
 
-        TableColumnConstraint tableConstraint = (TableColumnConstraint)constraint;
-        
+        TableColumnConstraint tableConstraint = (TableColumnConstraint) constraint;
+
         switch (col) {
             case 1:
                 tableConstraint.setName(_value);
@@ -169,12 +183,12 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
             case 2:
                 if (value == ColumnConstraint.PRIMARY) {
                     tableConstraint.setKeyType(ColumnConstraint.PRIMARY_KEY);
-                } 
-                else if (value == ColumnConstraint.FOREIGN) {
+                } else if (value == ColumnConstraint.FOREIGN) {
                     tableConstraint.setKeyType(ColumnConstraint.FOREIGN_KEY);
-                } 
-                else if (value == ColumnConstraint.UNIQUE) {
+                } else if (value == ColumnConstraint.UNIQUE) {
                     tableConstraint.setKeyType(ColumnConstraint.UNIQUE_KEY);
+                } else if (value == ColumnConstraint.CHECK) {
+                    tableConstraint.setKeyType(ColumnConstraint.CHECK_KEY);
                 }
 
                 tableConstraint.setReferencedCatalog(Constants.EMPTY);
@@ -191,7 +205,7 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
                 }
 
                 // set the new reference
-                column = (DatabaseTableColumn)value;
+                column = (DatabaseTableColumn) value;
                 constraint.setColumn(column);
 
                 // make sure that column contains this constraint
@@ -211,10 +225,19 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
             case 6:
                 tableConstraint.setReferencedColumn(_value);
                 break;
+            case 7:
+                tableConstraint.setCheck(_value);
+                break;
+            case 8:
+                tableConstraint.setUpdateRule(_value);
+                break;
+            case 9:
+                tableConstraint.setDeleteRule(_value);
+                break;
         }
         fireTableRowsUpdated(row, row);
     }
-    
+
     public Object getValueAt(int row, int col) {
         ColumnConstraint constraint = constraints.get(row);
         switch (col) {
@@ -232,6 +255,12 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
                 return constraint.getReferencedTable();
             case 6:
                 return constraint.getReferencedColumn();
+            case 7:
+                return constraint.getCheck();
+            case 8:
+                return constraint.getUpdateRule();
+            case 9:
+                return constraint.getDeleteRule();
             default:
                 return null;
         }
@@ -251,7 +280,7 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
         }
         return "";
     }
-    
+
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (isEditable() && columnIndex > 0) {
 
@@ -261,14 +290,13 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
 
             ColumnConstraint constraint = constraints.get(rowIndex);
             if (constraint.isNewConstraint()) {
-                if (columnIndex > 3 && 
+                if (columnIndex > 3 &&
                         (constraint.isPrimaryKey() || constraint.isUniqueKey())) {
                     return false;
-                } 
-                else {
+                } else {
                     return true;
                 }
-            }            
+            }
 
         }
         return false;
@@ -283,6 +311,7 @@ public class ColumnConstraintTableModel extends AbstractPrintableTableModel {
     }
 
 }
+
 
 
 

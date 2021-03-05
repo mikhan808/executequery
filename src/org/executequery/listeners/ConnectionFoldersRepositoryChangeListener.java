@@ -1,7 +1,7 @@
 /*
  * ConnectionFoldersRepositoryChangeListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,8 +21,8 @@
 package org.executequery.listeners;
 
 import org.executequery.event.ApplicationEvent;
-import org.executequery.event.ConnectionsFolderRepositoryEvent;
 import org.executequery.event.ConnectionFoldersRepositoryListener;
+import org.executequery.event.ConnectionsFolderRepositoryEvent;
 import org.executequery.repository.ConnectionFoldersRepository;
 import org.executequery.repository.RepositoryCache;
 import org.executequery.util.ThreadUtils;
@@ -30,12 +30,12 @@ import org.executequery.util.ThreadUtils;
 public final class ConnectionFoldersRepositoryChangeListener implements ConnectionFoldersRepositoryListener {
 
     public void folderAdded(ConnectionsFolderRepositoryEvent connectionsFolderRepositoryEvent) {
-        
+
         saveFolders();
     }
 
     public void folderModified(ConnectionsFolderRepositoryEvent connectionsFolderRepositoryEvent) {
-        
+
         saveFolders();
     }
 
@@ -64,10 +64,11 @@ public final class ConnectionFoldersRepositoryChangeListener implements Connecti
 
     private ConnectionFoldersRepository connectionFoldersRepository() {
 
-        return (ConnectionFoldersRepository)RepositoryCache.load(ConnectionFoldersRepository.REPOSITORY_ID);
+        return (ConnectionFoldersRepository) RepositoryCache.load(ConnectionFoldersRepository.REPOSITORY_ID);
     }
 
 }
+
 
 
 

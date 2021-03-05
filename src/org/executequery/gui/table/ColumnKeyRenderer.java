@@ -1,7 +1,7 @@
 /*
  * ColumnKeyRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,37 +20,43 @@
 
 package org.executequery.gui.table;
 
-import java.awt.Component;
-
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-
 import org.executequery.GUIUtilities;
 import org.executequery.databaseobjects.DatabaseColumn;
 import org.executequery.databaseobjects.impl.DatabaseTableColumn;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
+
 /**
- *
  * @author takisd
  */
 public class ColumnKeyRenderer extends DefaultTableCellRenderer {
 
-    /** foreign key image icon */
+    /**
+     * foreign key image icon
+     */
     private ImageIcon fkImage;
 
-    /** primary key image icon */
+    /**
+     * primary key image icon
+     */
     private ImageIcon pkImage;
 
-    /** primary/foreign key image icon */
+    /**
+     * primary/foreign key image icon
+     */
     private ImageIcon pkfkImage;
 
-    /** deleted flag icon */
-    private static ImageIcon deleteImage;
-    
-    /** new column flag icon */
-    private static ImageIcon newImage;
+    /**
+     * deleted flag icon
+     */
+    private ImageIcon deleteImage;
+
+    /**
+     * new column flag icon
+     */
+    private ImageIcon newImage;
 
     public ColumnKeyRenderer() {
         deleteImage = GUIUtilities.loadIcon("MarkDeleted16.png", true);
@@ -61,8 +67,8 @@ public class ColumnKeyRenderer extends DefaultTableCellRenderer {
     }
 
     public Component getTableCellRendererComponent(JTable table,
-                                                   Object value, 
-                                                   boolean isSelected, 
+                                                   Object value,
+                                                   boolean isSelected,
                                                    boolean hasFocus,
                                                    int row, int col) {
 
@@ -72,35 +78,31 @@ public class ColumnKeyRenderer extends DefaultTableCellRenderer {
         }
 
         if (value != null) {
-            DatabaseColumn column = (DatabaseColumn)value;
+            DatabaseColumn column = (DatabaseColumn) value;
             if (column.isPrimaryKey()) {
                 if (column.isForeignKey()) {
                     setIcon(pkfkImage);
                     setToolTipText("Primary Key/Foreign Key");
-                }
-                else {
+                } else {
                     setIcon(pkImage);
                     setToolTipText("Primary Key");
-                }                
-            }
-            else if (column.isForeignKey()) {
+                }
+            } else if (column.isForeignKey()) {
                 setIcon(fkImage);
                 setToolTipText("Foreign Key");
-            }
-            else {
+            } else {
                 setIcon(null);
                 setToolTipText(null);
             }
-            
+
             // if its an editable column - check its state
             // and reset icons and tooltips accordingly
             if (column instanceof DatabaseTableColumn) {
-                DatabaseTableColumn _column = (DatabaseTableColumn)column;
+                DatabaseTableColumn _column = (DatabaseTableColumn) column;
                 if (_column.isMarkedDeleted()) {
                     setIcon(deleteImage);
                     setToolTipText("This column marked to be dropped");
-                }
-                else if (_column.isNewColumn()) {
+                } else if (_column.isNewColumn()) {
                     setIcon(newImage);
                     setToolTipText("This column marked new");
                 }
@@ -114,6 +116,7 @@ public class ColumnKeyRenderer extends DefaultTableCellRenderer {
     }
 
 }
+
 
 
 

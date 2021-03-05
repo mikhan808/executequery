@@ -1,7 +1,7 @@
 /*
  * ConnectionFoldersRepositoryListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,36 +21,36 @@
 package org.executequery.event;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision$
- * @date     $Date$
+ * @author Takis Diakoumis
+ * @version $Revision$
+ * @date $Date$
  */
 public interface ConnectionFoldersRepositoryListener extends ApplicationEventListener {
 
     /**
      * Indicates a connection has been added to the repository.
-     * 
+     *
      * @param the encapsulating event
      */
     public void folderAdded(ConnectionsFolderRepositoryEvent connectionsFolderRepositoryEvent);
 
     /**
      * Indicates a folder has been modified to the repository.
-     * 
+     *
      * @param the encapsulating event
      */
     public void folderModified(ConnectionsFolderRepositoryEvent connectionsFolderRepositoryEvent);
 
     /**
      * Indicates a folder has removed from the repository.
-     * 
+     *
      * @param the encapsulating event
      */
     public void folderRemoved(ConnectionsFolderRepositoryEvent connectionsFolderRepositoryEvent);
 
-    
+
 }
+
 
 
 

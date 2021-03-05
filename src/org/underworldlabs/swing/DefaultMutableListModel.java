@@ -1,7 +1,7 @@
 /*
  * DefaultMutableListModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,23 +20,24 @@
 
 package org.underworldlabs.swing;
 
-import javax.swing.DefaultListModel;
+import javax.swing.*;
 
 //from http://www.jroller.com/santhosh/date/20050607
-public class DefaultMutableListModel extends DefaultListModel 
-                                     implements MutableListModel {
+public class DefaultMutableListModel extends DefaultListModel
+        implements MutableListModel {
 
-    public boolean isCellEditable(int index){ 
+    public boolean isCellEditable(int index) {
 
-        return true; 
-    } 
- 
+        return true;
+    }
+
     public void setValueAt(Object value, int index) {
-        
+
         super.setElementAt(value, index);
     }
 
 }
+
 
 
 

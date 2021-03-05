@@ -1,7 +1,7 @@
 /*
  * DefaultDatabaseDriver.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,12 @@
 
 package org.executequery.databasemediators.spi;
 
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.executequery.databasemediators.DatabaseDriver;
 import org.executequery.datasource.DatabaseDefinition;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DefaultDatabaseDriver implements DatabaseDriver {
 
@@ -36,16 +34,17 @@ public class DefaultDatabaseDriver implements DatabaseDriver {
     private String name;
 
     private int type;
-    
+
     private String path;
-    
+
     private String className;
-    
+
     private String url;
-    
+
     private String description;
-    
-    public DefaultDatabaseDriver() {}
+
+    public DefaultDatabaseDriver() {
+    }
 
     public DefaultDatabaseDriver(String name) {
 
@@ -59,71 +58,71 @@ public class DefaultDatabaseDriver implements DatabaseDriver {
 
         type = DatabaseDefinition.INVALID_DATABASE_ID;
     }
-    
+
     public String getName() {
         return name;
     }
-    
+
     public void setName(String name) {
         this.name = name;
     }
-    
+
     public String getDescription() {
         return description == null ? "Not Available" : description;
     }
-    
+
     public void setDescription(String description) {
         this.description = description;
     }
-    
+
     public String getURL() {
         return url;
     }
-    
+
     public void setURL(String url) {
         this.url = url;
     }
-    
+
     public int getType() {
         return type;
     }
-    
+
     public void setDatabaseType(int type) {
         this.type = type;
     }
-    
+
     public String getPath() {
         return path;
     }
-    
+
     public void setPath(String path) {
         this.path = path;
     }
-    
+
     public String getClassName() {
         return className;
     }
-    
+
     public void setClassName(String className) {
         this.className = className;
     }
-    
+
     public boolean equals(Object obj) {
-    
+
         if (this == obj) {
-            
+
             return true;
         }
-        
+
         if (!(obj instanceof DefaultDatabaseDriver)) {
-        
+
             return false;
         }
 
-        DatabaseDriver dd = (DatabaseDriver)obj;
-        return dd.getName().equals(name);        
+        DatabaseDriver dd = (DatabaseDriver) obj;
+        return dd.getName().equals(name);
     }
-    
+
     public String toString() {
         return name;
     }
@@ -137,7 +136,7 @@ public class DefaultDatabaseDriver implements DatabaseDriver {
     }
 
     public boolean isDefaultSunOdbc() {
-        
+
         return (getId() == SUN_ODBC_ID);
     }
 
@@ -145,15 +144,21 @@ public class DefaultDatabaseDriver implements DatabaseDriver {
 
         return (getId() != 0);
     }
-    
+
     public boolean isDatabaseTypeValid() {
-        
+
         return (getType() != DatabaseDefinition.INVALID_DATABASE_ID);
     }
-    
+
+    @Override
+    public int hashCode() {
+        return HashCodeBuilder.reflectionHashCode(this);
+    }
+
     static final long serialVersionUID = -3111300858223645671L;
 
 }
+
 
 
 

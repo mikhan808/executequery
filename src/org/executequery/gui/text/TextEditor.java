@@ -1,7 +1,7 @@
 /*
  * TextEditor.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,21 +20,19 @@
 
 package org.executequery.gui.text;
 
-import javax.swing.text.JTextComponent;
-
-import org.executequery.print.PrintFunction;
 import org.executequery.gui.SaveFunction;
+import org.executequery.print.PrintFunction;
+
+import javax.swing.text.JTextComponent;
 
 /**
  * Defines a panel with a text component that may
  * be manipulated - print, cut, copy, change case etc.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface TextEditor extends PrintFunction, SaveFunction {
-    
+
     /**
      * Returns the text component's text.
      *
@@ -48,7 +46,7 @@ public interface TextEditor extends PrintFunction, SaveFunction {
      * @return the text component
      */
     JTextComponent getEditorTextComponent();
-    
+
     /**
      * Cuts the selected text from the text component.
      */
@@ -58,21 +56,21 @@ public interface TextEditor extends PrintFunction, SaveFunction {
      * Copies the selected text from the text component.
      */
     void copy();
-    
+
     /**
      * Pastes text into the text component at the cursor position.
      */
     void paste();
-    
+
     /**
      * Disables/enables updates on the text component. This is designed
-     * to add remove some of the heavier listeners such as document 
+     * to add remove some of the heavier listeners such as document
      * change and caret listeners.
      *
      * @param disable - true | false
      */
     void disableUpdates(boolean disable);
-    
+
     /**
      * Return whether the text component defined by this interface
      * may be text searched.
@@ -82,27 +80,28 @@ public interface TextEditor extends PrintFunction, SaveFunction {
     boolean canSearch();
 
     void changeSelectionCase(boolean upper);
-    
+
     void changeSelectionToCamelCase();
-    
+
     void changeSelectionToUnderscore();
-    
+
     void deleteLine();
-    
+
     void deleteWord();
-    
+
     void deleteSelection();
-    
+
     void insertFromFile();
-    
+
     void insertLineAfter();
-    
+
     void insertLineBefore();
-    
+
     void selectAll();
-    
+
     void selectNone();
 
 }
+
 
 

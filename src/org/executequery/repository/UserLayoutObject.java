@@ -1,7 +1,7 @@
 /*
  * UserLayoutObject.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,31 +23,40 @@ package org.executequery.repository;
 import java.io.Serializable;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class UserLayoutObject implements Serializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	/** the docked component position */
+    /**
+     * the docked component position
+     */
     private int position;
 
-    /** the docked component placement in its position */
+    /**
+     * the docked component placement in its position
+     */
     private int index;
 
-    /** the docked component user prefs key */
+    /**
+     * the docked component user prefs key
+     */
     private String key;
 
-    /** whether the dock is visible */
+    /**
+     * whether the dock is visible
+     */
     private boolean visible;
 
-    /** whether the dock is minimised */
+    /**
+     * whether the dock is minimised
+     */
     private boolean minimised;
-    
-    /** Creates a new instance of UserLayoutObject */
+
+    /**
+     * Creates a new instance of UserLayoutObject
+     */
     public UserLayoutObject() {
         this(null);
     }
@@ -100,6 +109,7 @@ public class UserLayoutObject implements Serializable {
     }
 
 }
+
 
 
 

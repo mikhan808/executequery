@@ -1,7 +1,7 @@
 /*
  * MiscUtils.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +20,12 @@
 
 package org.underworldlabs.util;
 
+import org.executequery.ApplicationContext;
+import org.executequery.repository.KeywordRepository;
+import org.executequery.repository.RepositoryCache;
+import org.executequery.util.StringBundle;
+
+import javax.swing.*;
 import java.awt.event.KeyEvent;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,31 +35,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-import java.util.StringTokenizer;
-import java.util.UUID;
-import java.util.Vector;
+import java.util.*;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
-import javax.swing.Action;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
-import javax.swing.JComponent;
-import javax.swing.KeyStroke;
-
 /**
- *
- * @author   Takis Diakoumis
- * @author   Dragan Vasic
- * @version  $Revision: 1530 $
- * @date     $Date: 2015-10-13 11:02:42 +1100 (Tue, 13 Oct 2015) $
+ * @author Takis Diakoumis
+ * @author Dragan Vasic
  */
 public final class MiscUtils {
 
@@ -62,7 +53,8 @@ public final class MiscUtils {
     private static DecimalFormat oneDigitFormat;
     private static DecimalFormat twoDigitFormat;
 
-    private MiscUtils() {}
+    private MiscUtils() {
+    }
 
     public static double bytesToKiloBytes(long bytes) {
 
@@ -96,7 +88,7 @@ public final class MiscUtils {
      * word as a WHOLE word.
      *
      * @param value the value to test for the word
-     * @param word the whole word we are looking for
+     * @param word  the whole word we are looking for
      * @return <code>true</code> if found, <code>false</code> otherwise
      */
     public static boolean containsWholeWord(String value, String word) {
@@ -119,13 +111,11 @@ public final class MiscUtils {
             if (index > 0) {
                 return Character.isWhitespace(value.charAt(indexLength)) &&
                         Character.isWhitespace(value.charAt(index - 1));
-            }
-            else {
+            } else {
                 return Character.isWhitespace(value.charAt(indexLength));
             }
 
-        }
-        else {
+        } else {
             return true;
         }
 
@@ -142,7 +132,7 @@ public final class MiscUtils {
 
         int index = exceptionName.lastIndexOf('.');
         if (index != -1) {
-            exceptionName = exceptionName.substring(index+1);
+            exceptionName = exceptionName.substring(index + 1);
         }
         return exceptionName;
     }
@@ -202,7 +192,7 @@ public final class MiscUtils {
      * specified with the specfied delimiter.
      *
      * @param csvString the CSV value
-     * @param delim the delimiter used in the CSV value
+     * @param delim     the delimiter used in the CSV value
      * @return an array of split values
      */
     public static String[] splitSeparatedValues(String csvString, String delim) {
@@ -213,7 +203,7 @@ public final class MiscUtils {
             list.add(st.nextToken());
         }
 
-        String[] values = (String[])list.toArray(new String[list.size()]);
+        String[] values = list.toArray(new String[list.size()]);
         return values;
     }
 
@@ -275,13 +265,13 @@ public final class MiscUtils {
     }
 
     public static String[] findImplementingClasses(
-            String interfaceName, String paths) throws MalformedURLException, IOException {
+            String interfaceName, String paths) throws IOException {
         return findImplementingClasses(interfaceName, paths, true);
     }
 
     public static String[] findImplementingClasses(
             String interfaceName, String paths, boolean interfaceOnly)
-            throws MalformedURLException, IOException {
+            throws IOException {
 
         URL[] urls = loadURLs(paths);
         URLClassLoader loader = new URLClassLoader(urls, ClassLoader.getSystemClassLoader());
@@ -302,8 +292,8 @@ public final class MiscUtils {
 
             jarFile = new JarFile(files[i]);
 
-            for (Enumeration<?> j = jarFile.entries(); j.hasMoreElements();) {
-                ZipEntry entry = (ZipEntry)j.nextElement();
+            for (Enumeration<?> j = jarFile.entries(); j.hasMoreElements(); ) {
+                ZipEntry entry = (ZipEntry) j.nextElement();
                 className = getClassName(entry.getName());
 
                 if (className == null) {
@@ -349,12 +339,15 @@ public final class MiscUtils {
                 // ignore noticed with db2 driver - no serialVersionUID
                 //catch (ClassFormatError e) {}
                 // ignore and continue
-                catch (Throwable e) {}
+                catch (Throwable e) {
+                }
 
             }
 
         }
-        return (String[])clazzes.toArray(new String[clazzes.size()]);
+
+        loader.close();
+        return clazzes.toArray(new String[clazzes.size()]);
     }
 
     public static boolean implementsClass(Class<?> clazz, String implementation) {
@@ -365,8 +358,7 @@ public final class MiscUtils {
                 String name = interfaces[k].getName();
                 if (name.compareTo(implementation) == 0) {
                     return true;
-                }
-                else if (implementsClass(interfaces[k], implementation)) {
+                } else if (implementsClass(interfaces[k], implementation)) {
                     return true;
                 }
             }
@@ -374,12 +366,9 @@ public final class MiscUtils {
         }
 
         Class<?> superClazz = clazz.getSuperclass();
-        if (superClazz != null && !superClazz.isInterface()
-                && implementsClass(superClazz, implementation)) {
-            return true;
-        }
+        return superClazz != null && !superClazz.isInterface()
+                && implementsClass(superClazz, implementation);
 
-        return false;
     }
 
 
@@ -410,28 +399,46 @@ public final class MiscUtils {
     public static URL[] loadURLs(String paths) throws MalformedURLException {
         String token = ";";
         Vector<String> pathsVector = new Vector<String>();
+        String exe_path = ApplicationContext.getInstance().getExternalProcessName();
+        if (exe_path != null && !exe_path.isEmpty()) {
+            exe_path = exe_path.substring(0, exe_path.lastIndexOf("bin"));
+
+        }
 
         if (paths.indexOf(token) != -1) {
             StringTokenizer st = new StringTokenizer(paths, token);
             while (st.hasMoreTokens()) {
                 pathsVector.add(st.nextToken());
             }
-        }
-        else {
+        } else {
             pathsVector.add(paths);
         }
 
-        URL[] urls = new URL[pathsVector.size()];
-        for (int i = 0; i < urls.length; i++) {
-            File f = new File((String)pathsVector.elementAt(i));
+        URL[] urls;
+        if (exe_path != null && !exe_path.isEmpty()) {
+            urls = new URL[pathsVector.size() * 2];
+        } else {
+            urls = new URL[pathsVector.size()];
+        }
+        for (int i = 0; i < pathsVector.size(); i++) {
+            File f = new File(pathsVector.elementAt(i));
             urls[i] = f.toURI().toURL();
         }
+        if (exe_path != null && !exe_path.isEmpty())
+            for (int i = pathsVector.size(); i < urls.length; i++) {
+                try {
+                    File f = new File(exe_path + pathsVector.elementAt(i - pathsVector.size()));
+                    urls[i] = f.toURI().toURL();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
         return urls;
     }
 
     public static String formatNumber(long number, String pattern) {
         NumberFormat nf = NumberFormat.getNumberInstance();
-        DecimalFormat df = (DecimalFormat)nf;
+        DecimalFormat df = (DecimalFormat) nf;
         df.applyPattern(pattern);
         return df.format(number);
     }
@@ -465,8 +472,8 @@ public final class MiscUtils {
         String[] keys = new String[sysProps.size()];
 
         int count = 0;
-        for (Enumeration<?> i = sysProps.propertyNames(); i.hasMoreElements();) {
-            keys[count++] = (String)i.nextElement();
+        for (Enumeration<?> i = sysProps.propertyNames(); i.hasMoreElements(); ) {
+            keys[count++] = (String) i.nextElement();
         }
 
         Arrays.sort(keys);
@@ -494,11 +501,11 @@ public final class MiscUtils {
 
     public static void printInputMap(JComponent component) {
         printInputMap(component.getInputMap(JComponent.WHEN_FOCUSED),
-                        "Input map used when focused");
+                "Input map used when focused");
         printInputMap(component.getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT),
-                        "Input map used when ancestor of focused component");
+                "Input map used when ancestor of focused component");
         printInputMap(component.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW),
-                        "Input map used when in focused window");
+                "Input map used when in focused window");
     }
 
     public static void printActionMap(ActionMap actionMap, String who) {
@@ -509,7 +516,7 @@ public final class MiscUtils {
                 Object key = keys[i];
                 Action targetAction = actionMap.get(key);
                 System.out.println("\tName: <" + key + ">, action: "
-                                    + targetAction.getClass().getName());
+                        + targetAction.getClass().getName());
             }
         }
     }
@@ -535,14 +542,14 @@ public final class MiscUtils {
             //threeDigitFormat = new DecimalFormat("000");
         }
 
-       // {"milliseconds","seconds","minutes","hours"}
-       long[] divisors = {1000,60,60,24};
-       double[] result = new double[divisors.length];
+        // {"milliseconds","seconds","minutes","hours"}
+        long[] divisors = {1000, 60, 60, 24};
+        double[] result = new double[divisors.length];
 
-       for(int i = 0; i < divisors.length;i++) {
-          result[i] = value % divisors[i];
-          value /= divisors[i];
-       }
+        for (int i = 0; i < divisors.length; i++) {
+            result[i] = value % divisors[i];
+            value /= divisors[i];
+        }
        /*
        String[] labels = {"milliseconds","seconds","minutes","hours"};
        for(int i = divisors.length-1;i >= 0;i--) {
@@ -609,11 +616,8 @@ public final class MiscUtils {
         }
 
         _version = Integer.parseInt(installed[1]);
-        if (_version < minor) {
-            return false;
-        }
+        return _version >= minor;
 
-        return true;
     }
 
     /**
@@ -633,27 +637,28 @@ public final class MiscUtils {
      * @return the Java VM version
      */
     public static final double getVMVersion() {
-        return Double.parseDouble(System.getProperty("java.version").substring(0,3));
+        String property = System.getProperty("java.version");
+        return Double.parseDouble(property.length() >= 3 ? property.substring(0,3) : property);
     }
 
-    public static byte[] inputStreamToBytes(InputStream is){
-        byte[] retVal =new byte[0];
-        ByteArrayOutputStream baos=new ByteArrayOutputStream ();
-        if(is!=null){
+    public static byte[] inputStreamToBytes(InputStream is) {
+        byte[] retVal = new byte[0];
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        if (is != null) {
             byte[] elementi = new byte[10000];
             int size = 0;
             try {
-                while((size = is.read(elementi))!=-1){
+                while ((size = is.read(elementi)) != -1) {
                     //retVal = addBytes(retVal,elementi,(retVal.length),size);
                     System.out.print(".");
-                    baos.write( elementi ,0,size);
+                    baos.write(elementi, 0, size);
                 }
-                retVal = baos.toByteArray() ;
+                retVal = baos.toByteArray();
             } catch (IOException e) {
-                    e.printStackTrace();
-            } catch (Exception  e){
-                    e.printStackTrace() ;
-                    retVal = new byte[0];
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+                retVal = new byte[0];
             }
         }
         return retVal;
@@ -663,14 +668,91 @@ public final class MiscUtils {
         return UUID.randomUUID().toString();
     }
 
+    public static String formattedSQLValue(String value, int type) {
+        boolean str = false;
+        switch (type) {
+
+            case Types.LONGVARCHAR:
+            case Types.LONGNVARCHAR:
+            case Types.CHAR:
+            case Types.NCHAR:
+            case Types.VARCHAR:
+            case Types.NVARCHAR:
+            case Types.CLOB:
+            case Types.DATE:
+            case Types.TIME:
+            case Types.TIMESTAMP:
+            case Types.LONGVARBINARY:
+            case Types.VARBINARY:
+            case Types.BINARY:
+                value = "'" + value;
+                str = true;
+                break;
+            default:
+                break;
+        }
+        if (str) {
+            value += "'";
+        }
+        return value;
+    }
+
     public static void printThreadStack(StackTraceElement[] stackTrace) {
-        
+
         for (StackTraceElement stackTraceElement : stackTrace) {
-            
+
             System.err.println(stackTraceElement);
         }
 
     }
-    
-    
+
+    public static String getJavaCharsetFromSqlCharset(String sqlcharset) {
+        ResourceBundle bundle = ResourceBundle.getBundle("org/executequery/sqlToJavaCharset");
+        org.executequery.util.StringBundle sb = new StringBundle(bundle);
+        return sb.getString(sqlcharset);
+    }
+
+    public static String replaceUnsupportedSimbolsToDot(String b) {
+        b = b.replace("\0", ".");
+        b = b.replace("\b", ".");
+        b = b.replace("\t", ".");
+        b = b.replace("\n", ".");
+        b = b.replace("\f", ".");
+        b = b.replace("\r", ".");
+        return b;
+    }
+
+    public static String wordInQuotes(String world) {
+        return "\"" + world + "\"";
+    }
+
+    public static boolean checkAllUpperCase(String str) {
+        return str.equals(str.toUpperCase());
+    }
+
+    public static boolean checkKeyword(String str) {
+        KeywordRepository keywordRepository =
+                (KeywordRepository) RepositoryCache.load(KeywordRepository.REPOSITORY_ID);
+        List<String> keywords = keywordRepository.getSQLKeywords();
+        for (int i = 0; i < keywords.size(); i++)
+            if (keywords.get(i).toUpperCase().equals(str.toUpperCase()))
+                return true;
+        return false;
+    }
+
+    public final static String LATIN_OR_DIGIT_OR_SPEC_SYMBOL_RDB = "([A-Za-z]+[$_0-9A-Za-z]*)";
+
+    public static boolean isLatinOrDigitOrSpecSymbolRDB(String obj)
+    {
+        return obj.matches(LATIN_OR_DIGIT_OR_SPEC_SYMBOL_RDB);
+    }
+
+    public static String getFormattedObject(String obj) {
+        obj = obj.trim();
+        if (isLatinOrDigitOrSpecSymbolRDB(obj) && checkAllUpperCase(obj) && !checkKeyword(obj))
+            return obj;
+        else return MiscUtils.wordInQuotes(obj);
+    }
+
 }
+

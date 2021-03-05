@@ -1,7 +1,7 @@
 /*
  * AbstractColumnConstraintTable.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,26 +20,24 @@
 
 package org.executequery.gui.databaseobjects;
 
-import java.util.List;
-
-import javax.swing.table.TableColumnModel;
-
 import org.executequery.databaseobjects.impl.ColumnConstraint;
 import org.executequery.gui.DefaultTable;
 import org.executequery.gui.table.ColumnConstraintRenderer;
 import org.underworldlabs.swing.table.TableSorter;
 
+import javax.swing.table.TableColumnModel;
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class AbstractColumnConstraintTable extends DefaultTable {
-    
-    /** the table model */
+
+    /**
+     * the table model
+     */
     private ColumnConstraintTableModel model;
-    
+
     /**
      * Initialises the table with some default properties.
      */
@@ -50,22 +48,22 @@ public abstract class AbstractColumnConstraintTable extends DefaultTable {
         setRowSelectionAllowed(false);
         setSurrendersFocusOnKeystroke(true);
     }
-    
+
     /**
      * Initialises with the default model.
      */
     protected void initDefaultTableModel() {
         createModel();
     }
-    
+
     /**
      * Returns the table model as a DatabaseObjectTableModel.
      */
-    protected ColumnConstraintTableModel getColumnConstraintTableModel() {
+    public ColumnConstraintTableModel getColumnConstraintTableModel() {
         return model;
     }
-    
-    /** 
+
+    /**
      * Initialises the cell renderer.
      */
     protected void initDefaultCellRenderer() {
@@ -82,14 +80,13 @@ public abstract class AbstractColumnConstraintTable extends DefaultTable {
     public void setConstraintData(List<ColumnConstraint> constraints) {
         if (model == null) {
             createModel();
-        }
-        else {
+        } else {
             model.setValues(constraints);
         }
     }
 
     private void createModel() {
-        
+
         model = new ColumnConstraintTableModel();
         setModel(new TableSorter(model, getTableHeader()));
         setColumnProperties();
@@ -110,8 +107,9 @@ public abstract class AbstractColumnConstraintTable extends DefaultTable {
         tcm.getColumn(5).setPreferredWidth(120);
         tcm.getColumn(6).setPreferredWidth(120);
     }
-    
+
 }
+
 
 
 

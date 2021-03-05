@@ -1,7 +1,7 @@
 /*
  * AbstractDockedTabActionPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,41 +20,43 @@
 
 package org.executequery.gui;
 
-import java.awt.LayoutManager;
 import org.executequery.GUIUtilities;
 import org.executequery.base.DockedTabView;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.swing.ActionPanel;
+
+import java.awt.*;
 
 /**
  * Abstract tab action panel.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public abstract class AbstractDockedTabActionPanel extends ActionPanel 
-                                                   implements DockedTabView {
-    
-    /** Creates a new instance of AbstractDockedTabActionPanel */
+public abstract class AbstractDockedTabActionPanel extends ActionPanel
+        implements DockedTabView {
+
+    /**
+     * Creates a new instance of AbstractDockedTabActionPanel
+     */
     public AbstractDockedTabActionPanel() {
         super();
     }
-    
+
     public AbstractDockedTabActionPanel(boolean isDoubleBuffered) {
         super(isDoubleBuffered);
     }
-    
+
     public AbstractDockedTabActionPanel(LayoutManager layout) {
         super(layout);
     }
-    
+
     public AbstractDockedTabActionPanel(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
     }
 
     /**
      * Indicates that a [long-running] process has begun or ended
-     * as specified. This will trigger the glass pane on or off 
+     * as specified. This will trigger the glass pane on or off
      * and set the cursor appropriately.
      *
      * @param inProcess - true | false
@@ -69,7 +71,7 @@ public abstract class AbstractDockedTabActionPanel extends ActionPanel
     }
 
     /**
-     * Toggles the visibility of the glass pane on the 
+     * Toggles the visibility of the glass pane on the
      * enclosing frame as specified.
      *
      * @param visible - true | false
@@ -82,13 +84,13 @@ public abstract class AbstractDockedTabActionPanel extends ActionPanel
     // DockedTabView Implementation
     // ----------------------------------------
 
-    
+
     public int getUserPreferencePosition() {
         return GUIUtilities.getDockedComponentPosition(getPropertyKey());
     }
 
     public abstract String getPropertyKey();
-    
+
     public abstract String getMenuItemKey();
 
     /**
@@ -112,19 +114,11 @@ public abstract class AbstractDockedTabActionPanel extends ActionPanel
         return true;
     }
 
-    
+    protected String bundleString(String key, Object... args) {
+
+        return Bundles.get(getClass(), key, args);
+    }
+
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 

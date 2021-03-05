@@ -1,7 +1,7 @@
 /*
  * ListCellEditor.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,18 +20,17 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Component;
-
-import javax.swing.CellEditor;
-import javax.swing.JList;
+import javax.swing.*;
+import java.awt.*;
 
 //from http://www.jroller.com/santhosh/date/20050607
 public interface ListCellEditor extends CellEditor {
 
-    Component getListCellEditorComponent(JList list, Object value, 
-            boolean isSelected, int index); 
+    Component getListCellEditorComponent(JList list, Object value,
+                                         boolean isSelected, int index);
 
 }
+
 
 
 

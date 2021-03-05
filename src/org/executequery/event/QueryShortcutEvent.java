@@ -1,7 +1,7 @@
 /*
  * QueryShortcutEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,13 +22,18 @@ package org.executequery.event;
 
 public interface QueryShortcutEvent extends ApplicationEvent {
 
-    /** Method name for shortcut added */
+    /**
+     * Method name for shortcut added
+     */
     String SHORTCUT_ADDED = "queryShortcutAdded";
 
-    /** Method name for shortcut added */
+    /**
+     * Method name for shortcut added
+     */
     String SHORTCUT_REMOVED = "queryShortcutRemoved";
-    
+
 }
+
 
 
 

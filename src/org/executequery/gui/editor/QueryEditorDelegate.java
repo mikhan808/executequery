@@ -1,7 +1,7 @@
 /*
  * QueryEditorDelegate.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,10 +20,6 @@
 
 package org.executequery.gui.editor;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Vector;
-
 import org.apache.commons.lang.StringUtils;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.repository.RepositoryCache;
@@ -31,12 +27,16 @@ import org.executequery.repository.SqlCommandHistoryRepository;
 import org.executequery.sql.QueryDelegate;
 import org.executequery.sql.QueryDispatcher;
 import org.executequery.util.ThreadUtils;
+import org.underworldlabs.sqlParser.SqlParser;
+
+import java.sql.ResultSet;
+import java.util.Vector;
 
 public class QueryEditorDelegate implements QueryDelegate {
 
     private int currentStatementHistoryIndex = -1;
 
-    private final QueryDispatcher dispatcher;
+    private QueryDispatcher dispatcher = null;
 
     private final QueryEditor queryEditor;
 
@@ -44,7 +44,9 @@ public class QueryEditorDelegate implements QueryDelegate {
 
         super();
         this.queryEditor = queryEditor;
+
         dispatcher = new QueryDispatcher(this);
+
     }
 
     public void destroyConnection() {
@@ -96,7 +98,7 @@ public class QueryEditorDelegate implements QueryDelegate {
     /**
      * Indicates a connection has been closed.
      *
-     * @param the connection thats been closed
+     * @param dc connection thats been closed
      */
     public void disconnected(DatabaseConnection dc) {
 
@@ -136,8 +138,18 @@ public class QueryEditorDelegate implements QueryDelegate {
         executeQuery(queryEditor.getSelectedConnection(), query, executeAsBlock);
     }
 
+    @Override
+    public int getTransactionIsolation() {
+        return dispatcher.getTransactionIsolation();
+    }
+
+    @Override
+    public void setTransactionIsolation(int transactionLevel) {
+        dispatcher.setTransactionIsolation(transactionLevel);
+    }
+
     public void executeQuery(DatabaseConnection selectedConnection,
-            String query, boolean executeAsBlock) {
+                             String query, boolean executeAsBlock) {
 
         if (dispatcher.isExecuting()) {
 
@@ -155,6 +167,49 @@ public class QueryEditorDelegate implements QueryDelegate {
             queryEditor.setHasPreviousStatement(true);
             queryEditor.setHasNextStatement(false);
             dispatcher.executeSQLQuery(selectedConnection, query, executeAsBlock);
+        }
+
+    }
+
+    public void executeScript(DatabaseConnection selectedConnection,
+                              String script) {
+
+        if (dispatcher.isExecuting()) {
+
+            return;
+        }
+
+        if (script == null) {
+
+            script = queryEditor.getEditorText();
+        }
+
+        if (StringUtils.isNotBlank(script)) {
+
+            currentStatementHistoryIndex = -1;
+            queryEditor.setHasPreviousStatement(true);
+            queryEditor.setHasNextStatement(false);
+            dispatcher.executeSQLScript(selectedConnection, script);
+        }
+
+    }
+
+    public void printExecutedPlan(DatabaseConnection selectedConnection,
+                                  String query) {
+
+        if (dispatcher.isExecuting()) {
+
+            return;
+        }
+
+        if (query == null) {
+
+            query = queryEditor.getEditorText();
+        }
+
+        if (StringUtils.isNotBlank(query)) {
+            query = new SqlParser(query, "").getProcessedSql();
+            dispatcher.printExecutedPlan(selectedConnection, query);
         }
 
     }
@@ -202,7 +257,7 @@ public class QueryEditorDelegate implements QueryDelegate {
         queryEditor.setResultText(result, type);
     }
 
-    public void setResultSet(ResultSet rs, String query) throws SQLException {
+    public void setResultSet(ResultSet rs, String query) {
 
         queryEditor.setResultSet(rs, query);
     }
@@ -264,7 +319,7 @@ public class QueryEditorDelegate implements QueryDelegate {
         ThreadUtils.startWorker(new Runnable() {
             public void run() {
 
-                sqlCommandHistoryRepository().addSqlCommand(query);
+                sqlCommandHistoryRepository().addSqlCommand(query, queryEditor.getSelectedConnection().getId());
             }
         });
 
@@ -299,8 +354,11 @@ public class QueryEditorDelegate implements QueryDelegate {
     }
 
     private Vector<String> getSqlCommandHistory() {
-
-        return sqlCommandHistoryRepository().getSqlCommandHistory();
+        String id;
+        if (queryEditor.getSelectedConnection() == null)
+            id = QueryEditorHistory.NULL_CONNECTION;
+        else id = queryEditor.getSelectedConnection().getId();
+        return sqlCommandHistoryRepository().getSqlCommandHistory(id);
     }
 
     /**
@@ -325,12 +383,14 @@ public class QueryEditorDelegate implements QueryDelegate {
         return currentStatementHistoryIndex;
     }
 
-    /** ignored statements for the history list */
+    /**
+     * ignored statements for the history list
+     */
     private final String[] HISTORY_IGNORE = {"COMMIT", "ROLLBACK"};
 
     private SqlCommandHistoryRepository sqlCommandHistoryRepository() {
 
-        return (SqlCommandHistoryRepository)RepositoryCache.load(
+        return (SqlCommandHistoryRepository) RepositoryCache.load(
                 SqlCommandHistoryRepository.REPOSITORY_ID);
     }
 
@@ -359,6 +419,7 @@ public class QueryEditorDelegate implements QueryDelegate {
     }
 
 }
+
 
 
 

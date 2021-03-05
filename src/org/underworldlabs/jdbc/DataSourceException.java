@@ -1,7 +1,7 @@
 /*
  * DataSourceException.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,22 +26,24 @@ import java.sql.SQLException;
  * Generic exception thrown by data source related methods/classes.
  * Note: this was changed to extend RuntimeException (12 March 2008)
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DataSourceException extends RuntimeException {
-    
-    /** closed connection indictaor value */
+
+    /**
+     * closed connection indictaor value
+     */
     private boolean connectionClosed;
-    
-    /** underlying dump cause */
+
+    /**
+     * underlying dump cause
+     */
     private Throwable cause;
-    
+
     public DataSourceException() {
         super();
     }
-    
+
     public DataSourceException(String message) {
         super(message);
     }
@@ -55,7 +57,7 @@ public class DataSourceException extends RuntimeException {
         super(cause);
         this.cause = cause;
     }
-    
+
     public DataSourceException(String message, Throwable cause) {
         super(message, cause);
     }
@@ -63,11 +65,11 @@ public class DataSourceException extends RuntimeException {
     public Throwable getCause() {
         return cause;
     }
-    
+
     public boolean wasConnectionClosed() {
         return connectionClosed;
     }
-    
+
     public String getExtendedMessage() {
         if (cause == null) {
             return getMessage() == null ? "" : getMessage();
@@ -81,8 +83,8 @@ public class DataSourceException extends RuntimeException {
             sb.append(cause);
         }
 
-        if (cause instanceof SQLException) {            
-            SQLException sqlCause = (SQLException)cause;
+        if (cause instanceof SQLException) {
+            SQLException sqlCause = (SQLException) cause;
             sb.append("\nError Code: " + sqlCause.getErrorCode());
 
             String state = sqlCause.getSQLState();
@@ -95,8 +97,9 @@ public class DataSourceException extends RuntimeException {
     }
 
     private static final long serialVersionUID = 1L;
-    
+
 }
+
 
 
 

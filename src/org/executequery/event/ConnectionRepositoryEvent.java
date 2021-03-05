@@ -1,7 +1,7 @@
 /*
  * ConnectionRepositoryEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,26 +22,37 @@ package org.executequery.event;
 
 import org.executequery.databasemediators.DatabaseConnection;
 
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface ConnectionRepositoryEvent extends ApplicationEvent {
 
-    /** Method name for connection added */
+    /**
+     * Method name for connection added
+     */
     String CONNECTION_ADDED = "connectionAdded";
-    
-    /** Method name for connection modified */
+
+    /**
+     * Method name for connection modified
+     */
     String CONNECTION_MODIFIED = "connectionModified";
-    
-    /** Method name for connection removed */
+
+    /**
+     * Method name for connection imported
+     */
+    String CONNECTION_IMPORTED = "connectionImported";
+
+    /**
+     * Method name for connection removed
+     */
     String CONNECTION_REMOVED = "connectionRemoved";
 
-    DatabaseConnection getDatabaseConnection();
-    
+    List<DatabaseConnection> getDatabaseConnections();
+
 }
+
 
 
 

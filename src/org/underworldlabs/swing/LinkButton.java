@@ -1,7 +1,7 @@
 /*
  * LinkButton.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,64 +20,62 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Color;
-import java.awt.Cursor;
+import org.underworldlabs.swing.plaf.UIUtils;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.border.Border;
-
-import org.underworldlabs.swing.plaf.UIUtils;
 
 /**
  * Simple button behaving/looking like a hyperlink item.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1498 $
- * @date     $Date: 2015-09-18 10:16:35 +1000 (Fri, 18 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class LinkButton extends JButton {
-    
-    private static final Color LINK_COLOR = UIUtils.getColour("executequery.LinkButton.foreground", new Color(0x1155CC)); 
-    private static final Border LINK_BORDER = BorderFactory.createEmptyBorder(0, 0, 1, 0); 
-    private static final Border HOVER_BORDER = BorderFactory.createMatteBorder(0, 0, 1, 0, LINK_COLOR); 
-    
+
+    private static final Color LINK_COLOR = UIUtils.getColour("executequery.LinkButton.foreground", new Color(0x1155CC));
+    private static final Border LINK_BORDER = BorderFactory.createEmptyBorder(0, 0, 1, 0);
+    private static final Border HOVER_BORDER = BorderFactory.createMatteBorder(0, 0, 1, 0, LINK_COLOR);
+
     public LinkButton(String text) {
         super(text);
-        init(); 
+        init();
     }
 
     public LinkButton(Action action) {
         super(action);
         init();
     }
-    
+
     private void init() {
-        setBorder(null); 
-        setBorder(LINK_BORDER); 
-        setForeground(LINK_COLOR); 
-        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR)); 
-        setFocusPainted(false); 
-        setRequestFocusEnabled(false); 
+        setBorder(null);
+        setBorder(LINK_BORDER);
+        setForeground(LINK_COLOR);
+        setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        setFocusPainted(false);
+        setRequestFocusEnabled(false);
         setContentAreaFilled(false);
         addMouseListener(new LinkMouseListener());
     }
-    
+
     private class LinkMouseListener extends MouseAdapter {
-        public void mouseEntered(MouseEvent e){ 
-            ((JComponent)e.getComponent()).setBorder(HOVER_BORDER);
+        public void mouseEntered(MouseEvent e) {
+            ((JComponent) e.getComponent()).setBorder(HOVER_BORDER);
         }
-        public void mouseReleased(MouseEvent e){
-            ((JComponent)e.getComponent()).setBorder(HOVER_BORDER); 
-        } 
-        public void mouseExited(MouseEvent e){ 
-            ((JComponent)e.getComponent()).setBorder(LINK_BORDER); 
+
+        public void mouseReleased(MouseEvent e) {
+            ((JComponent) e.getComponent()).setBorder(HOVER_BORDER);
         }
-    }; 
-    
+
+        public void mouseExited(MouseEvent e) {
+            ((JComponent) e.getComponent()).setBorder(LINK_BORDER);
+        }
+    }
+
+    ;
+
 }
+
 

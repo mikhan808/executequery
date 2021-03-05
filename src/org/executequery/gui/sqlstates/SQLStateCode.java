@@ -1,7 +1,7 @@
 /*
  * SQLStateCode.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,19 +23,19 @@ package org.executequery.gui.sqlstates;
 /**
  * SQL State Code definition.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SQLStateCode {
-    
+
     private String sqlStateClass;
     private String sqlStateSubClass;
     private String description;
-    
-    /** Creates a new instance of SQLStateCode */
-    public SQLStateCode(String sqlStateClass, 
-                        String sqlStateSubClass, 
+
+    /**
+     * Creates a new instance of SQLStateCode
+     */
+    public SQLStateCode(String sqlStateClass,
+                        String sqlStateSubClass,
                         String description) {
         this.sqlStateClass = sqlStateClass;
         this.sqlStateSubClass = sqlStateSubClass;
@@ -53,8 +53,9 @@ public class SQLStateCode {
     public String getDescription() {
         return description;
     }
-    
+
 }
+
 
 
 

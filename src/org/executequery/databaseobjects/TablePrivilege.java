@@ -1,7 +1,7 @@
 /*
  * TablePrivilege.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,70 +21,69 @@
 package org.executequery.databaseobjects;
 
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class TablePrivilege {
-    
+
     private String grantor;
     private String grantee;
     private String privilege;
     private String grantable;
-    
-    public TablePrivilege() {}
-    
-    public TablePrivilege(String grantor, 
+
+    public TablePrivilege() {
+    }
+
+    public TablePrivilege(String grantor,
                           String grantee,
-                          String privilege, 
+                          String privilege,
                           String grantable) {
         this.grantor = grantor;
         this.grantee = grantee;
         this.privilege = privilege;
         this.grantable = grantable;
     }
-    
+
     public String getGrantor() {
         return grantor;
     }
-    
+
     public void setGrantor(String grantor) {
         this.grantor = grantor;
     }
-    
+
     public String getGrantee() {
         return grantee;
     }
-    
+
     public void setGrantee(String grantee) {
         this.grantee = grantee;
     }
-    
+
     public String getPrivilege() {
         return privilege;
     }
-    
+
     public void setPrivilege(String privilege) {
         this.privilege = privilege;
     }
-    
+
     public String getGrantable() {
         return grantable;
     }
-    
+
     public void setGrantable(String grantable) {
         this.grantable = grantable;
     }
-    
+
 }
+
 
 
 

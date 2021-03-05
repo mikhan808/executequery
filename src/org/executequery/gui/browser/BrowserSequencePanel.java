@@ -4,6 +4,7 @@ import org.executequery.GUIUtilities;
 import org.executequery.databaseobjects.impl.DefaultDatabaseSequence;
 import org.executequery.gui.forms.AbstractFormObjectViewPanel;
 import org.executequery.gui.text.SQLTextPane;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.swing.DisabledField;
 import org.underworldlabs.swing.StyledLogPane;
@@ -21,6 +22,7 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
 
     public static final String NAME = "BrowserSequencePanel";
 
+    private DependenciesPanel dependenciesPanel;
     private DisabledField sequenceNameField;
 
     private JLabel objectNameLabel;
@@ -33,7 +35,9 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
 
     private Map cache;
 
-    /** the browser's control object */
+    /**
+     * the browser's control object
+     */
     private BrowserController controller;
 
     public BrowserSequencePanel(BrowserController controller) {
@@ -42,24 +46,25 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
 
         try {
             init();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void init() throws Exception {
+    private void init() {
+
+        dependenciesPanel = new DependenciesPanel();
 
         JPanel panel = new JPanel();
 
         panel.setLayout(new BorderLayout());
 
         JPanel paramPanel = new JPanel(new GridBagLayout());
-        paramPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
+        paramPanel.setBorder(BorderFactory.createTitledBorder(Bundles.getCommon("parameters")));
 
         valueLabel = new JLabel();
-        valueLabel.setText("Value: ");
+        valueLabel.setText(Bundles.getCommon("value"));
 
         valueField = new DisabledField();
 
@@ -71,7 +76,7 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
         panel.add(paramPanel, BorderLayout.NORTH);
 
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
-        tabs.add("Sequence", panel);
+        tabs.add(bundleString("sequence"), panel);
 
         descriptionPane = new StyledLogPane();
 
@@ -80,7 +85,7 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
         descPanel.setLayout(new BorderLayout());
         descPanel.add(descriptionPane);
 
-        tabs.add("Description", descPanel);
+        tabs.add(Bundles.getCommon("description"), descPanel);
 
         JPanel sqlPanel = new JPanel(new BorderLayout());
 
@@ -91,13 +96,14 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
         sqlPanel.add(sqlPane, BorderLayout.CENTER);
 
         tabs.add("Sql", sqlPanel);
+        tabs.add(Bundles.getCommon("dependencies"), dependenciesPanel);
 
         objectNameLabel = new JLabel();
         sequenceNameField = new DisabledField();
 
         JPanel base = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        Insets insets = new Insets(10,10,5,5);
+        Insets insets = new Insets(10, 10, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx++;
@@ -127,7 +133,7 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
         ++gbc.gridy;
         gbc.insets.top = 0;
 
-        setHeaderText("Database Sequence");
+        setHeaderText(bundleString("DatabaseSequence"));
         setHeaderIcon(GUIUtilities.loadIcon("Sequence24.png", true));
         setContentPanel(base);
         cache = new HashMap();
@@ -149,27 +155,26 @@ public class BrowserSequencePanel extends AbstractFormObjectViewPanel {
     }
 
     public void setValues(DefaultDatabaseSequence sequence) {
-
-        objectNameLabel.setText("Sequence Name:");
-        setHeaderText("Database Sequence");
+        dependenciesPanel.setDatabaseObject(sequence);
+        objectNameLabel.setText(bundleString("SequenceName"));
+        setHeaderText(bundleString("DatabaseSequence"));
         setHeaderIcon(GUIUtilities.loadIcon("Sequence16.png", true));
 
         try {
             sequenceNameField.setText(sequence.getName());
             valueField.setText(String.valueOf(sequence.getSequenceValue()));
-            descriptionPane.setText(sequence.getDescription());
+            descriptionPane.setText(sequence.getRemarks());
             sqlPane.setText(sequence.getCreateSQLText() +
                     "\n\n" +
                     sequence.getAlterSQLText());
-        }
-        catch (DataSourceException e) {
+        } catch (DataSourceException e) {
             controller.handleException(e);
         }
 
     }
 
     public void setValues(BaseDatabaseObject metaObject) {
-        DefaultDatabaseSequence sequence = (DefaultDatabaseSequence)cache.get(metaObject);
+        DefaultDatabaseSequence sequence = (DefaultDatabaseSequence) cache.get(metaObject);
         setValues(metaObject, sequence);
     }
 

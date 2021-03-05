@@ -1,7 +1,7 @@
 /*
  * ExportResultSetCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,25 +20,23 @@
 
 package org.executequery.actions.databasecommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.gui.ExportResultSetPanel;
 import org.underworldlabs.swing.actions.BaseCommand;
 
-/** 
+import java.awt.event.ActionEvent;
+
+/**
  * Execution for Export Excel
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ExportResultSetCommand extends OpenFrameCommand
-                                implements BaseCommand {
-    
+        implements BaseCommand {
+
     public void execute(ActionEvent e) {
-        
+
         if (!isConnected()) {
             return;
         }
@@ -55,21 +53,22 @@ public class ExportResultSetCommand extends OpenFrameCommand
                 GUIUtilities.showWaitCursor();
 
                 GUIUtilities.addCentralPane(ExportResultSetPanel.TITLE,
-                        ExportResultSetPanel.FRAME_ICON, 
+                        ExportResultSetPanel.FRAME_ICON,
                         new ExportResultSetPanel(),
                         null,
                         true);
 
             } finally {
-              
+
                 GUIUtilities.showNormalCursor();
             }
 
         }
 
     }
-    
+
 }
+
 
 
 

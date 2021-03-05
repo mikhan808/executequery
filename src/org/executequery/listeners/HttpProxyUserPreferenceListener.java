@@ -1,7 +1,7 @@
 /*
  * HttpProxyUserPreferenceListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,30 +25,31 @@ import org.executequery.event.UserPreferenceListener;
 import org.executequery.util.HttpProxyConfigurator;
 
 public class HttpProxyUserPreferenceListener extends AbstractUserPreferenceListener
-                                         implements UserPreferenceListener {
+        implements UserPreferenceListener {
 
     private HttpProxyConfigurator httpProxyConfigurator;
-    
+
     public void preferencesChanged(UserPreferenceEvent event) {
 
         if (event.getEventType() == UserPreferenceEvent.PROXY
                 || event.getEventType() == UserPreferenceEvent.ALL) {
-         
+
             httpProxyConfigurator().configureHttpProxy();
         }
 
     }
 
     private HttpProxyConfigurator httpProxyConfigurator() {
-        
+
         if (httpProxyConfigurator == null) {
             httpProxyConfigurator = new HttpProxyConfigurator();
         }
 
         return httpProxyConfigurator;
     }
-    
+
 }
+
 
 
 

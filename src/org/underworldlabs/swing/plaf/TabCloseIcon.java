@@ -1,7 +1,7 @@
 /*
  * TabCloseIcon.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,30 +19,31 @@
  */
 
 package org.underworldlabs.swing.plaf;
-import java.awt.Component;
-import java.awt.Graphics;
-import javax.swing.Icon;
-import javax.swing.UIManager;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Simple icon drawing the close button
  * for a closeable tab on the CloseTabbedPane.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1498 $
- * @date     $Date: 2015-09-18 10:16:35 +1000 (Fri, 18 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class TabCloseIcon implements Icon {
-    
-    /** the icon width */
+
+    /**
+     * the icon width
+     */
     protected static final int ICON_WIDTH = 6;
-    
-    /** the icon height */
+
+    /**
+     * the icon height
+     */
     protected static final int ICON_HEIGHT = 6;
-    
+
     /**
      * Returns the icon's height.
-     * 
+     *
      * @return the height of the icon
      */
     public int getIconHeight() {
@@ -51,7 +52,7 @@ public class TabCloseIcon implements Icon {
 
     /**
      * Returns the icon's width.
-     * 
+     *
      * @return the width of the icon
      */
     public int getIconWidth() {
@@ -63,13 +64,14 @@ public class TabCloseIcon implements Icon {
      *
      * @param the component
      * @param the graphics context
-     * @param x coordinate
-     * @param y coordinate
+     * @param x   coordinate
+     * @param y   coordinate
      */
     public void paintIcon(Component c, Graphics g, int x, int y) {
         g.setColor(UIManager.getColor("controlShadow").darker());
         g.drawLine(x, y, x + ICON_WIDTH - 1, y + ICON_HEIGHT - 1);
         g.drawLine(x + ICON_WIDTH - 1, y, x, y + ICON_HEIGHT - 1);
     }
-    
+
 }
+

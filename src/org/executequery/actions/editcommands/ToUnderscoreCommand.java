@@ -1,7 +1,7 @@
 /*
  * ToUnderscoreCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,25 +20,24 @@
 
 package org.executequery.actions.editcommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.gui.text.TextEditor;
 import org.underworldlabs.swing.actions.BaseCommand;
 
+import java.awt.event.ActionEvent;
+
 /**
  * To Camel Case command execution.
  *
- * @author   Takis Diakoumis
- * @version  $Revision$
- * @date     $Date$
+ * @author Takis Diakoumis
+ * @version $Revision$
+ * @date $Date$
  */
 public class ToUnderscoreCommand implements BaseCommand {
-    
+
     /**
-     * 
      * Executes the to-camel-case command on the <code>TextEditor</code>.
-     * 
+     *
      * @param the originating event
      */
     public void execute(ActionEvent e) {
@@ -50,6 +49,7 @@ public class ToUnderscoreCommand implements BaseCommand {
     }
 
 }
+
 
 
 

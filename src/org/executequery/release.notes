@@ -1,6 +1,37 @@
 --- Execute Query - RELEASE NOTES ---
 
-Date: 29 May 2017
+Date: 23 May 2018
+
+Summary of changes - v4.4.2 Build 5494:
+----------------------------------------
+
+- Optimized delimited export process.
+- Incremental fix for the Java9 issue and undo/redo for text components.
+- Added (finally) DBUnit dataset export support.
+- Modified default table header view for dark theme.
+- Added connection test action to connection panel.
+
+
+Summary of changes - v4.4.1 Build 5484:
+----------------------------------------
+
+- Fixed missing error messages on exception dialog.
+- Fixed missing column and key labels on table node expansion.
+- Fixed regression bug that would break the tree model when adding or removing 
+  connections.
+
+
+Summary of changes - v4.4.0 Build 5476:
+----------------------------------------
+
+- Added selective connection and folder import and export.
+- Minor UI tweaks: sizes, borders, buttons.
+- New splash and about images.
+- Added fixed height scroller to connections menu.
+- Added localisation support Part 1 - limited RU support provided by Red Soft.
+- Added option to quote char/varchar values on delimited export and result set 
+  export.
+
 
 Summary of changes - v4.3.4 Build 5463:
 ----------------------------------------
@@ -547,4 +578,4 @@ Thank you for trying Execute Query.
 
 Takis Diakoumis
 takisd@executequery.org
-29 May 2017
+23 May 2018

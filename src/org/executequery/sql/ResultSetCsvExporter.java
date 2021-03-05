@@ -1,7 +1,7 @@
 /*
  * ResultSetCsvExporter.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +20,8 @@
 
 package org.executequery.sql;
 
+import org.executequery.Constants;
+
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -29,12 +31,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import org.executequery.Constants;
-
 public class ResultSetCsvExporter implements ResultSetExporter {
 
     public int export(ResultSet resultSet, File output) {
-    
+
         int count = 0;
         PrintWriter writer = null;
         try {
@@ -65,7 +65,7 @@ public class ResultSetCsvExporter implements ResultSetExporter {
                     if (columnIsChars(metaData, i)) {
 
                         sb.append("\"").append(value).append("\"");
-                    
+
                     } else {
 
                         sb.append(value).append(",");
@@ -111,4 +111,5 @@ public class ResultSetCsvExporter implements ResultSetExporter {
     }
 
 }
+
 

@@ -1,7 +1,7 @@
 /*
  * BlankIcon.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,47 +20,42 @@
 
 package org.underworldlabs.swing.table;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-
-import javax.swing.Icon;
+import javax.swing.*;
+import java.awt.*;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class BlankIcon implements Icon {
-    
+
     private Color fillColor;
     private int size;
-    
+
     public BlankIcon() {
         this(null, 11);
     }
-    
+
     public BlankIcon(Color color, int size) {
         fillColor = color;
         this.size = size;
     }
-    
+
     public void paintIcon(Component c, Graphics g, int x, int y) {
         if (fillColor != null) {
             g.setColor(fillColor);
-            g.drawRect(x, y, size-1, size-1);
+            g.drawRect(x, y, size - 1, size - 1);
         }
     }
-    
+
     public int getIconWidth() {
         return size;
     }
-    
+
     public int getIconHeight() {
         return size;
     }
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * DatabaseHostNodeSorter.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,23 +20,13 @@
 
 package org.executequery.gui.browser;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.swing.tree.DefaultMutableTreeNode;
-
 import org.executequery.gui.browser.nodes.DatabaseHostNode;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 class DatabaseHostNodeSorter {
 
@@ -68,11 +58,11 @@ class DatabaseHostNodeSorter {
     public void sort(DefaultMutableTreeNode parent) {
 
         List<DatabaseHostNode> children = new ArrayList<DatabaseHostNode>(parent.getChildCount());
-        for (Enumeration i = parent.children(); i.hasMoreElements();) {
+        for (Enumeration i = parent.children(); i.hasMoreElements(); ) {
 
             Object object = i.nextElement();
             if (object instanceof DatabaseHostNode) {
-             
+
                 children.add((DatabaseHostNode) object);
             }
         }
@@ -155,6 +145,7 @@ class DatabaseHostNodeSorter {
     }
 
 }
+
 
 
 

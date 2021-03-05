@@ -1,22 +1,21 @@
 package org.executequery.components.table;
 
-import sun.swing.DefaultLookup;
+//import sun.swing.DefaultLookup;
+
+//import sun.swing.DefaultLookup;
 
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
 import java.io.Serializable;
-import java.util.Vector;
 
 /**
  * Created by mikhan808 on 22.04.2017.
  */
 public class BrowserTableCellRenderer extends JLabel
-        implements TableCellRenderer, Serializable
-{
+        implements TableCellRenderer, Serializable {
 
     /**
      * An empty <code>Border</code>. This field might not be used. To change the
@@ -34,6 +33,7 @@ public class BrowserTableCellRenderer extends JLabel
     // These ivars will be made protected when their names are finalized.
     private Color unselectedForeground;
     private Color unselectedBackground;
+    private UIDefaults uiDefaults=new UIDefaults();
 
     /**
      * Creates a default table cell renderer.
@@ -43,10 +43,12 @@ public class BrowserTableCellRenderer extends JLabel
         setOpaque(true);
         setBorder(getNoFocusBorder());
         setName("Table.cellRenderer");
+
     }
 
+
     private Border getNoFocusBorder() {
-        Border border = DefaultLookup.getBorder(this, ui, "Table.cellNoFocusBorder");
+        Border border = uiDefaults.getBorder( "Table.cellNoFocusBorder");
         if (System.getSecurityManager() != null) {
             if (border != null) return border;
             return SAFE_NO_FOCUS_BORDER;
@@ -68,6 +70,7 @@ public class BrowserTableCellRenderer extends JLabel
         super.setForeground(c);
         unselectedForeground = c;
     }
+
 
     /**
      * Overrides <code>JComponent.setBackground</code> to assign
@@ -95,8 +98,8 @@ public class BrowserTableCellRenderer extends JLabel
     }
 
     // implements javax.swing.table.TableCellRenderer
+
     /**
-     *
      * Returns the default table cell renderer.
      * <p>
      * During a printing operation, this method will be called with
@@ -106,13 +109,13 @@ public class BrowserTableCellRenderer extends JLabel
      * or not the table is being printed, check the return value from
      * {@link javax.swing.JComponent#isPaintingForPrint()}.
      *
-     * @param table  the <code>JTable</code>
-     * @param value  the value to assign to the cell at
-     *                  <code>[row, column]</code>
+     * @param table      the <code>JTable</code>
+     * @param value      the value to assign to the cell at
+     *                   <code>[row, column]</code>
      * @param isSelected true if cell is selected
-     * @param hasFocus true if cell has focus
-     * @param row  the row of the cell to render
-     * @param column the column of the cell to render
+     * @param hasFocus   true if cell has focus
+     * @param row        the row of the cell to render
+     * @param column     the column of the cell to render
      * @return the default table cell renderer
      * @see javax.swing.JComponent#isPaintingForPrint()
      */
@@ -122,8 +125,16 @@ public class BrowserTableCellRenderer extends JLabel
             return this;
         }
 
+        if (value == null) {
+            value = table.getModel().getValueAt(row, column);
+        }
+
         Color fg = null;
         Color bg = null;
+        if (value.getClass().equals(Object[].class)) {
+            fg = (Color) ((Object[]) value)[1];
+            value = ((Object[]) value)[0];
+        }
 
         //JTable.DropLocation dropLocation = table.getDropLocation();
         /*if (dropLocation != null
@@ -164,24 +175,24 @@ public class BrowserTableCellRenderer extends JLabel
         if (hasFocus) {
             Border border = null;
             if (isSelected) {
-                border = DefaultLookup.getBorder(this, ui, "Table.focusSelectedCellHighlightBorder");
+                border = uiDefaults.getBorder( "Table.focusSelectedCellHighlightBorder");
                 super.setForeground(fg == null ? table.getSelectionForeground()
                         : fg);
                 super.setBackground(bg == null ? table.getSelectionBackground()
                         : bg);
             }
             if (border == null) {
-                border = DefaultLookup.getBorder(this, ui, "Table.focusCellHighlightBorder");
+                border = uiDefaults.getBorder( "Table.focusCellHighlightBorder");
             }
             setBorder(border);
 
             if (!isSelected && table.isCellEditable(row, column)) {
                 Color col;
-                col = DefaultLookup.getColor(this, ui, "Table.focusCellForeground");
+                col = uiDefaults.getColor( "Table.focusCellForeground");
                 if (col != null) {
                     super.setForeground(col);
                 }
-                col = DefaultLookup.getColor(this, ui, "Table.focusCellBackground");
+                col = uiDefaults.getColor( "Table.focusCellBackground");
                 if (col != null) {
                     super.setBackground(col);
                 }
@@ -191,14 +202,16 @@ public class BrowserTableCellRenderer extends JLabel
                     ? unselectedBackground
                     : table.getBackground();
             if (background == null || background instanceof javax.swing.plaf.UIResource) {
-                Color alternateColor = DefaultLookup.getColor(this, ui, "Table.alternateRowColor");
+                Color alternateColor = uiDefaults.getColor( "Table.alternateRowColor");
                 if (alternateColor != null && row % 2 != 0) {
                     background = alternateColor;
                 }
             }
-            super.setForeground(unselectedForeground != null
-                    ? unselectedForeground
-                    : table.getForeground());
+            if (fg == null)
+                super.setForeground(unselectedForeground != null
+                        ? unselectedForeground
+                        : table.getForeground());
+            else super.setForeground(fg);
             super.setBackground(background);
             setBorder(getNoFocusBorder());
         }
@@ -242,35 +255,40 @@ public class BrowserTableCellRenderer extends JLabel
      *
      * @since 1.5
      */
-    public void invalidate() {}
+    public void invalidate() {
+    }
 
     /**
      * Overridden for performance reasons.
      * See the <a href="#override">Implementation Note</a>
      * for more information.
      */
-    public void validate() {}
+    public void validate() {
+    }
 
     /**
      * Overridden for performance reasons.
      * See the <a href="#override">Implementation Note</a>
      * for more information.
      */
-    public void revalidate() {}
+    public void revalidate() {
+    }
 
     /**
      * Overridden for performance reasons.
      * See the <a href="#override">Implementation Note</a>
      * for more information.
      */
-    public void repaint(long tm, int x, int y, int width, int height) {}
+    public void repaint(long tm, int x, int y, int width, int height) {
+    }
 
     /**
      * Overridden for performance reasons.
      * See the <a href="#override">Implementation Note</a>
      * for more information.
      */
-    public void repaint(Rectangle r) { }
+    public void repaint(Rectangle r) {
+    }
 
     /**
      * Overridden for performance reasons.
@@ -289,7 +307,7 @@ public class BrowserTableCellRenderer extends JLabel
      */
     protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
         // Strings get interned...
-        if (propertyName=="text"
+        if (propertyName == "text"
                 || propertyName == "labelFor"
                 || propertyName == "displayedMnemonic"
                 || ((propertyName == "font" || propertyName == "foreground")
@@ -305,27 +323,28 @@ public class BrowserTableCellRenderer extends JLabel
      * See the <a href="#override">Implementation Note</a>
      * for more information.
      */
-    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) { }
+    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
+    }
 
 
     /**
      * Sets the <code>String</code> object for the cell being rendered to
      * <code>value</code>.
      *
-     * @param value  the string value for this cell; if value is
-     *          <code>null</code> it sets the text value to an empty string
+     * @param value the string value for this cell; if value is
+     *              <code>null</code> it sets the text value to an empty string
      * @see JLabel#setText
-     *
      */
     protected void setValue(Object value) {
 
         if (!value.getClass().equals(String.class)) {
             setText("");
-            setIcon((Icon)value);
-        }
-        else {
+            setIcon((Icon) value);
+            setHorizontalAlignment(JLabel.CENTER);
+        } else {
             setIcon(null);
             setText((String) value);
+            setHorizontalAlignment(JLabel.LEFT);
         }
     }
 
@@ -349,8 +368,7 @@ public class BrowserTableCellRenderer extends JLabel
      * Please see {@link java.beans.XMLEncoder}.
      */
     public static class UIResource extends javax.swing.table.DefaultTableCellRenderer
-            implements javax.swing.plaf.UIResource
-    {
+            implements javax.swing.plaf.UIResource {
     }
 
 }

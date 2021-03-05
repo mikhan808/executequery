@@ -1,7 +1,7 @@
 /*
  * TableCellData.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,8 +20,10 @@
 
 package org.executequery.gui.resultset;
 
+import org.apache.commons.lang.StringUtils;
+import org.executequery.log.Log;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringWriter;
 import java.io.Writer;
@@ -30,209 +32,191 @@ import java.sql.Clob;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import org.apache.commons.lang.StringUtils;
-import org.executequery.log.Log;
-
 /**
- * 
  * @author Takis Diakoumis
- * @version $Revision: 1487 $
- * @date $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
  * @deprecated
  */
 public final class TableCellData {
 
-	private byte[] lobValue;
-	
-	private String valueAsString;
-	
-	private Object value;
+    private byte[] lobValue;
 
-	private int dataType;
-	
-	public int getDataType() {
-		return dataType;
-	}
+    private String valueAsString;
 
-	public byte[] getLobValue() {
+    private Object value;
 
-	    if (lobValue == null) {
-	        
-	        if (isBlob()) {
+    private int dataType;
 
-	            readBlob();
-	        }
+    public int getDataType() {
+        return dataType;
+    }
 
-	    }
-	    
+    public byte[] getLobValue() {
+
+        if (lobValue == null) {
+
+            if (isBlob()) {
+
+                readBlob();
+            }
+
+        }
+
         return lobValue;
     }
 
     public void setDataType(int type) {
-		this.dataType = type;
-	}
+        this.dataType = type;
+    }
 
-	public Object getValue() {
-		return value;
-	}
+    public Object getValue() {
+        return value;
+    }
 
-	public void setValue(Object value) {
-		this.value = value;
-	}
+    public void setValue(Object value) {
+        this.value = value;
+    }
 
-	public boolean isValueNull() {
-		return (value == null);
-	}
-	
-	public Object getDisplayValue() {
-		
-		if (getValue() != null) {
-			
-			if (isClob()) {
-				
-				return readClob();
-			}
+    public boolean isValueNull() {
+        return (value == null);
+    }
 
-			if (isBlob()) {
+    public Object getDisplayValue() {
 
-				return readBlob();
-			}
+        if (getValue() != null) {
 
-		}
-		
-		return value;
-	}
+            if (isClob()) {
 
-	public String toString() {
+                return readClob();
+            }
 
-		if (getValue() != null) {
+            if (isBlob()) {
 
-			return getValue().toString();
-		}
+                return readBlob();
+            }
 
-		return null;
-	}
+        }
+
+        return value;
+    }
+
+    public String toString() {
+
+        if (getValue() != null) {
+
+            return getValue().toString();
+        }
+
+        return null;
+    }
 
     public boolean isClob() {
 
-		return (dataType == Types.CLOB 
-				|| dataType == Types.LONGVARCHAR);
-	}
+        return (dataType == Types.CLOB
+                || dataType == Types.LONGVARCHAR);
+    }
 
     public boolean isBlob() {
 
-		return (dataType == Types.BLOB 
-				|| dataType == Types.BINARY
-				|| dataType == Types.VARBINARY
-				|| dataType == Types.LONGVARBINARY);
-	}
+        return (dataType == Types.BLOB
+                || dataType == Types.BINARY
+                || dataType == Types.VARBINARY
+                || dataType == Types.LONGVARBINARY);
+    }
 
-	/** default buffer read size */
+    /**
+     * default buffer read size
+     */
     private static final int DEFAULT_BUFFER_SIZE = 2048;
 
     private Object readBlob() {
-    	
-    	if (lobValue != null) {
-    		
-    		return lobValue;
-    	}
-    	
-    	Blob blob = (Blob) value;
 
-    	InputStream binaryStream = null;
-    	
-    	try {
+        if (lobValue != null) {
 
-    		lobValue = blob.getBytes(1, (int) blob.length());
+            return lobValue;
+        }
 
-    	} catch (SQLException e) {
+        Blob blob = (Blob) value;
+        try {
 
-			if (Log.isDebugEnabled()) {
-				
-				Log.debug("Error reading BLOB data", e);
-			}
+            lobValue = blob.getBytes(1, (int) blob.length());
 
-			return e.getMessage();
+        } catch (SQLException e) {
 
-		} finally {
-			
-			try {
-			
-				if (binaryStream != null) {
-					
-					binaryStream.close();
-				}
-				
-			} catch (IOException e) {}
-			
-		}
-    	
-    	return lobValue;
+            if (Log.isDebugEnabled()) {
+
+                Log.debug("Error reading BLOB data", e);
+            }
+
+            return e.getMessage();
+        }
+
+        return lobValue;
     }
-    
-	private String readClob() {
 
-		if (StringUtils.isNotBlank(valueAsString) || value == null) {
-			
-			return valueAsString;
-		}
+    private String readClob() {
 
-		Clob clob = (Clob) value;
-		
-		Writer writer = new StringWriter();
-		Reader reader;
-		try {
+        if (StringUtils.isNotBlank(valueAsString) || value == null) {
 
-			reader = clob.getCharacterStream();
+            return valueAsString;
+        }
 
-		} catch (SQLException e) {
+        Clob clob = (Clob) value;
 
-			if (Log.isDebugEnabled()) {
-			
-				Log.debug("Error reading CLOB data", e);
-			}
+        Writer writer = new StringWriter();
+        Reader reader;
+        try {
 
-			return e.getMessage();
-		}
-		
+            reader = clob.getCharacterStream();
+
+        } catch (SQLException e) {
+
+            if (Log.isDebugEnabled()) {
+
+                Log.debug("Error reading CLOB data", e);
+            }
+
+            return e.getMessage();
+        }
+
         char[] buffer = new char[DEFAULT_BUFFER_SIZE];
 
         try {
-        
-	        while (true) {
-	
-	            int amountRead;
-				amountRead = reader.read(buffer);
-	
-	            if (amountRead == -1) {
-	
-	            	break;
-	            }
 
-	            writer.write(buffer);
-	        }
-	        
-	        writer.flush();
+            while (true) {
 
-		} catch (IOException e) {
+                int amountRead;
+                amountRead = reader.read(buffer);
 
-			if (Log.isDebugEnabled()) {
-				
-				Log.debug("Error reading CLOB data", e);
-			}
+                if (amountRead == -1) {
 
-			return e.getMessage();
-		}
-		
-		valueAsString = writer.toString();
-		return valueAsString;
-	}
+                    break;
+                }
 
-	public void setNull() {
-		value = null;
-	}
-	
+                writer.write(buffer);
+            }
+
+            writer.flush();
+
+        } catch (IOException e) {
+
+            if (Log.isDebugEnabled()) {
+
+                Log.debug("Error reading CLOB data", e);
+            }
+
+            return e.getMessage();
+        }
+
+        valueAsString = writer.toString();
+        return valueAsString;
+    }
+
+    public void setNull() {
+        value = null;
+    }
+
 }
+
 
 
 

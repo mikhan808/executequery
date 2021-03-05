@@ -1,7 +1,7 @@
 /*
  * ImportDelimitedWorker.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +20,14 @@
 
 package org.executequery.gui.importexport;
 
+import org.apache.commons.lang.StringUtils;
+import org.executequery.GUIUtilities;
+import org.executequery.gui.browser.ColumnData;
+import org.executequery.log.Log;
+import org.underworldlabs.swing.util.SwingWorker;
+import org.underworldlabs.util.MiscUtils;
+
+import javax.swing.*;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -28,35 +36,23 @@ import java.sql.BatchUpdateException;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.JOptionPane;
-
-import org.apache.commons.lang.StringUtils;
-import org.executequery.GUIUtilities;
-import org.executequery.gui.browser.ColumnData;
-import org.executequery.log.Log;
-import org.underworldlabs.swing.util.SwingWorker;
-import org.underworldlabs.util.MiscUtils;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
-    /** The <code>SwingWorker</code> object for this process */
+    /**
+     * The <code>SwingWorker</code> object for this process
+     */
     private SwingWorker worker;
 
-    /** Whether we are halting on errors */
+    /**
+     * Whether we are halting on errors
+     */
     private boolean haltOnError;
 
     /**
@@ -65,7 +61,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
      *
      * @param the parent for this process
      */
-    public ImportDelimitedWorker(ImportExportProcess parent,
+    public ImportDelimitedWorker(ImportExportDataProcess parent,
                                  ImportExportProgressPanel importingDialog) {
         super(parent, importingDialog);
         transferData();
@@ -77,8 +73,9 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
             public Object construct() {
                 return doWork();
             }
+
             public void finished() {
-                String result = (String)get();
+                String result = (String) get();
                 setResult(result);
                 printResults();
                 setProgressStatus(-1);
@@ -96,7 +93,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
         // are we halting on any error
         int onError = getParent().getOnError();
-        haltOnError = (onError == ImportExportProcess.STOP_TRANSFER);
+        haltOnError = (onError == ImportExportDataProcess.STOP_TRANSFER);
 
         boolean isBatch = getParent().runAsBatchProcess();
 
@@ -159,20 +156,20 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
             boolean hasColumnNames = getParent().includeColumnNames();
 
             // currently bound variables in the prepared statement
-            Map<ColumnData,String> boundVariables = null;
+            Map<ColumnData, String> boundVariables = null;
 
             // ignored indexes of columns from the file
             List<Integer> ignoredIndexes = null;
 
             if (hasColumnNames) {
-                boundVariables = new HashMap<ColumnData,String>();
+                boundVariables = new HashMap<ColumnData, String>();
                 ignoredIndexes = new ArrayList<Integer>();
                 appendProgressText(
                         "Using column names from input file's first row.");
             }
 
             // columns to be imported that are in the file
-            Map<ColumnData,String> fileImportedColumns = new HashMap<ColumnData,String>();
+            Map<ColumnData, String> fileImportedColumns = new HashMap<ColumnData, String>();
 
             // whether the data format failed (switch structure)
             boolean failed = false;
@@ -245,11 +242,11 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
             String regex =
                     "(?:^|" +
-                    escapedDelim +
-                    ") (?: \" ( (?> [^\"]*+ ) (?> \"\" [^\"]*+ )*+ ) \"(?=" +
-                    escapedDelim +
-                    "?) | ( [^" +
-                    escapedDelim + "]*+ ) )";
+                            escapedDelim +
+                            ") (?: \" ( (?> [^\"]*+ ) (?> \"\" [^\"]*+ )*+ ) \"(?=" +
+                            escapedDelim +
+                            "?) | ( [^" +
+                            escapedDelim + "]*+ ) )";
 
             // ----------------------------------------------------------------
             // changed above to the following - seems to work for now
@@ -292,7 +289,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
                 tableCount++;
 
-                DataTransferObject dto = (DataTransferObject)files.elementAt(i);
+                DataTransferObject dto = (DataTransferObject) files.elementAt(i);
 
                 // initialise the file object
                 File inputFile = new File(dto.getFileName());
@@ -450,7 +447,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
                 fileSize = inputFile.length();
                 progressStatus = 10;
-                progressCheck = (int)(fileSize / progressStatus);
+                progressCheck = (int) (fileSize / progressStatus);
 
                 // prepare the statement
                 prepareStatement(dto.getTableName(), columns);
@@ -523,8 +520,8 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
                         int yesNo = GUIUtilities.displayYesNoDialog(
                                 "No values provided from line " +
-                                lineNumber + " - the row is blank.\n" +
-                                "Do you wish to continue?",
+                                        lineNumber + " - the row is blank.\n" +
+                                        "Do you wish to continue?",
                                 "Warning");
 
                         if (yesNo == JOptionPane.YES_OPTION) {
@@ -593,8 +590,8 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
                                 int yesNo = GUIUtilities.displayYesNoDialog(
                                         "Insufficient number of values provided from line " +
-                                        lineNumber + ".\n" +
-                                        "Do you wish to continue?",
+                                                lineNumber + ".\n" +
+                                                "Do you wish to continue?",
                                         "Warning");
 
                                 if (yesNo == JOptionPane.YES_OPTION) {
@@ -638,10 +635,10 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
                         try {
                             ColumnData cd = columns.get(j - loopIgnoredCount);
                             setValue(value,
-                                     getIndexOfColumn(columns, cd) + 1,
-                                     cd.getSQLType(),
-                                     trimWhitespace,
-                                     dateFormat);
+                                    getIndexOfColumn(columns, cd) + 1,
+                                    cd.getSQLType(),
+                                    trimWhitespace,
+                                    dateFormat);
 
                             if (hasColumnNames) {
                                 boundVariables.put(cd, VARIABLE_BOUND);
@@ -743,8 +740,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
                             }
                         }
 
-                    }
-                    catch (SQLException e) {
+                    } catch (SQLException e) {
                         logException(e);
                         errorCount++;
 
@@ -752,8 +748,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
                             outputBuffer.append("Error inserting data from line ");
                             outputBuffer.append(lineNumber);
                             outputExceptionError(null, e);
-                        }
-                        else {
+                        } else {
                             outputBuffer.append("Error on last batch execution");
                             outputExceptionError(null, e);
                         }
@@ -782,8 +777,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
                         tableInsertCount += result;
                         commitCount += result;
                         tableCommitCount = tableInsertCount;
-                    }
-                    catch (BatchUpdateException e) {
+                    } catch (BatchUpdateException e) {
                         logException(e);
                         int[] updateCounts = e.getUpdateCounts();
                         batchResult = getBatchResult(updateCounts);
@@ -815,7 +809,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
                     if (tableRowCount != tableInsertCount) {
                         conn.rollback();
 
-                        if (onError == ImportExportProcess.STOP_TRANSFER) {
+                        if (onError == ImportExportDataProcess.STOP_TRANSFER) {
                             getParent().cancelTransfer();
                             processResult = FAILED;
                             throw new InterruptedException();
@@ -827,19 +821,19 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
                 boolean doCommit = true;
                 if (failed && !isBatch &&
-                        rollbackSize != ImportExportProcess.COMMIT_END_OF_ALL_FILES) {
+                        rollbackSize != ImportExportDataProcess.COMMIT_END_OF_ALL_FILES) {
 
                     int yesNo = GUIUtilities.displayYesNoDialog(
-                                    "The process completed with errors.\n" +
+                            "The process completed with errors.\n" +
                                     "Do you wish to commit the last block?",
-                                    "Confirm commit");
+                            "Confirm commit");
 
                     doCommit = (yesNo == JOptionPane.YES_OPTION);
                 }
 
                 // do the commit if ok from above
                 // and if rollback size selected is end of file
-                if (rollbackSize == ImportExportProcess.COMMIT_END_OF_FILE) {
+                if (rollbackSize == ImportExportDataProcess.COMMIT_END_OF_FILE) {
                     if (doCommit) {
                         conn.commit();
                         totalInsertCount += commitCount;
@@ -863,14 +857,14 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
 
             // commit the last remaining block or where
             // set to commit at the end of all files
-            if (rollbackSize != ImportExportProcess.COMMIT_END_OF_FILE) {
+            if (rollbackSize != ImportExportDataProcess.COMMIT_END_OF_FILE) {
                 setProgressStatus(100);
                 boolean doCommit = true;
                 if (errorCount > 0 && errorCount != totalRecordCount) {
                     int yesNo = GUIUtilities.displayYesNoDialog(
-                                    "The process completed with errors.\n" +
+                            "The process completed with errors.\n" +
                                     "Do you wish to commit the changes?",
-                                    "Confirm commit");
+                            "Confirm commit");
                     doCommit = (yesNo == JOptionPane.YES_OPTION);
                 }
 
@@ -884,8 +878,7 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
             }
 
             processResult = SUCCESS;
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
 
             if (processResult != FAILED) {
                 processResult = CANCELLED;
@@ -902,17 +895,16 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
                 outputExceptionError("Error rolling back transaction", e);
             }
 
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logException(e);
             outputBuffer.append("Error processing data from line ");
             outputBuffer.append(lineNumber);
             outputExceptionError("\nUnrecoverable error importing table data from file", e);
 
             int yesNo = GUIUtilities.displayYesNoDialog(
-                            "The process encountered errors.\n" +
+                    "The process encountered errors.\n" +
                             "Do you wish to commit the last transaction block?",
-                            "Confirm commit");
+                    "Confirm commit");
             boolean doCommit = (yesNo == JOptionPane.YES_OPTION);
 
             try {
@@ -922,14 +914,12 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
                 } else {
                     conn.rollback();
                 }
-            }
-            catch (SQLException e2) {
+            } catch (SQLException e2) {
                 logException(e2);
                 outputExceptionError("Error processing last transaction block", e2);
             }
             processResult = FAILED;
-        }
-        finally {
+        } finally {
             finish();
             releaseResources(getParent().getDatabaseConnection());
 
@@ -945,20 +935,23 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
             setProgressStatus(100);
             GUIUtilities.scheduleGC();
 
-            if (reader != null) {           
+            if (reader != null) {
                 try {
                     reader.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                }
             }
             if (fileReader != null) {
                 try {
                     fileReader.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                }
             }
             if (prepStmnt != null) {
                 try {
                     prepStmnt.close();
-                } catch (SQLException e) {}
+                } catch (SQLException e) {
+                }
             }
 
         }
@@ -1061,9 +1054,11 @@ public class ImportDelimitedWorker extends AbstractImportExportWorker {
     /**
      * Indicates that the process has completed.
      */
-    public void finished() {}
+    public void finished() {
+    }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * DatabaseConnectionRepository.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,9 +20,9 @@
 
 package org.executequery.repository;
 
-import java.util.List;
-
 import org.executequery.databasemediators.DatabaseConnection;
+
+import java.util.List;
 
 public interface DatabaseConnectionRepository extends Repository {
 
@@ -40,7 +40,14 @@ public interface DatabaseConnectionRepository extends Repository {
 
     boolean nameExists(DatabaseConnection exclude, String name);
 
+    void save(String path, List<DatabaseConnection> databaseConnections);
+
+    List<DatabaseConnection> open(String filePath);
+
+    DatabaseConnection add(DatabaseConnection databaseConnection);
+
 }
+
 
 
 

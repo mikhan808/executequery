@@ -1,7 +1,7 @@
 /*
  * EditorSplitPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,30 +20,29 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.Component;
-import javax.swing.JPanel;
 import org.underworldlabs.swing.FlatSplitPane;
 
+import javax.swing.*;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class EditorSplitPane extends FlatSplitPane {
 
     public EditorSplitPane(int newOrientation,
-                         Component newLeftComponent, Component newRightComponent) {
+                           Component newLeftComponent, Component newRightComponent) {
         super(newOrientation, newLeftComponent, newRightComponent);
     }
-    
+
     protected void setComponentBorder(Component comp) {
         if (comp instanceof JPanel) {
-            ((JPanel)comp).setBorder(lineBorder);
+            ((JPanel) comp).setBorder(lineBorder);
         }
     }
-    
+
 }
+
 
 
 

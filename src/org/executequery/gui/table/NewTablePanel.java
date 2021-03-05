@@ -1,7 +1,7 @@
 /*
  * NewTablePanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,32 +23,46 @@ package org.executequery.gui.table;
 import org.executequery.gui.browser.ColumnData;
 import org.underworldlabs.util.MiscUtils;
 
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class NewTablePanel extends TableDefinitionPanel
-                           implements CreateTableSQLSyntax {
-    
-    /** The table creator object - parent to this */
+        implements CreateTableSQLSyntax {
+
+    /**
+     * The table creator object - parent to this
+     */
     private TableModifier creator;
-    
-    /** The buffer for the current line */
+
+    /**
+     * The buffer for the current line
+     */
     private StringBuffer line;
-    
-    /** The buffer off all SQL generated */
+
+    /**
+     * The buffer off all SQL generated
+     */
     private StringBuffer sqlText;
-    
+
+    private StringBuffer primaryText;
+
+    public List<String> descriptions;
+
+    boolean primary;
+
     public NewTablePanel(TableModifier creator) {
         super();
         this.creator = creator;
-        
+
         line = new StringBuffer(50);
         sqlText = new StringBuffer(100);
+        primaryText = new StringBuffer(50);
     }
-    
+
     /**
      * Returns the SQL scriptlet text.
      *
@@ -57,60 +71,69 @@ public class NewTablePanel extends TableDefinitionPanel
     public String getSQLText() {
         return sqlText.toString();
     }
-    
+
     /**
      * Resets the SQL text.
      */
     public void resetSQLText() {
         addColumnLines(-1);
     }
-    
+
     /**
-     * Indicates that the table value for the specified row and 
+     * Indicates that the table value for the specified row and
      * column has changed to the value specified.
      *
-     * @param col - the last updated col
-     * @param row - the last updated row
+     * @param col   - the last updated col
+     * @param row   - the last updated row
      * @param value - the new value
      */
     public void tableChanged(int col, int row, String value) {
 
         //Log.debug("tableChanged [row: "+row+" col: "+col+" value: "+value + "]");
-        
+
         if (value == null) {
             updateScript(row, col);
             return;
         }
-        
+
         //if (row == -1 || (col == 1 && value == null)) {
         if (row == -1) {// || (col == 1 && value == null)) {
             return;
         }
 
-        ColumnData cd = (ColumnData)tableVector.get(row);
-        switch(col) {
-            case 1:
+        ColumnData cd = tableVector.get(row);
+        switch (col) {
+            case NAME_COLUMN:
                 cd.setColumnName(value);
                 break;
-            case 2:
+            case TYPE_COLUMN:
                 cd.setColumnType(value);
                 break;
-            case 3:
+            case DOMAIN_COLUMN:
+                cd.setDomain(value);
+                break;
+            case SIZE_COLUMN:
                 if (!MiscUtils.isNull(value)) {
                     int _value = Integer.parseInt(value);
                     cd.setColumnSize(_value);
                 }
                 break;
-            case 4:
+            case SCALE_COLUMN:
                 if (!MiscUtils.isNull(value)) {
                     int _value = Integer.parseInt(value);
                     cd.setColumnScale(_value);
                 }
                 break;
+            case SUBTYPE_COLUMN:
+                if (!MiscUtils.isNull(value)) {
+                    int _value = Integer.parseInt(value);
+                    cd.setColumnSubtype(_value);
+                }
+                break;
         }
         updateScript(row, col);
     }
-    
+
     /**
      * Updates the generated scriptlet using the specified
      * row and col as the last upfdaed/modified value.
@@ -120,18 +143,62 @@ public class NewTablePanel extends TableDefinitionPanel
      */
     private void updateScript(int row, int col) {
         line.setLength(0);
-        ColumnData cd = (ColumnData)tableVector.get(row);
+        ColumnData cd = tableVector.get(row);
+        if (creator.getSelectedConnection().isNamesToUpperCase() && !MiscUtils.isNull(cd.getColumnName()))
+            cd.setColumnName(cd.getColumnName().toUpperCase());
         line.setLength(0);
         line.append(NEW_LINE_2).
-             append(cd.getColumnName() == null ? EMPTY : cd.getColumnName()).
-             append(SPACE);
+                append(cd.getColumnName() == null ? CreateTableSQLSyntax.EMPTY : cd.getFormattedColumnName()).
+                append(SPACE);
+        if (MiscUtils.isNull(cd.getComputedBy())) {
+            if (MiscUtils.isNull(cd.getDomain())) {
+                if (cd.getColumnType() != null) {
+                    line.append(cd.getFormattedDataType());
+                }
+            } else {
+                line.append(cd.getFormattedDomain());
+            }
+            if (cd.isAutoincrement() && cd.getAutoincrement().isIdentity()) {
+                line.append("\nGENERATED BY DEFAULT AS IDENTITY (START WITH " + cd.getAutoincrement().getStartValue() + ")");
+            } else {
+                if (!MiscUtils.isNull(cd.getDefaultValue())) {
+                    String value = "";
+                    boolean str = false;
+                    int sqlType = cd.getSQLType();
+                    switch (sqlType) {
 
-        if (cd.getColumnType() != null) {
-            line.append(cd.getFormattedDataType());
+                        case Types.LONGVARCHAR:
+                        case Types.LONGNVARCHAR:
+                        case Types.CHAR:
+                        case Types.NCHAR:
+                        case Types.VARCHAR:
+                        case Types.NVARCHAR:
+                        case Types.CLOB:
+                        case Types.DATE:
+                        case Types.TIME:
+                        case Types.TIMESTAMP:
+                            value = "'";
+                            str = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    value += cd.getDefaultValue();
+                    if (str) {
+                        value += "'";
+                    }
+                    if(MiscUtils.checkKeyword(cd.getDefaultValue()))
+                        value=cd.getDefaultValue();
+                    line.append(" DEFAULT " + value);
+                }
+                line.append(cd.isRequired() ? NOT_NULL : CreateTableSQLSyntax.EMPTY);
+                if (!MiscUtils.isNull(cd.getCheck())) {
+                    line.append(" CHECK ( " + cd.getCheck() + ")");
+                }
+            }
+        } else {
+            line.append("COMPUTED BY ( " + cd.getComputedBy() + ")");
         }
-
-        line.append(cd.isRequired() ? NOT_NULL : EMPTY);
-        
         if (row < tableVector.size() - 1) {
             line.append(COMMA);
         }
@@ -139,62 +206,28 @@ public class NewTablePanel extends TableDefinitionPanel
         if (cd.isNewColumn()) {
             cd.setNewColumn(false);
         }
-        
+
         addColumnLines(row);
     }
-    
-    /** 
+
+    /**
      * Adds all the column definition lines to
      * the SQL text buffer for display.
      *
-     * @param the current row being edited
+     * @param row current row being edited
      */
     public void addColumnLines(int row) {
-        
-        sqlText.setLength(0);
+        creator.setSQLText();
 
-        for (int i = 0, k = tableVector.size(); i < k; i++) {
-            ColumnData cd = (ColumnData)tableVector.elementAt(i);
-
-            if (i == row) {
-                sqlText.append(line);
-            }
-            
-            else if (!cd.isNewColumn()) {
-                
-                sqlText.append(NEW_LINE_2).append(
-                        cd.getColumnName() == null ? EMPTY : cd.getColumnName()).
-                        append(SPACE);
-                
-                if (cd.getColumnType() != null) {
-                    sqlText.append(cd.getColumnType().toUpperCase());
-                    
-                    if(!cd.getColumnType().equalsIgnoreCase(DATE)) {
-                        sqlText.append(B_OPEN).append(cd.getColumnSize());
-                        
-                        if (cd.getColumnScale() != 0) {
-                            sqlText.append(COMMA).append(cd.getColumnScale());
-                        }
-                        
-                        sqlText.append(B_CLOSE);
-                    }
-                    
-                }
-                sqlText.append(cd.isRequired() ? NOT_NULL : EMPTY);
-                
-                if (i != k - 1) {
-                    sqlText.append(COMMA);
-                }
-                
-            }
-            
-        }
-        
-        creator.setSQLText(sqlText.toString(), TableModifier.COLUMN_VALUES);
-        
     }
-    
+
+    public String getPrimaryText() {
+        if (primary)
+            return primaryText.toString();
+        else return "";
+    }
 }
+
 
 
 

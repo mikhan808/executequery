@@ -1,7 +1,7 @@
 /*
  * ImportExportWizardModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,19 +23,18 @@ package org.executequery.gui.importexport;
 import org.underworldlabs.swing.wizard.DefaultWizardProcessModel;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ImportExportWizardModel extends DefaultWizardProcessModel {
 
-    /** Creates a new instance of ImportExportWizardModel */
+    /**
+     * Creates a new instance of ImportExportWizardModel
+     */
     public ImportExportWizardModel(int stepsCount, int transferType) {
 
         String firstTitle = "Database Connection and Export Type";
         String fifthTitle = "Exporting Data...";
-        if (transferType == ImportExportProcess.IMPORT) {
+        if (transferType == ImportExportDataProcess.IMPORT) {
             firstTitle = "Database Connection and Import Type";
             fifthTitle = "Importing Data...";
         }
@@ -49,18 +48,19 @@ public class ImportExportWizardModel extends DefaultWizardProcessModel {
         setTitles(titles);
 
         String[] steps = {"Select database connection and transfer type",
-                          "Select the tables/columns",
-                          transferType == ImportExportProcess.IMPORT ?
-                              "Select the data file(s) to import from" :
-                              "Select the data file(s) to export to",
-                          "Set any further transfer options",
-                          transferType == ImportExportProcess.IMPORT ?
-                              "Import the data" :
-                              "Export the data"};
+                "Select the tables/columns",
+                transferType == ImportExportDataProcess.IMPORT ?
+                        "Select the data file(s) to import from" :
+                        "Select the data file(s) to export to",
+                "Set any further transfer options",
+                transferType == ImportExportDataProcess.IMPORT ?
+                        "Import the data" :
+                        "Export the data"};
         setSteps(steps);
     }
-    
+
 }
+
 
 
 

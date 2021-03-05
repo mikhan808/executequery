@@ -1,7 +1,7 @@
 /*
  * AbstractDatabaseSource.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,36 +20,34 @@
 
 package org.executequery.databaseobjects.impl;
 
-import java.sql.SQLException;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
 import org.executequery.databasemediators.DatabaseConnection;
-import org.executequery.databaseobjects.DatabaseCatalog;
-import org.executequery.databaseobjects.DatabaseFunction;
-import org.executequery.databaseobjects.DatabaseHost;
-import org.executequery.databaseobjects.DatabaseMetaTag;
-import org.executequery.databaseobjects.DatabaseProcedure;
-import org.executequery.databaseobjects.DatabaseSchema;
-import org.executequery.databaseobjects.NamedObject;
+import org.executequery.databaseobjects.*;
 import org.underworldlabs.jdbc.DataSourceException;
+
+import java.sql.SQLException;
+import java.util.List;
 
 /**
  * Database source object definition (ie. a catalog or schema)
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class AbstractDatabaseSource extends AbstractNamedObject {
 
-    /** the host object for this catalog */
+    /**
+     * the host object for this catalog
+     */
     private DatabaseHost host;
 
-    /** the meta tag objects of this schema */
+    /**
+     * the meta tag objects of this schema
+     */
     private List<DatabaseMetaTag> metaObjects;
 
-    /** Creates a new instance of AbstractDatabaseSource */
+    /**
+     * Creates a new instance of AbstractDatabaseSource
+     */
     public AbstractDatabaseSource(DatabaseHost host) {
 
         this.host = host;
@@ -58,7 +56,7 @@ public abstract class AbstractDatabaseSource extends AbstractNamedObject {
     /**
      * Returns the meta object with the specified name
      *
-     * @param   name the meta tag name
+     * @param name the meta tag name
      * @return the meta tag object
      */
     public DatabaseMetaTag getDatabaseMetaTag(String name) {
@@ -68,7 +66,7 @@ public abstract class AbstractDatabaseSource extends AbstractNamedObject {
         List<DatabaseMetaTag> _metaObjects = getMetaObjects();
         for (DatabaseMetaTag object : _metaObjects) {
 
-            if (name.equals(object.getName().toUpperCase())) {
+            if (name.equals(object.getMetaDataKey().toUpperCase())) {
 
                 return object;
             }
@@ -94,7 +92,7 @@ public abstract class AbstractDatabaseSource extends AbstractNamedObject {
         }
 
         List<NamedObject> objects = metaTag.getObjects();
-        for (NamedObject namedObject: objects) {
+        for (NamedObject namedObject : objects) {
 
             if (name.equalsIgnoreCase(namedObject.getName())) {
 
@@ -117,20 +115,20 @@ public abstract class AbstractDatabaseSource extends AbstractNamedObject {
 
         DatabaseMetaTag metaTag = getDatabaseMetaTag(META_TYPES[FUNCTION]);
         if (metaTag == null) {
-            
+
             return null;
         }
-        
+
         List<NamedObject> objects = metaTag.getObjects();
-        for (NamedObject namedObject: objects) {
-            
+        for (NamedObject namedObject : objects) {
+
             if (name.equalsIgnoreCase(namedObject.getName())) {
-                
+
                 return (DatabaseFunction) namedObject;
             }
-            
+
         }
-        
+
         return null;
     }
 
@@ -216,10 +214,7 @@ public abstract class AbstractDatabaseSource extends AbstractNamedObject {
 
             // test the source name
             value = dc.getSourceName();
-            if (StringUtils.equalsIgnoreCase(myName, value)) {
-
-                return true;
-            }
+            return StringUtils.equalsIgnoreCase(myName, value);
 
         }
 
@@ -263,6 +258,7 @@ public abstract class AbstractDatabaseSource extends AbstractNamedObject {
 
 
 }
+
 
 
 

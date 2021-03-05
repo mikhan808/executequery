@@ -1,7 +1,7 @@
 /*
  * ConnectionFoldersXMLRepository.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,11 +20,7 @@
 
 package org.executequery.repository.spi;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
 import org.executequery.gui.browser.ConnectionsFolder;
 import org.executequery.repository.ConnectionFoldersRepository;
 import org.executequery.repository.RepositoryException;
@@ -34,29 +30,51 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<ConnectionsFolder> 
-                                         implements ConnectionFoldersRepository {
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ConnectionFoldersXMLRepository extends AbstractXMLResourceReaderWriter<ConnectionsFolder>
+        implements ConnectionFoldersRepository {
 
     private static final String DEFAULT_XML_RESOURCE = "org/executequery/connection-folders-default.xml";
 
     private static final String FILE_PATH = "connection-folders.xml";
-        
+
     private List<ConnectionsFolder> folders;
-    
+
     public List<ConnectionsFolder> findAll() {
 
         return folders();
     }
 
+    @Override
+    public ConnectionsFolder add(ConnectionsFolder connectionsFolder) {
+
+        String name = connectionsFolder.getName();
+
+        int count = 1;
+        while (nameExists(null, name)) {
+
+            name += "_" + (count++);
+        }
+
+        connectionsFolder.setName(name);
+        folders().add(connectionsFolder);
+
+        return connectionsFolder;
+    }
+
     public ConnectionsFolder findById(String id) {
 
         for (ConnectionsFolder folder : folders()) {
-            
-            if (folder.getId() == id) {
-                
+
+            if (StringUtils.equals(folder.getId(), id)) {
+
                 return folder;
             }
-            
+
         }
 
         return null;
@@ -65,14 +83,14 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
     public ConnectionsFolder findByName(String name) {
 
         for (ConnectionsFolder folder : folders()) {
-            
+
             if (folder.getName().equals(name)) {
-                
+
                 return folder;
             }
-            
-        }        
-        
+
+        }
+
         return null;
     }
 
@@ -80,7 +98,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
 
         ConnectionsFolder folder = findByName(name);
         if (folder != null && folder != exclude) {
-            
+
             return true;
         }
 
@@ -91,9 +109,14 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
 
         if (namesValid()) {
 
-            write(filePath(), new ConnectionsFolderParser(), new ConnectionsFolderInputSource(folders));
+            save(filePath(), folders);
         }
 
+    }
+
+    public void save(String path, List<ConnectionsFolder> connectionFolders) {
+
+        write(path, new ConnectionsFolderParser(), new ConnectionsFolderInputSource(connectionFolders));
     }
 
     public String getId() {
@@ -104,7 +127,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
     private List<ConnectionsFolder> folders() {
 
         if (folders == null) {
-            
+
             folders = open();
         }
 
@@ -117,10 +140,15 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
         return settings.getUserSettingsDirectory() + FILE_PATH;
     }
 
+    public List<ConnectionsFolder> open(String filePath) {
+
+        return (List<ConnectionsFolder>) read(filePath, new ConnectionsFolderHandler());
+    }
+
     private List<ConnectionsFolder> open() {
 
         ensureFileExists();
-        return (List<ConnectionsFolder>)read(filePath(), new ConnectionsFolderHandler());
+        return open(filePath());
     }
 
     private boolean namesValid() {
@@ -130,10 +158,9 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
             if (nameExists(driver, driver.getName())) {
 
                 throw new RepositoryException(
-                        String.format("The driver name %s already exists.", 
-                                driver.getName()));
+                        String.format("The driver name %s already exists.", driver.getName()));
             }
-            
+
         }
 
         return true;
@@ -142,9 +169,9 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
     private void ensureFileExists() {
 
         File file = new File(filePath());
-        
+
         if (!file.exists()) {
-            
+
             try {
 
                 FileUtils.copyResource(DEFAULT_XML_RESOURCE, filePath());
@@ -155,7 +182,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
             }
 
         }
-        
+
     }
 
     private static final String FOLDERS = "connection-folders";
@@ -167,9 +194,9 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
     class ConnectionsFolderHandler extends AbstractXMLRepositoryHandler<ConnectionsFolder> {
 
         private List<ConnectionsFolder> folders;
-        
+
         private ConnectionsFolder folder;
-        
+
         ConnectionsFolderHandler() {
 
             folders = new ArrayList<ConnectionsFolder>();
@@ -178,9 +205,9 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
         public void startElement(String nameSpaceURI, String localName,
                                  String qName, Attributes attrs) {
 
-            contents().reset();            
+            contents().reset();
         }
-        
+
         public void endElement(String nameSpaceURI, String localName,
                                String qName) {
 
@@ -191,13 +218,13 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
             } else if (localNameIsKey(localName, NAME)) {
 
                 folder().setName(contentsAsString());
-                
+
             } else if (localNameIsKey(localName, CONNECTIONS)) {
-                
+
                 folder().setConnections(contentsAsString());
 
             } else if (localNameIsKey(localName, FOLDER)) {
-                
+
                 if (folder != null) {
 
                     folders.add(folder);
@@ -209,14 +236,14 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
         }
 
         public List<ConnectionsFolder> getRepositoryItemsList() {
-            
+
             return folders;
         }
-        
+
         private ConnectionsFolder folder() {
-            
+
             if (folder != null) {
-                
+
                 return folder;
             }
 
@@ -227,7 +254,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
     } // class ConnectionsFolderHandler
 
     class ConnectionsFolderInputSource extends InputSource {
-        
+
         private List<ConnectionsFolder> folders;
 
         public ConnectionsFolderInputSource(List<ConnectionsFolder> folders) {
@@ -235,35 +262,35 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
             super();
             this.folders = folders;
         }
-        
+
         public List<ConnectionsFolder> getFolders() {
 
             return folders;
         }
-        
+
     } // class ConnectionsFolderInputSource
 
     class ConnectionsFolderParser extends AbstractXMLRepositoryParser {
 
-        public ConnectionsFolderParser() {}
+        public ConnectionsFolderParser() {
+        }
 
         public void parse(InputSource input) throws SAXException, IOException {
 
             if (!(input instanceof ConnectionsFolderInputSource)) {
 
-                throw new SAXException(
-                        "Parser can only accept a ConnectionsFolderInputSource");
+                throw new SAXException("Parser can only accept a ConnectionsFolderInputSource");
             }
-            
-            parse((ConnectionsFolderInputSource)input);
+
+            parse((ConnectionsFolderInputSource) input);
         }
-        
+
         public void parse(ConnectionsFolderInputSource input) throws IOException, SAXException {
 
             validateHandler();
-            
+
             List<ConnectionsFolder> folders = input.getFolders();
-            
+
             handler().startDocument();
             newLine();
             handler().startElement(NSU, FOLDERS, FOLDERS, attributes());
@@ -273,7 +300,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
 
                 writeXMLRows(folders);
             }
-            
+
             newLine();
             handler().endElement(NSU, FOLDERS, FOLDERS);
             handler().endDocument();
@@ -281,7 +308,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
         }
 
         private void writeXMLRows(List<ConnectionsFolder> folders)
-            throws SAXException {
+                throws SAXException {
 
             for (ConnectionsFolder folder : folders) {
 
@@ -291,7 +318,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
                 writeXML(ID, folder.getId(), INDENT_TWO);
                 writeXML(NAME, folder.getName(), INDENT_TWO);
                 writeXML(CONNECTIONS, folder.getConnectionsCommaSeparated(), INDENT_TWO);
-                
+
                 newLineIndentOne();
                 handler().endElement(NSU, FOLDER, FOLDER);
 
@@ -303,6 +330,7 @@ public class ConnectionFoldersXMLRepository extends AbstractXMLRepository<Connec
     } // class ConnectionsFolderParser
 
 }
+
 
 
 

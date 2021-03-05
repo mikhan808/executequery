@@ -1,7 +1,7 @@
 /*
  * BasicProgressBar.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,39 +20,44 @@
 
 package org.underworldlabs.swing;
 
-import javax.swing.BorderFactory;
-import javax.swing.JProgressBar;
+import javax.swing.*;
 
 public class BasicProgressBar extends JProgressBar implements ProgressBar {
 
-	private static final int MIN_VALUE = 0;
-	private static final int MAX_VALUE = 100;
-	
-	public BasicProgressBar() {
-		this(true);
-	}
+    private static final int MIN_VALUE = 0;
+    private static final int MAX_VALUE = 100;
 
-	public BasicProgressBar(boolean paintBorder) {
-		super(MIN_VALUE, MAX_VALUE);
-		setIndeterminate(true);
-		if (!paintBorder) {
-			setBorder(BorderFactory.createEmptyBorder());
-		}
-	}
-	
-	public void start() {
-		setValue(MIN_VALUE);
-	}
+    public BasicProgressBar() {
+        this(true);
+    }
 
-	public void stop() {
-		setValue(MAX_VALUE);
-	}
+    public BasicProgressBar(boolean paintBorder) {
+        super(MIN_VALUE, MAX_VALUE);
+        setIndeterminate(true);
+        if (!paintBorder) {
+            setBorder(BorderFactory.createEmptyBorder());
+        }
+    }
 
-	public void cleanup() {
-		setValue(MAX_VALUE);
-	}
+    public void start() {
+        setValue(MIN_VALUE);
+    }
+
+    public void stop() {
+        setValue(MAX_VALUE);
+    }
+
+    public void cleanup() {
+        setValue(MAX_VALUE);
+    }
+
+    @Override
+    public void fillWhenStopped() {
+    }
+
 
 }
+
 
 
 

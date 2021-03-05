@@ -1,7 +1,7 @@
 /*
  * SqlMessages.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,53 +24,77 @@ package org.executequery.sql;
 /**
  * Reusable constants for editor instances.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SqlMessages {
 
     // output message types
-    
-    /** Indicates a executing message */
+
+    /**
+     * Indicates a executing message
+     */
     public static final int ACTION_MESSAGE = 0;
-    
-    /** Indicates an error message */
+
+    /**
+     * Indicates an error message
+     */
     public static final int ERROR_MESSAGE = 1;
 
-    /** Indicates a normal output message */
+    /**
+     * Indicates a normal output message
+     */
     public static final int PLAIN_MESSAGE = 2;
 
-    /** Indicates a normal output message */
+    /**
+     * Indicates a normal output message
+     */
     public static final int WARNING_MESSAGE = 3;
 
-    /** Indicates a executing message */
+    /**
+     * Indicates a executing message
+     */
     public static final int ACTION_MESSAGE_PREFORMAT = 4;
-    
-    /** Indicates an error message */
+
+    /**
+     * Indicates an error message
+     */
     public static final int ERROR_MESSAGE_PREFORMAT = 5;
 
-    /** Indicates a normal output message */
+    /**
+     * Indicates a normal output message
+     */
     public static final int PLAIN_MESSAGE_PREFORMAT = 6;
 
-    /** Indicates a normal output message */
+    /**
+     * Indicates a normal output message
+     */
     public static final int WARNING_MESSAGE_PREFORMAT = 7;
 
-    /** The string for block comment substitution */
+    /**
+     * The string for block comment substitution
+     */
     public static final String BLOCK_COMMENT_PLACER = "{block_comment}";
 
-    /** The regex for block comment substitution */
+    /**
+     * The regex for block comment substitution
+     */
     public static final String BLOCK_COMMENT_REGEX = "\\{block_comment\\}";
-    
-    /** Indicates text insert mode */
+
+    /**
+     * Indicates text insert mode
+     */
     public static final int INSERT_MODE = 0;
-    
-    /** Indicates text overwrite mode */
+
+    /**
+     * Indicates text overwrite mode
+     */
     public static final int OVERWRITE_MODE = 1;
 
-    private SqlMessages() {}
-    
+    private SqlMessages() {
+    }
+
 }
+
 
 
 

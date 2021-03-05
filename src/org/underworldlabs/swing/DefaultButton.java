@@ -1,7 +1,7 @@
 /*
  * DefaultButton.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,11 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Dimension;
-import java.awt.event.ActionListener;
-
-import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.JButton;
-
 import org.executequery.gui.GUIConstants;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
 
 public class DefaultButton extends JButton {
 
@@ -66,20 +63,40 @@ public class DefaultButton extends JButton {
     @Override
     public Dimension getPreferredSize() {
 
+        validateDimension();
+
         Dimension preferredSize = super.getPreferredSize();
         preferredSize.height = getHeight();
-        
+
         return preferredSize;
     }
-    
+
+    private void validateDimension() {
+
+        if (!isPreferredSizeSet()) {
+
+            Dimension preferredSizeUI = getUI().getPreferredSize(this);
+
+            Dimension size = new Dimension(
+                    Math.max(preferredSizeUI.width, getWidth()),
+                    Math.max(preferredSizeUI.height, getHeight()));
+
+            setPreferredSize(size);
+            setMinimumSize(size);
+        }
+
+    }
+
+    @Override
+    public Insets getInsets() {
+
+        return GUIConstants.DEFAULT_BUTTON_INSETS;
+    }
+
     public int getHeight() {
 
-        return Math.max(super.getHeight(), GUIConstants.DEFAULT_BUTTON_HEIGHT); 
+        return Math.max(super.getHeight(), GUIConstants.DEFAULT_BUTTON_HEIGHT);
     }
-    
+
 }
-
-
-
-
 

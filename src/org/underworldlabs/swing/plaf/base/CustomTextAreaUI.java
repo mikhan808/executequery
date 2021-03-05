@@ -1,7 +1,7 @@
 /*
  * CustomTextAreaUI.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,21 +20,11 @@
 
 package org.underworldlabs.swing.plaf.base;
 
-import java.awt.Rectangle;
-import java.awt.Shape;
-
-import javax.swing.JComponent;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTextAreaUI;
-import javax.swing.text.AbstractDocument;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultHighlighter;
-import javax.swing.text.Document;
-import javax.swing.text.Highlighter;
-import javax.swing.text.JTextComponent;
-import javax.swing.text.Position;
-import javax.swing.text.View;
+import javax.swing.text.*;
+import java.awt.*;
 
 /**
  * An alternative UI delegate for JTextArea that paints the
@@ -44,11 +34,9 @@ import javax.swing.text.View;
  *
  * @author Alan Moore
  */
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CustomTextAreaUI extends BasicTextAreaUI {
     /**
@@ -57,17 +45,17 @@ public class CustomTextAreaUI extends BasicTextAreaUI {
      * app initialization, before any components are created.
      */
     public static void initialize() {
-        
+
         String key = "TextAreaUI";
-        
+
         Class<CustomTextAreaUI> cls = CustomTextAreaUI.class;
-        
+
         String name = cls.getName();
-        
+
         UIManager.put(key, name);
         UIManager.put(name, cls);
     }
-    
+
     /**
      * Creates a UI for a JTextArea.
      *
@@ -77,7 +65,7 @@ public class CustomTextAreaUI extends BasicTextAreaUI {
     public static ComponentUI createUI(JComponent c) {
         return new CustomTextAreaUI();
     }
-    
+
     /**
      * Creates the object to use for adding highlights.  This will
      * be a non-layered version of DefaultHighlighter, so that
@@ -90,7 +78,7 @@ public class CustomTextAreaUI extends BasicTextAreaUI {
         h.setDrawsLayeredHighlights(false);
         return h;
     }
-    
+
     /**
      * Causes the portion of the view responsible for the given part
      * of the model to be repainted. This is overridden to repaint the
@@ -107,23 +95,23 @@ public class CustomTextAreaUI extends BasicTextAreaUI {
         Document doc = t.getDocument();
         if (rv != null && alloc != null && doc != null) {
             if (doc instanceof AbstractDocument) {
-                ((AbstractDocument)doc).readLock();
+                ((AbstractDocument) doc).readLock();
             }
             try {
                 rv.setSize(alloc.width, alloc.height);
                 Shape toDamage = rv.modelToView(p0, p0Bias, p1, p1Bias, alloc);
                 Rectangle rect = (toDamage instanceof Rectangle)
-                                    ? (Rectangle)toDamage
-                                    : toDamage.getBounds();
+                        ? (Rectangle) toDamage
+                        : toDamage.getBounds();
                 t.repaint(alloc.x, rect.y, alloc.width, rect.height);
-            }
-            catch (BadLocationException ex) {}
-            finally {
+            } catch (BadLocationException ex) {
+            } finally {
                 if (doc instanceof AbstractDocument) {
-                    ((AbstractDocument)doc).readUnlock();
+                    ((AbstractDocument) doc).readUnlock();
                 }
             }
         }
     }
 }
+
 

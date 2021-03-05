@@ -1,8 +1,10 @@
 package org.executequery.gui.browser;
 
-import org.executequery.Constants;
-import org.executequery.EventMediator;
-import org.executequery.GUIUtilities;
+import biz.redsoft.IFBCreateDatabase;
+import biz.redsoft.IFBCryptoPluginInit;
+import org.apache.commons.lang.StringUtils;
+import org.executequery.*;
+import org.executequery.components.FileChooserDialog;
 import org.executequery.components.TextFieldPanel;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.databasemediators.DatabaseConnectionFactory;
@@ -12,24 +14,24 @@ import org.executequery.databaseobjects.DatabaseHost;
 import org.executequery.datasource.ConnectionManager;
 import org.executequery.event.*;
 import org.executequery.gui.DefaultTable;
-import org.executequery.gui.FormPanelButton;
 import org.executequery.gui.WidgetFactory;
 import org.executequery.gui.drivers.DialogDriverPanel;
+import org.executequery.localization.Bundles;
+import org.executequery.log.Log;
 import org.executequery.repository.DatabaseConnectionRepository;
 import org.executequery.repository.DatabaseDriverRepository;
 import org.executequery.repository.RepositoryCache;
-import org.firebirdsql.gds.impl.GDSFactory;
-import org.firebirdsql.gds.impl.GDSType;
-import org.firebirdsql.gds.ng.FbConnectionProperties;
-import org.firebirdsql.gds.ng.jna.AbstractNativeDatabaseFactory;
-import org.firebirdsql.gds.ng.jna.JnaDatabase;
+import org.executequery.util.Base64;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.swing.*;
 import org.underworldlabs.swing.actions.ActionUtilities;
+import org.underworldlabs.swing.layouts.GridBagHelper;
+import org.underworldlabs.util.DynamicLibraryLoader;
 import org.underworldlabs.util.FileUtils;
 import org.underworldlabs.util.MiscUtils;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
@@ -37,8 +39,20 @@ import javax.swing.table.TableColumnModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ItemEvent;
+import java.io.File;
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.sql.Connection;
-import java.util.*;
+import java.sql.Driver;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+import java.util.Properties;
 
 /**
  * Created by vasiliy.yashkov on 10.07.2015.
@@ -52,7 +66,7 @@ public class CreateDatabasePanel extends ActionPanel
     /**
      * This objects title as an internal frame
      */
-    public static final String TITLE = "Create Database";
+    public static final String TITLE = Bundles.get(ConnectionPanel.class, "CreateDatabase");
 
     /**
      * This objects icon as an internal frame
@@ -60,6 +74,8 @@ public class CreateDatabasePanel extends ActionPanel
     public static final String FRAME_ICON = "create_database16.png";
 
     private static final String CREATE_ACTION_COMMAND = "create";
+
+    protected GradientLabel gradientLabel;
 
     private java.util.List<String> charsets;
 
@@ -75,8 +91,9 @@ public class CreateDatabasePanel extends ActionPanel
     private JTextField sourceField;
 
     private JComboBox charsetsCombo;
+    private JComboBox pageSizeCombo;
 
-    private JLabel statusLabel;
+    private List<String> pageSizes;
 
     private JComboBox txCombo;
     private JButton txApplyButton;
@@ -91,7 +108,7 @@ public class CreateDatabasePanel extends ActionPanel
     /**
      * connect button
      */
-    private JButton connectButton;
+    private JButton createButton;
 
     /**
      * the saved jdbc drivers
@@ -121,37 +138,91 @@ public class CreateDatabasePanel extends ActionPanel
     /**
      * the browser's control object
      */
-    private BrowserController controller;
+    private final BrowserController controller;
 
     /**
      * Creates a new instance of ConnectionPanel
      */
+
+
+    private List<JComponent> multifactorComponents;
+    private List<JComponent> basicComponents;
+
+    private JTextField certificateFileField;
+    private JPasswordField containerPasswordField;
+    private JCheckBox saveContPwdCheck;
+    private JCheckBox verifyServerCertCheck;
+
+    private JComboBox authCombo;
+
     public CreateDatabasePanel(BrowserController controller) {
         super(new BorderLayout());
         this.controller = controller;
         init();
     }
 
+    GridBagHelper gbh;
+
     private void init() {
 
+
+        multifactorComponents = new ArrayList<>();
+        basicComponents = new ArrayList<>();
+        gbh = new GridBagHelper();
+
+        List<String> auth = new ArrayList<>();
+        auth.add(bundledString("BasicAu"));
+        auth.add("GSS");
+        auth.add(bundledString("Multifactor"));
+        authCombo = new JComboBox(auth.toArray());
+        authCombo.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                checkVisibleComponents();
+            }
+
+        });
+
+        gradientLabel = new GradientLabel();
+        gradientLabel.setText(bundledString("CreateDatabase"));
+
+        add(gradientLabel, BorderLayout.NORTH);
+
+        pageSizes = new ArrayList<>();
+        pageSizes.add("4096");
+        pageSizes.add("8192");
+        pageSizes.add("16384");
         // ---------------------------------
         // create the basic props panel
 
         // initialise the fields
         nameField = createTextField();
+        nameField.setName("nameField");
         passwordField = createPasswordField();
+        passwordField.setName("passwordField");
         hostField = createTextField();
+        hostField.setName("hostField");
         portField = createNumberTextField();
+        portField.setName("portField");
         sourceField = createMatchedWidthTextField();
+        sourceField.setName("sourceField");
         userField = createTextField();
+        userField.setName("userField");
 
-        //   nameField.addFocusListener(new ConnectionNameFieldListener(this));
+        hostField.setText("localhost");
+        portField.setText("3050");
 
-        savePwdCheck = ActionUtilities.createCheckBox("Store Password", "setStorePassword");
-        encryptPwdCheck = ActionUtilities.createCheckBox("Encrypt Password", "setEncryptPassword");
+        savePwdCheck = ActionUtilities.createCheckBox(bundledString("StorePassword"), "setStorePassword");
+        encryptPwdCheck = ActionUtilities.createCheckBox(bundledString("EncryptPassword"), "setEncryptPassword");
 
         savePwdCheck.addActionListener(this);
         encryptPwdCheck.addActionListener(this);
+
+        certificateFileField = createMatchedWidthTextField();
+        containerPasswordField = createPasswordField();
+        saveContPwdCheck = ActionUtilities.createCheckBox(bundledString("Store-container-password"), "setStoreContainerPassword");
+        saveContPwdCheck.addActionListener(this);
+        verifyServerCertCheck = ActionUtilities.createCheckBox(bundledString("Verify-server-certificate"), "setVerifyServerCertCheck");
+        verifyServerCertCheck.addActionListener(this);
 
         // retrieve the drivers
         buildDriversList();
@@ -159,83 +230,140 @@ public class CreateDatabasePanel extends ActionPanel
         // retrieve the available charsets
         loadCharsets();
         charsetsCombo = WidgetFactory.createComboBox(charsets.toArray());
+        charsetsCombo.setName("charsetsCombo");
+
+        pageSizeCombo = WidgetFactory.createComboBox(pageSizes.toArray());
+        pageSizeCombo.setSelectedItem("8192");
+        pageSizeCombo.setEditable(false);
 
         // ---------------------------------
         // add the basic connection fields
 
         TextFieldPanel mainPanel = new TextFieldPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
-        gbc.insets = new Insets(10, 10, 10, 10);
-        gbc.gridy = 0;
-        gbc.gridx = 0;
+        GridBagConstraints gbc_def = new GridBagConstraints();
+        gbc_def.fill = GridBagConstraints.HORIZONTAL;
+        gbc_def.anchor = GridBagConstraints.NORTHWEST;
+        gbc_def.insets = new Insets(5, 10, 10, 10);
+        gbc_def.gridy = -1;
+        gbc_def.gridx = 0;
+        gbh.setDefaults(gbc_def).defaults();
 
-        statusLabel = new DefaultFieldLabel();
-        addLabelFieldPair(mainPanel, "Status:",
-                statusLabel, "Current connection status", gbc);
+        int fieldWidth = 2;
 
-        gbc.insets.bottom = 5;
-        addLabelFieldPair(mainPanel, "Connection Name:",
-                nameField, "A friendly name for this connection", gbc);
+        gbh.insertEmptyRow(mainPanel, 0);
 
-        addLabelFieldPair(mainPanel, "User Name:",
-                userField, "Login user name", gbc);
+        gbh.addLabelFieldPair(mainPanel, bundledString("nameField"),
+                nameField, bundleString("nameField.tool-tip"), true, false, fieldWidth);
 
-        addLabelFieldPair(mainPanel, "Password:",
-                passwordField, "Login password", gbc);
 
-        JButton showPassword = new LinkButton("Show Password");
+        JLabel hostLabel = new JLabel(bundledString("hostField"));
+        gbh.addLabelFieldPair(mainPanel, hostLabel, hostField, null, true, false, fieldWidth);
+
+
+        JLabel portLabel = new JLabel(bundledString("portField"));
+        gbh.addLabelFieldPair(mainPanel, portLabel, portField, null, true, false, fieldWidth);
+
+
+        JButton saveFile = new JButton("...");
+        saveFile.addActionListener(new ActionListener() {
+            final FileChooserDialog fileChooser = new FileChooserDialog();
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int returnVal = fileChooser.showSaveDialog(saveFile);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    sourceField.setText(file.getAbsolutePath());
+                }
+            }
+        });
+
+        JLabel dataSourceLabel = new DefaultFieldLabel(bundledString("sourceField"));
+        mainPanel.add(dataSourceLabel, gbh.nextRowFirstCol().setLabelDefault().get());
+        mainPanel.add(sourceField, gbh.nextCol().setMaxWeightX().get());
+        mainPanel.add(saveFile, gbh.nextCol().setLabelDefault().get());
+
+
+        JLabel charsetLabel = new JLabel(bundledString("CharacterSet"));
+
+        gbh.addLabelFieldPair(mainPanel, charsetLabel, charsetsCombo, null, true, false, fieldWidth);
+
+        gbh.addLabelFieldPair(mainPanel, bundledString("PageSize"), pageSizeCombo, null, true, false, fieldWidth);
+
+        gbh.setY(2).nextCol().makeCurrentXTheDefaultForNewline().setWidth(1).previousCol();
+
+        addDriverFields(mainPanel, gbh);
+
+        JLabel authLabel = new JLabel(bundledString("Authentication"));
+
+        gbh.addLabelFieldPair(mainPanel, authLabel, authCombo, null, true, true);
+
+
+        JLabel userLabel = new JLabel(bundledString("userField"));
+        basicComponents.add(userLabel);
+        basicComponents.add(userField);
+        gbh.addLabelFieldPair(mainPanel, userLabel, userField, null, true, true);
+
+        JLabel passwordLabel = new JLabel(bundledString("passwordField"));
+        basicComponents.add(passwordLabel);
+        basicComponents.add(passwordField);
+        gbh.addLabelFieldPair(mainPanel, passwordLabel, passwordField, null, true, true);
+
+
+        JButton showPassword = new LinkButton(bundledString("ShowPassword"));
         showPassword.setActionCommand("showPassword");
         showPassword.addActionListener(this);
 
         JPanel passwordOptionsPanel = new JPanel(new GridBagLayout());
         addComponents(passwordOptionsPanel,
-                new ComponentToolTipPair[]{
-                        new ComponentToolTipPair(savePwdCheck, "Store the password with the connection information"),
-                        new ComponentToolTipPair(encryptPwdCheck, "Encrypt the password when saving"),
-                        new ComponentToolTipPair(showPassword, "Show the password in plain text")});
+                new ComponentToolTipPair(savePwdCheck, bundledString("StorePassword.tool-tip")),
+                new ComponentToolTipPair(encryptPwdCheck, bundledString("EncryptPassword.tool-tip")),
+                new ComponentToolTipPair(showPassword, bundledString("ShowPassword.tool-tip")));
 
-        gbc.gridy++;
-        gbc.gridx = 1;
-        gbc.weightx = 1.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        mainPanel.add(passwordOptionsPanel, gbc);
+        basicComponents.add(passwordOptionsPanel);
+        mainPanel.add(passwordOptionsPanel, gbh.nextRowFirstCol().fillHorizontally().setMaxWeightX().setWidth(2).get());
 
-        addLabelFieldPair(mainPanel, "Host Name:",
-                hostField, "Server host name or IP address", gbc);
+        JLabel contLabel = new JLabel(bundledString("contLabel"));
+        multifactorComponents.add(contLabel);
+        multifactorComponents.add(containerPasswordField);
+        gbh.addLabelFieldPair(mainPanel, contLabel, containerPasswordField, null, true, true);
 
-        addLabelFieldPair(mainPanel, "Port:",
-                portField, "Database port number", gbc);
+        JLabel certLabel = new JLabel(bundledString("certLabel"));
+        mainPanel.add(certLabel, gbh.nextRowFirstCol().setLabelDefault().get());
+        multifactorComponents.add(certLabel);
+        mainPanel.add(certificateFileField, gbh.nextCol().setMaxWeightX().get());
+        multifactorComponents.add(certificateFileField);
 
-        addLabelFieldPair(mainPanel, "Data Source:",
-                sourceField, "Data source name", gbc);
+        FileChooserDialog fileChooser = new FileChooserDialog();
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.addChoosableFileFilter(
+                new FileNameExtensionFilter("Certificate file X.509 (CER, DER)", "cer", "der"));
 
-        addLabelFieldPair(mainPanel, "Character Set:",
-            charsetsCombo, "Default character set for this connection", gbc);
+        JButton openCertFile = new JButton(bundledString("ChooseFile"));
+        openCertFile.addActionListener(new ActionListener() {
 
-        addDriverFields(mainPanel, gbc);
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int returnVal = fileChooser.showOpenDialog(openCertFile);
+                if (returnVal == JFileChooser.APPROVE_OPTION) {
+                    File file = fileChooser.getSelectedFile();
+                    certificateFileField.setText(file.getAbsolutePath());
+                }
+            }
+        });
 
-        connectButton = createButton("Create", CREATE_ACTION_COMMAND, 'T');
+        mainPanel.add(openCertFile, gbh.nextColWidth().setLabelDefault().get());
+        multifactorComponents.add(openCertFile);
 
-        JPanel buttons = new JPanel(new GridBagLayout());
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.insets.top = 5;
-        gbc.insets.left = 0;
-        gbc.insets.right = 10;
-        gbc.gridwidth = 1;
-        gbc.weightx = 1.0;
-        gbc.weighty = 1.0;
-        gbc.anchor = GridBagConstraints.NORTHEAST;
-        gbc.fill = GridBagConstraints.NONE;
-        buttons.add(connectButton, gbc);
-        gbc.gridx++;
-        gbc.weightx = 0;
+        mainPanel.add(saveContPwdCheck, gbh.nextRowFirstCol().setLabelDefault().get());
+        multifactorComponents.add(saveContPwdCheck);
 
-        gbc.insets.right = 0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        mainPanel.add(buttons, gbc);
+        mainPanel.add(verifyServerCertCheck, gbh.nextCol().setLabelDefault().get());
+        multifactorComponents.add(verifyServerCertCheck);
+        gbh.resetDefaultX();
+
+        createButton = createButton(bundledString("Create"), CREATE_ACTION_COMMAND, 'T');
+        mainPanel.add(createButton, gbh.nextRowFirstCol().setWidth(1).anchorNorthWest().setLabelDefault().spanY().get());
 
         // ---------------------------------
         // create the advanced panel
@@ -256,31 +384,19 @@ public class CreateDatabasePanel extends ActionPanel
 
         // advanced jdbc properties
         JPanel advPropsPanel = new JPanel(new GridBagLayout());
-        advPropsPanel.setBorder(BorderFactory.createTitledBorder("JDBC Properties"));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.gridwidth = 1;
-        gbc.insets.top = 0;
-        gbc.insets.left = 10;
-        gbc.insets.right = 10;
-        gbc.weighty = 0;
-        gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
+        advPropsPanel.setBorder(BorderFactory.createTitledBorder(bundleString("JDBCProperties")));
+        gbh.setXY(0, 0).setWidth(1).setLabelDefault();
         advPropsPanel.add(
-                new DefaultFieldLabel("Enter any key/value pair properties for this connection"), gbc);
-        gbc.gridy++;
+                new DefaultFieldLabel(bundledString("advPropsPanel.text1")), gbh.get());
+        gbh.nextRowFirstCol().setLabelDefault();
         advPropsPanel.add(
-                new DefaultFieldLabel("Refer to the relevant JDBC driver documentation for possible entries"), gbc);
-        gbc.gridy++;
-        gbc.insets.bottom = 10;
-        gbc.weighty = 1.0;
-        gbc.fill = GridBagConstraints.BOTH;
-        advPropsPanel.add(scroller, gbc);
+                new DefaultFieldLabel(bundledString("advPropsPanel.text2")), gbh.get());
+        gbh.nextRowFirstCol().spanX().spanY().fillBoth();
+        advPropsPanel.add(scroller, gbh.get());
 
         // transaction isolation
-        txApplyButton = WidgetFactory.createInlineFieldButton("Apply", "transactionLevelChanged");
-        txApplyButton.setToolTipText("Apply this level to all open connections of this type");
+        txApplyButton = WidgetFactory.createInlineFieldButton(Bundles.get("common.apply.button"), "transactionLevelChanged");
+        txApplyButton.setToolTipText(bundledString("txApplyButton.tool-tip"));
         txApplyButton.setEnabled(false);
         txApplyButton.addActionListener(this);
 
@@ -293,43 +409,20 @@ public class CreateDatabasePanel extends ActionPanel
         txCombo = WidgetFactory.createComboBox(txLevels);
 
         JPanel advTxPanel = new JPanel(new GridBagLayout());
-        advTxPanel.setBorder(BorderFactory.createTitledBorder("Transaction Isolation"));
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets.top = 0;
-        gbc.insets.left = 10;
-        gbc.insets.right = 10;
-        gbc.insets.bottom = 5;
-        gbc.weighty = 0;
-        gbc.weightx = 1.0;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.fill = GridBagConstraints.BOTH;
-        gbc.anchor = GridBagConstraints.NORTHWEST;
+        advTxPanel.setBorder(BorderFactory.createTitledBorder(bundledString("TransactionIsolation")));
+        gbh.setXY(0, 0).setLabelDefault().setWidth(2);
         advTxPanel.add(
-                new DefaultFieldLabel("Default transaction isolation level for this connection"), gbc);
-        gbc.gridy++;
-        gbc.insets.bottom = 10;
+                new DefaultFieldLabel(bundledString("advTxPanel.Text1")), gbh.get());
+        gbh.nextRow();
         advTxPanel.add(
-                new DefaultFieldLabel("Note: the selected isolation level " +
-                        "will apply to ALL open connections of this type."), gbc);
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.insets.top = 0;
-        gbc.insets.left = 10;
-        gbc.weightx = 0;
-        advTxPanel.add(new DefaultFieldLabel("Isolation Level:"), gbc);
-        gbc.gridx = 1;
-        gbc.insets.left = 5;
-        gbc.weightx = 1.0;
-        gbc.insets.right = 5;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        advTxPanel.add(txCombo, gbc);
-        gbc.gridx = 2;
-        gbc.weightx = 0;
-        gbc.insets.left = 0;
-        gbc.insets.right = 10;
-        advTxPanel.add(txApplyButton, gbc);
+                new DefaultFieldLabel(bundledString("advTxPanel.Text2")), gbh.get());
+        gbh.nextRowFirstCol().setLabelDefault();
+        advTxPanel.add(new DefaultFieldLabel(bundledString("IsolationLevel")), gbh.get());
+        gbh.nextCol().setWeightX(1).fillHorizontally();
+        advTxPanel.add(txCombo, gbh.get());
+        gbh.setLabelDefault().nextCol();
+        advTxPanel.add(txApplyButton, gbh.get());
+
 
         JPanel advancedPanel = new JPanel(new BorderLayout());
         advancedPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -340,12 +433,42 @@ public class CreateDatabasePanel extends ActionPanel
         scrollPane.setBorder(null);
 
         tabPane = new JTabbedPane(JTabbedPane.BOTTOM);
-        tabPane.addTab("Basic", scrollPane);
-        tabPane.addTab("Advanced", advancedPanel);
+        tabPane.addTab(bundledString("Basic"), scrollPane);
+        tabPane.addTab(bundledString("Advanced"), advancedPanel);
 
         add(tabPane, BorderLayout.CENTER);
 
         EventMediator.registerListener(this);
+        checkVisibleComponents();
+    }
+
+    private void checkVisibleComponents() {
+        Object selectedItem = authCombo.getSelectedItem();
+        if (selectedItem.toString().equalsIgnoreCase(bundledString("BasicAu"))) {
+            setVisibleComponents(basicComponents, true);
+            setVisibleComponents(multifactorComponents, false);
+        } else if (selectedItem.toString().equalsIgnoreCase("gss")) {
+            setVisibleComponents(basicComponents, false);
+            setVisibleComponents(multifactorComponents, false);
+        } else if (selectedItem.toString().equalsIgnoreCase(bundledString("Multifactor"))) {
+            setVisibleComponents(basicComponents, true);
+            setVisibleComponents(multifactorComponents, true);
+        }
+    }
+
+    private void setVisibleComponents(List<JComponent> components, boolean flag) {
+        for (int i = 0; i < components.size(); i++) {
+            components.get(i).setVisible(flag);
+        }
+    }
+
+    public void setVerifyServerCertCheck() {
+
+        /*boolean store = verifyServerCertCheck.isSelected();
+        databaseConnection.setVerifyServerCertCheck(store);*/
+    }
+
+    public void setStoreContainerPassword() {
     }
 
     private void loadCharsets() {
@@ -357,15 +480,15 @@ public class CreateDatabasePanel extends ActionPanel
                 charsets.clear();
 
             String resource = FileUtils.loadResource("org/executequery/charsets.properties");
-            String[] strings = resource.split(System.getProperty("line.separator"));
-            for(String s : strings){
+            String[] strings = resource.split("\n");
+            for (String s : strings) {
                 if (!s.startsWith("#") && !s.isEmpty())
                     charsets.add(s);
             }
             java.util.Collections.sort(charsets);
             charsets.add(0, "NONE");
 
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
@@ -394,7 +517,6 @@ public class CreateDatabasePanel extends ActionPanel
                 return nameField.getPreferredSize();
             }
 
-            ;
         };
         formatTextField(textField);
 
@@ -416,11 +538,10 @@ public class CreateDatabasePanel extends ActionPanel
 
     private JButton createButton(String text, String actionCommand, int mnemonic) {
 
-        FormPanelButton button = new FormPanelButton(text, actionCommand);
-
+        JButton button = new JButton(text);
+        button.setActionCommand(actionCommand);
         button.setMnemonic(mnemonic);
         button.addActionListener(this);
-        button.applyMaximumSize();
 
         return button;
     }
@@ -456,12 +577,11 @@ public class CreateDatabasePanel extends ActionPanel
 
         int size = jdbcDrivers.size();
 
-        String[] driverNames = new String[size + 1];
-        driverNames[0] = "Select...";
+        String[] driverNames = new String[size];
 
         for (int i = 0; i < size; i++) {
 
-            driverNames[i + 1] = jdbcDrivers.get(i).toString();
+            driverNames[i] = jdbcDrivers.get(i).toString();
         }
 
         if (driverCombo == null) {
@@ -469,6 +589,7 @@ public class CreateDatabasePanel extends ActionPanel
             DynamicComboBoxModel comboModel = new DynamicComboBoxModel();
             comboModel.setElements(driverNames);
             driverCombo = WidgetFactory.createComboBox(comboModel);
+            driverCombo.setName("driverCombo");
 
         } else {
 
@@ -565,7 +686,7 @@ public class CreateDatabasePanel extends ActionPanel
         }
 
         // check a driver is selected
-        if (driverCombo.getSelectedIndex() == 0) {
+        if (driverCombo.getSelectedIndex() < 0) {
             GUIUtilities.displayErrorMessage("You must select a driver");
             return;
         }
@@ -580,8 +701,8 @@ public class CreateDatabasePanel extends ActionPanel
 
         // get driver
         DatabaseDriver databaseDriver = null;
-        for(DatabaseDriver dd : jdbcDrivers){
-            if(dd.getName().equals(this.driverCombo.getSelectedItem().toString())) {
+        for (DatabaseDriver dd : jdbcDrivers) {
+            if (dd.getName().equals(this.driverCombo.getSelectedItem().toString())) {
                 databaseDriver = dd;
                 break;
             }
@@ -591,6 +712,105 @@ public class CreateDatabasePanel extends ActionPanel
             createFirebirdDatabase(databaseDriver);
         else
             GUIUtilities.displayErrorMessage("Creating database for selected driver is not implemented");
+    }
+
+    private void storeJdbcProperties(IFBCreateDatabase db) {
+
+        Properties properties = new Properties();
+
+        for (int i = 0; i < advancedProperties.length; i++) {
+
+            String key = advancedProperties[i][0];
+            String value = advancedProperties[i][1];
+
+            if (!MiscUtils.isNull(key) && !MiscUtils.isNull(value)) {
+
+                if (key.equalsIgnoreCase("lc_ctype")
+                        || key.equalsIgnoreCase("useGSSAuth")
+                        || key.equalsIgnoreCase("roleName")
+                        || key.equalsIgnoreCase("isc_dpb_trusted_auth")
+                        || key.equalsIgnoreCase("isc_dpb_multi_factor_auth")
+                        || key.equalsIgnoreCase("isc_dpb_certificate_base64"))
+                    continue;
+                properties.setProperty(key, value);
+            }
+
+        }
+
+        if (!properties.containsKey("lc_ctype"))
+            properties.setProperty("lc_ctype", charsetsCombo.getSelectedItem().toString());
+
+        if (!properties.containsKey("useGSSAuth") && authCombo.getSelectedItem().toString().equalsIgnoreCase("gss"))
+            properties.setProperty("useGSSAuth", "true");
+
+        if (!properties.containsKey("isc_dpb_trusted_auth")
+                && !properties.containsKey("isc_dpb_multi_factor_auth")
+                && authCombo.getSelectedItem().toString().equalsIgnoreCase("multifactor")) {
+            properties.setProperty("isc_dpb_trusted_auth", "1");
+            properties.setProperty("isc_dpb_multi_factor_auth", "1");
+        }
+        if (!certificateFileField.getText().isEmpty()
+                && authCombo.getSelectedItem().toString().equalsIgnoreCase("multifactor"))
+            loadCertificate(properties, certificateFileField.getText());
+
+        if (containerPasswordField.getPassword() != null && containerPasswordField.getPassword().length != 0
+                && authCombo.getSelectedItem().toString().equalsIgnoreCase("multifactor"))
+            properties.setProperty("isc_dpb_repository_pin", MiscUtils.charsToString(containerPasswordField.getPassword()));
+
+        if (verifyServerCertCheck.isSelected()
+                && authCombo.getSelectedItem().toString().equalsIgnoreCase("multifactor"))
+            properties.setProperty("isc_dpb_verify_server", "1");
+
+        String name = ManagementFactory.getRuntimeMXBean().getName();
+        String pid = name.split("@")[0];
+        String path = null;
+        if (ApplicationContext.getInstance().getExternalProcessName() != null &&
+                !ApplicationContext.getInstance().getExternalProcessName().isEmpty()) {
+            path = ApplicationContext.getInstance().getExternalProcessName();
+        }
+        if (ApplicationContext.getInstance().getExternalPID() != null &&
+                !ApplicationContext.getInstance().getExternalPID().isEmpty()) {
+            pid = ApplicationContext.getInstance().getExternalPID();
+        }
+        properties.setProperty("process_id", pid);
+        try {
+            if (path == null)
+                path = ExecuteQuery.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+            properties.setProperty("process_name", path);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+        db.setJdbcProperties(properties);
+    }
+
+    private boolean checkBase64Format(String certificate) {
+        return StringUtils.contains(certificate, "-----BEGIN CERTIFICATE-----") ? true : false;
+    }
+
+    private void loadCertificate(Properties properties, String certificatePath) {
+        try {
+            byte[] bytes = FileUtils.readBytes(new File(certificatePath));
+            String base64cert = new String(bytes);
+
+            if (checkBase64Format(base64cert)) {
+                // If the certificate is in the BASE64 format, then add to properties
+                properties.setProperty("isc_dpb_certificate_base64", base64cert);
+            } else {
+                // Convert from the DER to BASE64
+                base64cert = Base64.encodeBytes(bytes);
+                StringBuilder sb = new StringBuilder();
+                sb.append("-----BEGIN CERTIFICATE-----");
+                sb.append("\n");
+                sb.append(base64cert);
+                sb.append("\n");
+                sb.append("-----END CERTIFICATE-----");
+                base64cert = sb.toString();
+                properties.setProperty("isc_dpb_certificate_base64", base64cert);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -604,31 +824,72 @@ public class CreateDatabasePanel extends ActionPanel
         }
         String path = sourceField.getText();
 
-        final FbConnectionProperties connectionInfo;
-        {
-            connectionInfo = new FbConnectionProperties();
-            connectionInfo.setServerName(server);
-            connectionInfo.setPortNumber(port);
-            connectionInfo.setUser(userField.getText());
-            connectionInfo.setPassword(MiscUtils.charsToString(passwordField.getPassword()));
-            connectionInfo.setDatabaseName(path);
-            connectionInfo.setEncoding(charsetsCombo.getSelectedItem().toString());
+        URL[] urlDriver = new URL[0];
+        Class clazzDriver = null;
+        URL[] urls = new URL[0];
+        Class clazzdb = null;
+        Object odb = null;
+        try {
+            urlDriver = MiscUtils.loadURLs(databaseDriver.getPath());
+            ClassLoader clD = new URLClassLoader(urlDriver);
+            clazzDriver = clD.loadClass(databaseDriver.getClassName());
+            Object o = clazzDriver.newInstance();
+            Driver driver = (Driver) o;
+
+            Log.info("Database creation via jaybird");
+            Log.info("Driver version: " + driver.getMajorVersion() + "." + driver.getMinorVersion());
+
+            if (driver.getMajorVersion() == 2) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("Cannot create database, Jaybird 2.x has no implementation for creation database.");
+                GUIUtilities.displayErrorMessage(sb.toString());
+                return;
+            }
+
+            try {
+                Object odb1 = DynamicLibraryLoader.loadingObjectFromClassLoader(driver,
+                        "biz.redsoft.FBCryptoPluginInitImpl",
+                        "./lib/fbplugin-impl.jar;../lib/fbplugin-impl.jar");
+                IFBCryptoPluginInit cryptoPlugin = (IFBCryptoPluginInit) odb1;
+                // try to initialize crypto plugin
+                cryptoPlugin.init();
+
+            } catch (NoSuchMethodError | Exception | UnsatisfiedLinkError e) {
+                Log.warning("Unable to initialize cryptographic plugin. " +
+                        "Authentication using cryptographic mechanisms will not be available. " +
+                        "Please install the crypto pro library to enable cryptographic modules.");
+                //advancedProperties.put("excludeCryptoPlugins", "Multifactor,GostPassword,Certificate");
+            }
+            odb = DynamicLibraryLoader.loadingObjectFromClassLoader(driver,
+                    "biz.redsoft.FBCreateDatabaseImpl",
+                    "./lib/fbplugin-impl.jar;../lib/fbplugin-impl.jar");
+            ;
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | MalformedURLException e) {
+            e.printStackTrace();
         }
 
-        AbstractNativeDatabaseFactory factory = null;
-        JnaDatabase db = null;
+        IFBCreateDatabase db = (IFBCreateDatabase) odb;
+        db.setServer(server);
+        db.setPort(port);
+        db.setUser(userField.getText());
+        db.setPassword(MiscUtils.charsToString(passwordField.getPassword()));
+        db.setDatabaseName(path);
+        db.setEncoding(charsetsCombo.getSelectedItem().toString());
+        db.setPageSize(Integer.valueOf(pageSizeCombo.getSelectedItem().toString()));
+        storeJdbcProperties(db);
+
         try {
-            factory = (AbstractNativeDatabaseFactory) GDSFactory.getDatabaseFactoryForType(GDSType.getType("NATIVE"));
+            db.exec();
 
-            db = factory.connect(connectionInfo);
-
-            String createDb = String.format("CREATE DATABASE '%s' USER '%s' PASSWORD '%s' DEFAULT CHARACTER SET %s",
-                path, userField.getText(), MiscUtils.charsToString(passwordField.getPassword()),
-                charsetsCombo.getSelectedItem().toString());
-            db.executeImmediate(createDb, null);
-
-            db.close();
-
+        } catch (UnsatisfiedLinkError linkError) {
+            StringBuilder sb = new StringBuilder();
+            sb.append("Cannot create database, because fbclient library not found in environment path variable. \n");
+            sb.append("Please, add fbclient library to environment path variable.\n");
+            sb.append("Example for Windows system: setx path \"%path%;C:\\Program Files (x86)\\RedDatabase\\bin\\\"\n\n");
+            sb.append("Example for Linux system: export PATH=$PATH:/opt/RedDatabase/lib\n\n");
+            sb.append(linkError.getMessage());
+            GUIUtilities.displayExceptionErrorDialog(sb.toString(), linkError);
+            return;
         } catch (Exception e) {
             StringBuilder sb = new StringBuilder();
             sb.append("The connection to the database could not be established.");
@@ -639,9 +900,10 @@ public class CreateDatabasePanel extends ActionPanel
             return;
         } finally {
             GUIUtilities.showNormalCursor();
+            System.gc();
         }
-        int result = GUIUtilities.displayYesNoDialog("Register a created database?", "Database registration");
-        if (result == JOptionPane.OK_OPTION || result == JOptionPane.YES_OPTION) {
+        int result = GUIUtilities.displayYesNoDialog(bundledString("DatabaseRegistration.message"), bundledString("DatabaseRegistration"));
+        if (result == JOptionPane.YES_OPTION) {
             DatabaseConnectionFactory databaseConnectionFactory = new DatabaseConnectionFactoryImpl();
             String name = this.nameField.getText();
             ConnectionsTreePanel connectionsTreePanel = (ConnectionsTreePanel) GUIUtilities.
@@ -657,6 +919,12 @@ public class CreateDatabasePanel extends ActionPanel
             databaseConnection.setPassword(MiscUtils.charsToString(this.passwordField.getPassword()));
             databaseConnection.setPort(this.portField.getStringValue());
             databaseConnection.setSourceName(this.sourceField.getText());
+            databaseConnection.setCharset(this.charsetsCombo.getSelectedItem().toString());
+            databaseConnection.setCertificate(certificateFileField.getText());
+            databaseConnection.setContainerPassword(MiscUtils.charsToString(containerPasswordField.getPassword()));
+            databaseConnection.setContainerPasswordStored(saveContPwdCheck.isSelected());
+            databaseConnection.setVerifyServerCertCheck(verifyServerCertCheck.isSelected());
+            databaseConnection.setAuthMethod(authCombo.getSelectedItem().toString());
 
             connectionsTreePanel.newConnection(databaseConnection);
 
@@ -689,7 +957,7 @@ public class CreateDatabasePanel extends ActionPanel
 
         EventMediator.fireEvent(
                 new DefaultConnectionRepositoryEvent(
-                        this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, null));
+                        this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, (DatabaseConnection) null));
 
         return true;
     }
@@ -804,7 +1072,7 @@ public class CreateDatabasePanel extends ActionPanel
     /**
      * Indicates a connection has been established.
      *
-     * @param the connection properties object
+     * @param databaseConnection connection properties object
      */
     public void connected(DatabaseConnection databaseConnection) {
 
@@ -820,7 +1088,7 @@ public class CreateDatabasePanel extends ActionPanel
     /**
      * Indicates a connection has been closed.
      *
-     * @param the connection properties object
+     * @param databaseConnection connection properties object
      */
     public void disconnected(DatabaseConnection databaseConnection) {
         enableFields(false);
@@ -832,21 +1100,8 @@ public class CreateDatabasePanel extends ActionPanel
     private void enableFields(boolean enable) {
 
         txApplyButton.setEnabled(enable);
-        connectButton.setEnabled(!enable);
+        createButton.setEnabled(!enable);
 
-        if (enable) {
-
-            int count = ConnectionManager.getOpenConnectionCount(databaseConnection);
-
-            statusLabel.setText("Connected [ " + count +
-                    (count > 1 ? " connections open ]" : " connection open ]"));
-
-        } else {
-
-            statusLabel.setText("Not Connected");
-        }
-
-        paintStatusLabel();
         setEncryptPassword();
     }
 
@@ -1020,13 +1275,21 @@ public class CreateDatabasePanel extends ActionPanel
             return;
         }
 
+        String path = sourceField.getText().replace("\\", "/");
         databaseConnection.setPasswordStored(savePwdCheck.isSelected());
         databaseConnection.setPasswordEncrypted(encryptPwdCheck.isSelected());
         databaseConnection.setUserName(userField.getText());
         databaseConnection.setPassword(MiscUtils.charsToString(passwordField.getPassword()));
         databaseConnection.setHost(hostField.getText());
         databaseConnection.setPort(portField.getText());
-        databaseConnection.setSourceName(sourceField.getText());
+        //databaseConnection.setSourceName(path);
+        databaseConnection.setCertificate(certificateFileField.getText());
+        databaseConnection.setContainerPassword(MiscUtils.charsToString(containerPasswordField.getPassword()));
+        databaseConnection.setContainerPasswordStored(saveContPwdCheck.isSelected());
+        databaseConnection.setVerifyServerCertCheck(verifyServerCertCheck.isSelected());
+        databaseConnection.setCharset(charsetsCombo.getSelectedItem().toString());
+        databaseConnection.setAuthMethod(authCombo.getSelectedItem().toString());
+
 
         // jdbc driver selection
         int driverIndex = driverCombo.getSelectedIndex();
@@ -1039,7 +1302,7 @@ public class CreateDatabasePanel extends ActionPanel
 
         if (driverIndex > 0) {
 
-            DatabaseDriver driver = (DatabaseDriver) jdbcDrivers.get(driverIndex - 1);
+            DatabaseDriver driver = jdbcDrivers.get(driverIndex - 1);
 
             databaseConnection.setJDBCDriver(driver);
             databaseConnection.setDriverName(driver.getName());
@@ -1069,11 +1332,11 @@ public class CreateDatabasePanel extends ActionPanel
      * values as held within the specified connection
      * properties object.
      *
-     * @param the connection to set the fields to
+     * @param host connection to set the fields to
      */
     public void setConnectionValue(DatabaseHost host) {
 
-        connectButton.setEnabled(false);
+        createButton.setEnabled(false);
 
         if (databaseConnection != null) {
 
@@ -1099,24 +1362,66 @@ public class CreateDatabasePanel extends ActionPanel
         nameField.selectAll();
     }
 
-    /**
-     * Forces a repaint using paintImmediately(...) on the
-     * connection status label.
-     */
-    private void paintStatusLabel() {
-        Runnable update = new Runnable() {
-            public void run() {
-                repaint();
-                Dimension dim = statusLabel.getSize();
-                statusLabel.paintImmediately(0, 0, dim.width, dim.height);
+    private String bundledString(String key) {
+        return Bundles.get(ConnectionPanel.class, key);
+    }
+
+    private void addComponents(JPanel panel,
+                               ComponentToolTipPair... components) {
+
+        GridBagConstraints gbc = new GridBagConstraints();
+
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.fill = GridBagConstraints.NONE;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets.bottom = 0;
+
+        int count = 0;
+        for (ComponentToolTipPair pair : components) {
+
+            pair.component.setToolTipText(pair.toolTip);
+
+            gbc.gridx++;
+            gbc.gridwidth = 1;
+            gbc.insets.top = 0;
+            gbc.weightx = 0;
+
+            if (count > 0) {
+
+                gbc.insets.left = 15;
             }
-        };
-        SwingUtilities.invokeLater(update);
+
+            count++;
+            if (count == components.length) {
+
+                gbc.weightx = 1.0;
+                gbc.insets.right = 5;
+            }
+
+            panel.add(pair.component, gbc);
+        }
+
+    }
+
+    private void addDriverFields(JPanel panel, GridBagHelper gbh) {
+
+        gbh.nextCol().setLabelDefault();
+        panel.add(new DefaultFieldLabel(bundledString("driverField")), gbh.get());
+        panel.add(driverCombo, gbh.nextCol().fillHorizontally().setMaxWeightX().get());
+        driverCombo.setToolTipText(bundledString("driverField.tool-tip"));
+        JButton button = new JButton(bundledString("addNewDriver"));
+        button.setActionCommand("addNewDriver");
+        button.addActionListener(this);
+        button.setMnemonic('r');
+        gbh.nextCol().setLabelDefault();
+        panel.add(button, gbh.get());
+
     }
 
     private class JdbcPropertiesTableModel extends AbstractTableModel {
 
-        protected String[] header = {"Name", "Value", ""};
+        protected String[] header = Bundles.getCommons(new String[]{"key", "value", ""});
 
         public JdbcPropertiesTableModel() {
             advancedProperties = new String[20][2];
@@ -1163,105 +1468,6 @@ public class CreateDatabasePanel extends ActionPanel
 
     } // AdvConnTableModel
 
-    private void addComponents(JPanel panel,
-                               ComponentToolTipPair... components) {
-
-        GridBagConstraints gbc = new GridBagConstraints();
-
-        gbc.anchor = GridBagConstraints.EAST;
-        gbc.fill = GridBagConstraints.NONE;
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets.bottom = 10;
-
-        int count = 0;
-        for (ComponentToolTipPair pair : components) {
-
-            pair.component.setToolTipText(pair.toolTip);
-
-            gbc.gridx++;
-            gbc.gridwidth = 1;
-            gbc.insets.top = 0;
-            gbc.weightx = 0;
-
-            if (count > 0) {
-
-                gbc.insets.left = 15;
-            }
-
-            count++;
-            if (count == components.length) {
-
-                gbc.weightx = 1.0;
-                gbc.insets.right = 5;
-            }
-
-            panel.add(pair.component, gbc);
-        }
-
-    }
-
-    private void addLabelFieldPair(JPanel panel, String label,
-                                   JComponent field, String toolTip, GridBagConstraints gbc) {
-
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.insets.top = 10;
-
-        if (panel.getComponentCount() > 0) {
-
-            gbc.insets.top = 0;
-        }
-
-        gbc.insets.left = 10;
-        gbc.weightx = 0;
-        panel.add(new DefaultFieldLabel(label), gbc);
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.gridx = 1;
-        gbc.insets.left = 5;
-        gbc.weightx = 1.0;
-        panel.add(field, gbc);
-
-        if (toolTip != null) {
-
-            field.setToolTipText(toolTip);
-        }
-
-    }
-
-    private void addDriverFields(JPanel panel, GridBagConstraints gbc) {
-
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.insets.top = 0;
-        gbc.insets.left = 10;
-        gbc.weightx = 0;
-        panel.add(new DefaultFieldLabel("JDBC Driver:"), gbc);
-        gbc.gridx = 1;
-        gbc.insets.left = 5;
-        gbc.insets.right = 5;
-        gbc.weightx = 1.0;
-        gbc.insets.top = 0;
-        panel.add(driverCombo, gbc);
-
-        driverCombo.setToolTipText("The JDBC driver to be used for this database");
-
-        JButton button = WidgetFactory.createInlineFieldButton("New Driver");
-        button.setActionCommand("addNewDriver");
-        button.addActionListener(this);
-        button.setMnemonic('r');
-
-        gbc.gridx = 2;
-        gbc.weightx = 0;
-        gbc.gridwidth = 1;
-        gbc.insets.left = 0;
-        gbc.ipadx = 10;
-        gbc.insets.right = 10;
-        panel.add(button, gbc);
-    }
-
     public void addNewDriver() {
 
         new DialogDriverPanel();
@@ -1295,7 +1501,7 @@ public class CreateDatabasePanel extends ActionPanel
 
     class DeleteButtonEditor extends DefaultCellEditor {
 
-        private JButton button;
+        private final JButton button;
         private boolean isPushed;
         private final JTable table;
 
@@ -1303,7 +1509,7 @@ public class CreateDatabasePanel extends ActionPanel
 
             super(checkBox);
             this.table = table;
-            button = new JButton();
+            button = new DefaultButton();
             button.setOpaque(true);
             button.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {

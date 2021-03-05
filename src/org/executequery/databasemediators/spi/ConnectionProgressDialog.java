@@ -1,7 +1,7 @@
 /*
  * ConnectionProgressDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,87 +20,72 @@
 
 package org.executequery.databasemediators.spi;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
 import org.executequery.Constants;
 import org.executequery.GUIUtilities;
 import org.executequery.databasemediators.ConnectionBuilder;
+import org.executequery.localization.Bundles;
 import org.executequery.log.Log;
 import org.underworldlabs.swing.ProgressBar;
 import org.underworldlabs.swing.ProgressBarFactory;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ConnectionProgressDialog extends JDialog
-                                      implements Runnable,
-                                                 ActionListener {
+        implements Runnable,
+        ActionListener {
 
-    /** The connection event parent to this object */
+    /**
+     * The connection event parent to this object
+     */
     private ConnectionBuilder connectonBuilder;
 
-    /** The progress bar widget */
+    /**
+     * The progress bar widget
+     */
     private ProgressBar progressBar;
 
-    /** connection name label */
+    /**
+     * connection name label
+     */
     private JLabel connectionNameLabel;
 
     public ConnectionProgressDialog(ConnectionBuilder connectonBuilder) {
 
-        super(GUIUtilities.getParentFrame(), "Connecting...", true);
+        super(GUIUtilities.getParentFrame(), Bundles.getCommon("connecting"), true);
         this.connectonBuilder = connectonBuilder;
-
-        try {
-
-            jbInit();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
-
+        init();
     }
 
     public void run() {
+
         progressBar.start();
         setVisible(true);
     }
 
-    private void jbInit() throws Exception {
+    private void init() {
 
         progressBar = ProgressBarFactory.create(true, true);
-        ((JComponent) progressBar).setPreferredSize(new Dimension(260, 18));
+        ((JComponent) progressBar).setPreferredSize(new Dimension(280, 20));
 
         JPanel base = new JPanel(new GridBagLayout());
 
         JButton cancelButton = new CancelButton();
         cancelButton.addActionListener(this);
 
-        connectionNameLabel = new JLabel("Establishing connection to " + connectonBuilder.getConnectionName());
+        connectionNameLabel = new JLabel(Bundles.get(this.getClass(), "connectionLabel", connectonBuilder.getConnectionName()));
 
         GridBagConstraints gbc = new GridBagConstraints();
         Insets ins = new Insets(10, 20, 10, 20);
         gbc.insets = ins;
         base.add(connectionNameLabel, gbc);
         gbc.gridy = 1;
-        gbc.insets.top = 0;
+        gbc.insets.top = 5;
         base.add(((JComponent) progressBar), gbc);
         gbc.gridy = 2;
         gbc.weighty = 1.0;
@@ -113,9 +98,9 @@ public class ConnectionProgressDialog extends JDialog
         Container c = this.getContentPane();
         c.setLayout(new GridBagLayout());
         c.add(base, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0,
-                                           GridBagConstraints.SOUTHEAST,
-                                           GridBagConstraints.BOTH,
-                                           new Insets(5, 5, 5, 5), 0, 0));
+                GridBagConstraints.SOUTHEAST,
+                GridBagConstraints.BOTH,
+                new Insets(5, 5, 5, 5), 0, 0));
         setResizable(false);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 
@@ -162,7 +147,7 @@ public class ConnectionProgressDialog extends JDialog
 
         public CancelButton() {
 
-            super("Cancel");
+            super(Bundles.get("common.cancel.button"));
             setMargin(Constants.EMPTY_INSETS);
         }
 
@@ -198,6 +183,7 @@ public class ConnectionProgressDialog extends JDialog
     }
 
 }
+
 
 
 

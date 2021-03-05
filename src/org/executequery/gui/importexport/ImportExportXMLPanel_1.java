@@ -1,7 +1,7 @@
 /*
  * ImportExportXMLPanel_1.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,84 +20,89 @@
 
 package org.executequery.gui.importexport;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.underworldlabs.swing.MultiLineLabel;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JLabel;
-import javax.swing.JRadioButton;
-
-import org.underworldlabs.swing.MultiLineLabel;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class ImportExportXMLPanel_1 extends AbstractImportExportPanelOne  {
-    
-    /** single table transfer radio button */
-    private JRadioButton singleRadio;
-    
-    /** multiple table transfer radio button */
-    private JRadioButton multipleRadio;
-    
-    /** multiple table single file transfer radio button */
-    private JRadioButton singleFileRadio;
-    
-    /** multiple table multiple file transfer radio button */
-    private JRadioButton multipleFileRadio;
-    
-    /** The parent controller for this process */
-    private ImportExportProcess parent;
-    
-    /** <p>Creates a new instance with the specified parent
-     *  object as the controller
-     *
-     *  @param the parent object
+public class ImportExportXMLPanel_1 extends AbstractImportExportPanelOne {
+
+    /**
+     * single table transfer radio button
      */
-    public ImportExportXMLPanel_1(ImportExportProcess parent) {
+    private JRadioButton singleRadio;
+
+    /**
+     * multiple table transfer radio button
+     */
+    private JRadioButton multipleRadio;
+
+    /**
+     * multiple table single file transfer radio button
+     */
+    private JRadioButton singleFileRadio;
+
+    /**
+     * multiple table multiple file transfer radio button
+     */
+    private JRadioButton multipleFileRadio;
+
+    /**
+     * The parent controller for this process
+     */
+    private ImportExportDataProcess parent;
+
+    /**
+     * <p>Creates a new instance with the specified parent
+     * object as the controller
+     *
+     * @param the parent object
+     */
+    public ImportExportXMLPanel_1(ImportExportDataProcess parent) {
         super(new GridBagLayout());
         this.parent = parent;
-        
+
         try {
             jbInit();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    /** <p>Initialises the state of this instance. */
+
+    /**
+     * <p>Initialises the state of this instance.
+     */
     private void jbInit() throws Exception {
         singleRadio = new JRadioButton("Single Table");
         multipleRadio = new JRadioButton("Multiple Tables");
-        
+
         singleRadio.setMnemonic('S');
         multipleRadio.setMnemonic('M');
-        
+
         ButtonGroup bg1 = new ButtonGroup();
         bg1.add(singleRadio);
         bg1.add(multipleRadio);
         singleRadio.setSelected(true);
-        
+
         singleFileRadio = new JRadioButton("One file for all tables");
         multipleFileRadio = new JRadioButton("One file per table");
-        
+
         ButtonGroup bg2 = new ButtonGroup();
         bg2.add(singleFileRadio);
         bg2.add(multipleFileRadio);
         singleFileRadio.setSelected(true);
-        
+
         singleFileRadio.setEnabled(false);
         multipleFileRadio.setEnabled(false);
-        
+
         final JLabel typeLabel = new JLabel("Select multiple table transfer type.");
         typeLabel.setEnabled(false);
-        
+
         ActionListener radioListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 singleFileRadio.setEnabled(multipleRadio.isSelected());
@@ -107,22 +112,22 @@ public class ImportExportXMLPanel_1 extends AbstractImportExportPanelOne  {
         };
         singleRadio.addActionListener(radioListener);
         multipleRadio.addActionListener(radioListener);
-        
+
         String importExportTip = null;
         int type = parent.getTransferType();
-        if (type == ImportExportProcess.EXPORT) {
-          
-            importExportTip = getString("ImportExportXMLPanel.exportTip");
+        if (type == ImportExportDataProcess.EXPORT) {
 
-        } else if (type == ImportExportProcess.IMPORT) {
-            
-            importExportTip = getString("ImportExportXMLPanel.importTip");
+            importExportTip = bundledString("ImportExportXMLPanel.exportTip");
+
+        } else if (type == ImportExportDataProcess.IMPORT) {
+
+            importExportTip = bundledString("ImportExportXMLPanel.importTip");
         }
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy++;
         gbc.gridx = 0;
-        gbc.insets = new Insets(7,5,5,5);
+        gbc.insets = new Insets(7, 5, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         add(new JLabel("Connection:"), gbc);
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -153,35 +158,38 @@ public class ImportExportXMLPanel_1 extends AbstractImportExportPanelOne  {
         gbc.weighty = 1.0;
         gbc.gridy++;
         add(multipleFileRadio, gbc);
-        
+
         setPreferredSize(parent.getChildDimension());
     }
-    
-    /** <p>Returns the type of transfer - single or
-     *  multiple table.
+
+    /**
+     * <p>Returns the type of transfer - single or
+     * multiple table.
      *
-     *  @return the type of transfer
+     * @return the type of transfer
      */
     public int getTableTransferType() {
         if (singleRadio.isSelected())
-            return ImportExportProcess.SINGLE_TABLE;
+            return ImportExportDataProcess.SINGLE_TABLE;
         else
-            return ImportExportProcess.MULTIPLE_TABLE;
+            return ImportExportDataProcess.MULTIPLE_TABLE;
     }
-    
-    /** <p>Returns the type of multiple table
-     *  transfer - single or multiple file.
+
+    /**
+     * <p>Returns the type of multiple table
+     * transfer - single or multiple file.
      *
-     *  @return the type of multiple table transfer
+     * @return the type of multiple table transfer
      */
     public int getMutlipleTableTransferType() {
         if (singleFileRadio.isSelected())
-            return ImportExportProcess.SINGLE_FILE;
+            return ImportExportDataProcess.SINGLE_FILE;
         else
-            return ImportExportProcess.MULTIPLE_FILE;
+            return ImportExportDataProcess.MULTIPLE_FILE;
     }
-    
+
 }
+
 
 
 

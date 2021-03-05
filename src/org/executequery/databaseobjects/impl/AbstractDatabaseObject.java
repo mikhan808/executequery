@@ -1,7 +1,7 @@
 /*
  * AbstractDatabaseObject.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,50 +20,78 @@
 
 package org.executequery.databaseobjects.impl;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.List;
-
 import org.apache.commons.lang.StringUtils;
-import org.executequery.databaseobjects.DatabaseColumn;
-import org.executequery.databaseobjects.DatabaseHost;
-import org.executequery.databaseobjects.DatabaseObject;
-import org.executequery.databaseobjects.TablePrivilege;
+import org.executequery.GUIUtilities;
+import org.executequery.databasemediators.spi.DefaultStatementExecutor;
+import org.executequery.databaseobjects.*;
+import org.executequery.datasource.PooledConnection;
 import org.underworldlabs.jdbc.DataSourceException;
+import org.underworldlabs.util.Log;
+
+import java.sql.*;
+import java.util.List;
 
 /**
  * Abstract database object implementation.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class AbstractDatabaseObject extends AbstractNamedObject
-                                             implements DatabaseObject {
+        implements DatabaseObject {
 
-    /** the host parent object */
+    /**
+     * the host parent object
+     */
     private DatabaseHost host;
 
-    /** the catalog name */
+    /**
+     * the catalog name
+     */
     private String catalogName;
 
-    /** the schema name */
+    /**
+     * the schema name
+     */
     private String schemaName;
 
-    /** the object's remarks */
+    /**
+     * the object's remarks
+     */
     private String remarks;
 
-    /** this objects columns */
+    /**
+     * this objects columns
+     */
     private List<DatabaseColumn> columns;
 
-    /** the data row count */
+    /**
+     * the data row count
+     */
     private int dataRowCount = -1;
 
-    /** statement object for open queries */
+    /**
+     * statement object for open queries
+     */
     private Statement statement;
+
+    protected DatabaseMetaTag metaTagParent;
+
+    protected String source;
+
+    public AbstractDatabaseObject(DatabaseHost host) {
+        setHost(host);
+    }
+
+    public AbstractDatabaseObject(DatabaseMetaTag metaTagParent) {
+        this(metaTagParent.getHost());
+        this.metaTagParent = metaTagParent;
+    }
+
+    public AbstractDatabaseObject(DatabaseMetaTag metaTagParent, String name) {
+        this(metaTagParent);
+        setMarkedForReload(true);
+        setName(name);
+    }
 
     /**
      * Returns the catalog name parent to this database object.
@@ -107,7 +135,7 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
 
         if (StringUtils.isNotBlank(_schema)) {
 
-        	return _schema;
+            return _schema;
         }
 
         return getCatalogName(); // may still be null
@@ -149,8 +177,8 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
             DatabaseHost host = getHost();
             if (host != null) {
                 columns = host.getColumns(getCatalogName(),
-                                          getSchemaName(),
-                                          getName());
+                        getSchemaName(),
+                        getName());
 
                 if (columns != null) {
                     for (DatabaseColumn i : columns) {
@@ -159,8 +187,7 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
                 }
 
             }
-        }
-        finally {
+        } finally {
             setMarkedForReload(false);
         }
         return columns;
@@ -175,8 +202,8 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
         DatabaseHost host = getHost();
         if (host != null) {
             return host.getPrivileges(getCatalogName(),
-                                      getSchemaName(),
-                                      getName());
+                    getSchemaName(),
+                    getName());
         }
         return null;
     }
@@ -205,6 +232,9 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
      * @return database object remarks
      */
     public String getRemarks() {
+        if (remarks == null || isMarkedForReload()) {
+            getObjectInfo();
+        }
         return remarks;
     }
 
@@ -320,25 +350,20 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
                 dataRowCount = rs.getInt(1);
             }
 
-            if (!connection.getAutoCommit()) {
-                
-                connection.commit();
-            }
-
             return dataRowCount;
 
         } catch (SQLException e) {
 
-           throw new DataSourceException(e);
+            throw new DataSourceException(e);
 
-        }  finally {
+        } finally {
 
             releaseResources(stmnt, rs);
             releaseResources(connection);
         }
 
     }
-    
+
     /**
      * Retrieves the data for this object (where applicable).
      *
@@ -346,50 +371,51 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
      */
     public ResultSet getData() throws DataSourceException {
 
-        return executeQuery(recordsQueryString());        
+        return executeQuery(recordsQueryString());
     }
-        
+
     /**
      * Retrieves the data for this object (where applicable).
-     * 
-     * @param whether to rollback if a DataSourceException is thrown
+     *
+     * @param rollbackOnError to rollback if a DataSourceException is thrown
      * @return the data for this object
      */
     public ResultSet getData(boolean rollbackOnError) throws DataSourceException {
-        
+
         try {
-        
+
             return executeQuery(recordsQueryString());
-            
+
         } catch (DataSourceException e) {
-            
+
             if (rollbackOnError) {
                 try {
                     getHost().getConnection().rollback();
-                } catch (SQLException e1) {}
+                } catch (SQLException e1) {
+                }
             }
 
             throw e;
         }
     }
-    
+
     public ResultSet getMetaData() throws DataSourceException {
         try {
-            
+
             DatabaseHost databaseHost = getHost();
             String _catalog = databaseHost.getCatalogNameForQueries(getCatalogName());
             String _schema = databaseHost.getSchemaNameForQueries(getSchemaName());
 
             DatabaseMetaData dmd = databaseHost.getDatabaseMetaData();
             return dmd.getColumns(_catalog, _schema, getName(), null);
-        
+
         } catch (SQLException e) {
             throw new DataSourceException(e);
         }
     }
-    
+
     private ResultSet executeQuery(String query) throws DataSourceException {
-        
+
         Connection connection = null;
         ResultSet rs = null;
 
@@ -400,11 +426,12 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
 
                     statement.close();
 
-                } catch (SQLException e) {}
+                } catch (SQLException e) {
+                }
             }
 
             connection = getHost().getTemporaryConnection();
-            statement = connection.createStatement();
+            statement = ((PooledConnection) connection).createIndividualStatement();
 
             rs = statement.executeQuery(query);
             return new TransactionAgnosticResultSet(connection, statement, rs);
@@ -412,10 +439,27 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
         } catch (SQLException e) {
 
             throw new DataSourceException(e);
-        } 
+        }
 
     }
-    
+
+    public void releaseResources() {
+        if (statement != null) {
+
+            try {
+                if (!statement.isClosed())
+                    //Log.info("Close statement");
+                    statement.close();
+                statement = null;
+
+            } catch (SQLException e) {
+
+                Log.error("Error releaseResources in AbstractDatabaseObject:", e);
+            }
+
+        }
+    }
+
     public void cancelStatement() {
 
         if (statement != null) {
@@ -423,7 +467,8 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
             try {
 
                 statement.cancel();
-                statement.close();
+                if (!statement.isClosed())
+                    statement.close();
                 statement = null;
 
             } catch (SQLException e) {
@@ -460,16 +505,16 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
     public final String getNameForQuery() {
 
         String name = getName();
-        if (name.contains(" ") // eg. access db allows this
+        /*if (name.contains(" ") // eg. access db allows this
                 || (isLowerCase(name) && host.storesLowerCaseQuotedIdentifiers())
                 || (isUpperCase(name) && host.storesUpperCaseQuotedIdentifiers())
                 || (isMixedCase(name) && (host.storesMixedCaseQuotedIdentifiers()
-                        || host.supportsMixedCaseQuotedIdentifiers()))) {
+                || host.supportsMixedCaseQuotedIdentifiers()))) {*/
 
             return quotedDatabaseObjectName(name);
-        }
+        //}
 
-        return name;
+        //return name;
     }
 
     private String quotedDatabaseObjectName(String name) {
@@ -516,7 +561,61 @@ public abstract class AbstractDatabaseObject extends AbstractNamedObject
         return "";
     }
 
+    public int getDatabaseMajorVersion() {
+        try {
+            return host.getDatabaseMetaData().getDatabaseMajorVersion();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    public int getDatabaseMinorVersion() {
+        try {
+            return host.getDatabaseMetaData().getDatabaseMinorVersion();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    protected abstract String queryForInfo();
+
+    protected abstract void setInfoFromResultSet(ResultSet rs) throws SQLException;
+
+    protected void getObjectInfo() {
+        DefaultStatementExecutor querySender = new DefaultStatementExecutor(getHost().getDatabaseConnection());
+        try {
+            ResultSet rs = querySender.getResultSet(queryForInfo()).getResultSet();
+            setInfoFromResultSet(rs);
+        } catch (SQLException e) {
+            GUIUtilities.displayExceptionErrorDialog("Error get info about" + getName(), e);
+        } finally {
+            querySender.releaseResources();
+            setMarkedForReload(false);
+        }
+    }
+
+    protected void checkOnReload(Object object) {
+        if (object == null || isMarkedForReload()) {
+            getObjectInfo();
+        }
+    }
+
+    public void resetRowsCount() {
+        dataRowCount = -1;
+    }
+
+    @Override
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
+    }
 }
+
 
 
 

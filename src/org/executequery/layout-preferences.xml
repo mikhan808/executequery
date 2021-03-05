@@ -5,75 +5,65 @@
     File:         layout-preferences.xml
     Author:       Takis Diakoumis
     Description:  Default pane layout file
-    Date:         $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
-    Version:      $Revision: 1487 $
     =======================================================================
 -->
 
 <docked-tab-components>
 
-   <docked-tab>
-      <key>system.display.console</key>
-      <index>0</index>
-      <position>5</position>
-      <visible>true</visible>
-      <minimised>false</minimised>
-   </docked-tab>
+    <docked-tab>
+        <key>system.display.console</key>
+        <index>0</index>
+        <position>5</position>
+        <visible>false</visible>
+        <minimised>false</minimised>
+    </docked-tab>
 
-   <docked-tab>
-      <key>system.display.jdbclogger</key>
-      <index>0</index>
-      <position>5</position>
-      <visible>true</visible>
-      <minimised>false</minimised>
-   </docked-tab>
+    <docked-tab>
+        <key>system.display.drivers</key>
+        <index>1</index>
+        <position>8</position>
+        <visible>false</visible>
+        <minimised>false</minimised>
+    </docked-tab>
 
-   <docked-tab>
-      <key>system.display.drivers</key>
-      <index>1</index>
-      <position>8</position>
-      <visible>true</visible>
-      <minimised>false</minimised>
-   </docked-tab>
+    <docked-tab>
+        <key>system.display.connections</key>
+        <index>0</index>
+        <position>8</position>
+        <visible>true</visible>
+        <minimised>false</minimised>
+    </docked-tab>
 
-   <docked-tab>
-      <key>system.display.connections</key>
-      <index>0</index>
-      <position>8</position>
-      <visible>true</visible>
-      <minimised>false</minimised>
-   </docked-tab>
+    <docked-tab>
+        <key>system.display.keywords</key>
+        <index>2</index>
+        <position>6</position>
+        <visible>false</visible>
+        <minimised>false</minimised>
+    </docked-tab>
 
-   <docked-tab>
-      <key>system.display.keywords</key>
-      <index>2</index>
-      <position>6</position>
-      <visible>false</visible>
-      <minimised>false</minimised>
-   </docked-tab>
+    <docked-tab>
+        <key>system.display.notepad</key>
+        <index>0</index>
+        <position>6</position>
+        <visible>false</visible>
+        <minimised>false</minimised>
+    </docked-tab>
 
-   <docked-tab>
-      <key>system.display.notepad</key>
-      <index>0</index>
-      <position>6</position>
-      <visible>false</visible>
-      <minimised>false</minimised>
-   </docked-tab>
+    <docked-tab>
+        <key>system.display.state-codes</key>
+        <index>0</index>
+        <position>4</position>
+        <visible>false</visible>
+        <minimised>false</minimised>
+    </docked-tab>
 
-   <docked-tab>
-      <key>system.display.state-codes</key>
-      <index>0</index>
-      <position>4</position>
-      <visible>false</visible>
-      <minimised>false</minimised>
-   </docked-tab>
-
-   <docked-tab>
-      <key>system.display.systemprops</key>
-      <index>2</index>
-      <position>4</position>
-      <visible>false</visible>
-      <minimised>false</minimised>
-   </docked-tab>
+    <docked-tab>
+        <key>system.display.systemprops</key>
+        <index>2</index>
+        <position>4</position>
+        <visible>false</visible>
+        <minimised>false</minimised>
+    </docked-tab>
 
 </docked-tab-components>

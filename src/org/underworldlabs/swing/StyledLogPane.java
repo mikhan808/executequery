@@ -1,7 +1,7 @@
 /*
  * StyledLogPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,49 +20,60 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Color;
-import javax.swing.JTextPane;
-import javax.swing.text.AttributeSet;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.MutableAttributeSet;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
+import javax.swing.*;
+import javax.swing.text.*;
+import java.awt.*;
 
 /**
  * Appending text pane with styled (coloured) text for process logging.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class StyledLogPane extends JTextPane {
 
-    /** Indicates an action message (blue) */
+    /**
+     * Indicates an action message (blue)
+     */
     public static final int ACTION_MESSAGE = 0;
-    
-    /** Indicates an error message (red) */
+
+    /**
+     * Indicates an error message (red)
+     */
     public static final int ERROR_MESSAGE = 1;
 
-    /** Indicates a normal output message (black) */
+    /**
+     * Indicates a normal output message (black)
+     */
     public static final int PLAIN_MESSAGE = 2;
 
-    /** Indicates a normal output message (dark orange) */
+    /**
+     * Indicates a normal output message (dark orange)
+     */
     public static final int WARNING_MESSAGE = 3;
 
-    /** Indicates an action message (blue) in fixed-width font */
+    /**
+     * Indicates an action message (blue) in fixed-width font
+     */
     public static final int ACTION_MESSAGE_PREFORMAT = 4;
-    
-    /** Indicates an error message (red) in fixed-width font */
+
+    /**
+     * Indicates an error message (red) in fixed-width font
+     */
     public static final int ERROR_MESSAGE_PREFORMAT = 5;
 
-    /** Indicates a normal output message (black) in fixed-width font */
+    /**
+     * Indicates a normal output message (black) in fixed-width font
+     */
     public static final int PLAIN_MESSAGE_PREFORMAT = 6;
 
-    /** Indicates a normal output message (dark orange) in fixed-width font */
+    /**
+     * Indicates a normal output message (dark orange) in fixed-width font
+     */
     public static final int WARNING_MESSAGE_PREFORMAT = 7;
 
-    /** the styled document for this text pane */
+    /**
+     * the styled document for this text pane
+     */
     private StyledOutputPaneDocument document;
 
     public StyledLogPane() {
@@ -73,7 +84,7 @@ public class StyledLogPane extends JTextPane {
     public void append(String text) {
         appendPlain(text);
     }
-    
+
     public void append(int type, String text) {
         switch (type) {
             case ACTION_MESSAGE:
@@ -141,14 +152,16 @@ public class StyledLogPane extends JTextPane {
     public boolean isEditable() {
         return false;
     }
-    
+
     class StyledOutputPaneDocument extends DefaultStyledDocument {
-        
-        private final char NEW_LINE_CHAR = '\n';
-        
-        /** temp text buffer */
+
+        private static final char NEW_LINE_CHAR = '\n';
+
+        /**
+         * temp text buffer
+         */
         private StringBuffer textBuffer;
-        
+
         // normal font
         protected MutableAttributeSet plain;
         protected MutableAttributeSet error;
@@ -160,12 +173,12 @@ public class StyledLogPane extends JTextPane {
         protected MutableAttributeSet errorFixedWidth;
         protected MutableAttributeSet warningFixedWidth;
         protected MutableAttributeSet actionFixedWidth;
-        
+
         public StyledOutputPaneDocument() {
             initStyles();
             textBuffer = new StringBuffer();
         }
-        
+
         protected void initStyles() {
             // normal font styles
             plain = new SimpleAttributeSet();
@@ -175,11 +188,11 @@ public class StyledLogPane extends JTextPane {
             StyleConstants.setForeground(error, Color.RED.darker());
 
             warning = new SimpleAttributeSet();
-            StyleConstants.setForeground(warning, new Color(222,136,8));
+            StyleConstants.setForeground(warning, new Color(222, 136, 8));
 
             action = new SimpleAttributeSet();
             StyleConstants.setForeground(action, Color.BLUE.darker());
-            
+
             // fixed width font styles
             String fixedWidthFontName = "monospaced";
             plainFixedWidth = new SimpleAttributeSet(plain);
@@ -207,7 +220,7 @@ public class StyledLogPane extends JTextPane {
         protected void appendPlainFixedWidth(String text) {
             append(text, plainFixedWidth);
         }
-        
+
         protected void appendActionFixedWidth(String text) {
             append(text, actionFixedWidth);
         }
@@ -223,7 +236,7 @@ public class StyledLogPane extends JTextPane {
         protected void appendPlain(String text) {
             append(text, plain);
         }
-        
+
         protected void appendAction(String text) {
             append(text, action);
         }
@@ -233,7 +246,7 @@ public class StyledLogPane extends JTextPane {
             if (length > 0) {
                 textBuffer.append(NEW_LINE_CHAR);
             }
-            
+
             textBuffer.append(text);
 
             try {
@@ -241,14 +254,15 @@ public class StyledLogPane extends JTextPane {
                 if (length > 0) {
                     setCaretPosition(getLength());
                 }
+            } catch (BadLocationException e) {
             }
-            catch (BadLocationException	e) {}
             textBuffer.setLength(0);
         }
 
     } // class OutputPaneDocument
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * SQLTextPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,54 +20,54 @@
 
 package org.executequery.gui.text;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.event.KeyEvent;
-
-import javax.swing.JTextPane;
-import javax.swing.SwingUtilities;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.DefaultStyledDocument;
-import javax.swing.text.SimpleAttributeSet;
-import javax.swing.text.StyleConstants;
-import javax.swing.text.TabSet;
-import javax.swing.text.TabStop;
-
 import org.executequery.gui.editor.QueryEditorSettings;
 import org.executequery.gui.text.syntax.SQLSyntaxDocument;
 import org.executequery.repository.KeywordRepository;
 import org.executequery.repository.RepositoryCache;
 
+import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
+import javax.swing.text.*;
+import java.awt.*;
+import java.awt.event.KeyEvent;
+import java.util.List;
+
 /**
  * Base SQL text pane object.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1497 $
- * @date     $Date: 2015-09-18 00:15:39 +1000 (Fri, 18 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class SQLTextPane extends JTextPane
-                         implements CaretListener {
+        implements CaretListener {
 
-    /** The SQL syntax document */
+    /**
+     * The SQL syntax document
+     */
     protected SQLSyntaxDocument document;
 
-    /** whether a caretUpdate will be called */
+    /**
+     * whether a caretUpdate will be called
+     */
     private boolean doCaretUpdate;
 
-    /** The current font width for painting */
+    /**
+     * The current font width for painting
+     */
     protected int fontWidth;
 
-    /** The current font height for painting */
+    /**
+     * The current font height for painting
+     */
     protected int fontHeight;
 
-    /** Creates a new instance of SQLTextPane */
+    /**
+     * Creates a new instance of SQLTextPane
+     */
     public SQLTextPane() {
 
         KeywordRepository keywordRepository =
-            (KeywordRepository)RepositoryCache.load(KeywordRepository.REPOSITORY_ID);
+                (KeywordRepository) RepositoryCache.load(KeywordRepository.REPOSITORY_ID);
 
         document = new SQLSyntaxDocument(keywordRepository.getSQLKeywords(), this);
 
@@ -95,12 +95,16 @@ public class SQLTextPane extends JTextPane
 
     public void setSQLKeywords(boolean reset) {
 
-        document.setSQLKeywords(keywords().getSQLKeywords(), reset);
+        document.setSQLKeywords(keywords().getSQLKeywords());
+    }
+
+    public void setDBObjects(List<String> dbObjects) {
+        document.setDBObjects(dbObjects);
     }
 
     private KeywordRepository keywords() {
 
-        return (KeywordRepository)RepositoryCache.load(KeywordRepository.REPOSITORY_ID);
+        return (KeywordRepository) RepositoryCache.load(KeywordRepository.REPOSITORY_ID);
     }
 
     /**
@@ -121,7 +125,8 @@ public class SQLTextPane extends JTextPane
 
             document.replace(0, document.getLength(), "", null);
 
-        } catch (BadLocationException badLoc) {}
+        } catch (BadLocationException badLoc) {
+        }
 
     }
 
@@ -241,6 +246,7 @@ public class SQLTextPane extends JTextPane
     }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * DockedTabDragListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,13 +23,11 @@ package org.executequery.base;
 import java.util.EventListener;
 
 /**
- * Defines a listener implementation for a docked tab 
- * pane. The aim here is to provide event notification on 
+ * Defines a listener implementation for a docked tab
+ * pane. The aim here is to provide event notification on
  * tab dragging events.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DockedTabDragListener extends EventListener {
 
@@ -39,15 +37,16 @@ public interface DockedTabDragListener extends EventListener {
      * @param the encapsulating event object
      */
     public void dockedTabDragged(DockedDragEvent e);
- 
+
     /**
-     *  Invoked when a mouse button has been released on a tab.
+     * Invoked when a mouse button has been released on a tab.
      *
      * @param the encapsulating event object
      */
     public void dockedTabReleased(DockedDragEvent e);
-    
+
 }
+
 
 
 

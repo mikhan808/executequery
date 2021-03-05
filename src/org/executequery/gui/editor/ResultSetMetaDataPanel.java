@@ -1,7 +1,7 @@
 /*
  * ResultSetMetaDataPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,32 +20,26 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.BorderLayout;
-
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-
 import org.executequery.gui.DefaultTable;
 import org.executequery.gui.resultset.ResultSetMetaDataTableModel;
 import org.executequery.util.UserProperties;
 
+import javax.swing.*;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ResultSetMetaDataPanel extends JPanel {
-    
+
     public static final String TITLE = "Result Set Meta Data";
-    
+
     private JTable table;
-    
+
     public ResultSetMetaDataPanel() {
 
         super(new BorderLayout());
-        
+
         try {
 
             init();
@@ -74,13 +68,14 @@ public class ResultSetMetaDataPanel extends JPanel {
         return UserProperties.getInstance().getIntProperty(
                 "results.table.column.height");
     }
-    
+
     public void setMetaData(ResultSetMetaDataTableModel model) {
-        
+
         table.setModel(model);
     }
 
 }
+
 
 
 

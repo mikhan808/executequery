@@ -1,7 +1,7 @@
 /*
  * C3poConnectionPool.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,10 +33,7 @@ import java.util.Properties;
 import java.util.Vector;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class C3poConnectionPool extends AbstractConnectionPool {
 
@@ -51,7 +48,7 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     private static final int ACQUIRE_INCREMENT = 1;
 
     private final List<Connection> activeConnections = new Vector<Connection>();
-    
+
     private final DatabaseConnection databaseConnection;
 
     private final Properties c3poPoolProperties;
@@ -59,13 +56,13 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     private int defaultTxIsolation = -1;
 
     private DataSource dataSource;
-    
+
     private PoolBackedDataSource pooledDataSource;
-    
+
     public C3poConnectionPool(DatabaseConnection databaseConnection) {
 
         this.databaseConnection = databaseConnection;
-        
+
         c3poPoolProperties = new Properties();
         setMinimumConnections(MIN_POOL_SIZE);
         setMaximumConnections(MAX_POOL_SIZE);
@@ -74,19 +71,19 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     }
 
     public DatabaseConnection getDatabaseConnection() {
-     
+
         return databaseConnection;
     }
-    
+
     public void close(Connection connection) {
 
         try {
 
             activeConnections.remove(connection);
             connection.close();
-            
+
         } catch (SQLException e) {
-            
+
             rethrowAsDataSourceException(e);
         }
 
@@ -100,29 +97,29 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     public Connection getConnection() {
 
         Connection connection = null;
-        
+
         try {
 
             if (pooledDataSource == null) {
-                
+
                 initialiseDataSource(new SimpleDataSource(databaseConnection));
             }
 
             connection = pooledDataSource.getConnection();
 
             if (defaultTxIsolation == -1) {
-             
+
                 defaultTxIsolation = connection.getTransactionIsolation();
             }
-            
+
             int transactionIsolation = databaseConnection.getTransactionIsolation();
             if (transactionIsolation != -1) {
-            
+
                 connection.setTransactionIsolation(databaseConnection.getTransactionIsolation());
             }
 
             activeConnections.add(connection);
-            
+
         } catch (SQLException e) {
 
             rethrowAsDataSourceException(e);
@@ -154,7 +151,7 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     }
 
     public int getMinimumConnections() {
-        
+
         return ((Integer) c3poPoolProperties.get(MIN_POOL_SIZE_KEY)).intValue();
     }
 
@@ -167,14 +164,14 @@ public class C3poConnectionPool extends AbstractConnectionPool {
 
         int size = 0;
         try {
-        
+
             size = pooledDataSource.getNumConnectionsDefaultUser();
 
         } catch (SQLException e) {
 
             rethrowAsDataSourceException(e);
         }
-        
+
         return size;
     }
 
@@ -196,24 +193,24 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     }
 
     public int getInitialConnections() {
-        
+
         return ((Integer) c3poPoolProperties.get(INITIAL_POOL_SIZE_KEY)).intValue();
     }
-    
+
     public void setInitialConnections(int initialConnections) {
 
         if (initialConnections < 1) {
-            
+
             throw new IllegalArgumentException("Initial connection count must be at least 1");
         }
 
         c3poPoolProperties.put(INITIAL_POOL_SIZE_KEY, asString(initialConnections));
     }
-    
+
     public void setMaximumConnections(int maximumConnections) {
 
         if (maximumConnections < 1) {
-            
+
             throw new IllegalArgumentException("Maximum connection count must be at least 1");
         }
 
@@ -228,10 +225,10 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     public void setMinimumConnections(int minimumConnections) {
 
         if (minimumConnections < 1) {
-            
+
             throw new IllegalArgumentException("Minimum connection count must be at least 1");
         }
-        
+
         c3poPoolProperties.put(MIN_POOL_SIZE_KEY, asString(minimumConnections));
     }
 
@@ -241,28 +238,28 @@ public class C3poConnectionPool extends AbstractConnectionPool {
 
             return;
         }
-        
-        if (isolationLevel == -1) {
-         
-            isolationLevel = defaultTxIsolation;
-        }
+
+//        if (isolationLevel == -1) {
+//         
+//            isolationLevel = defaultTxIsolation;
+//        }
 
         try {
-        
+
             for (Connection connection : activeConnections) {
 
                 if (!connection.isClosed()) {
-                
+
                     connection.setTransactionIsolation(databaseConnection.getTransactionIsolation());
                 }
 
             }
 
         } catch (SQLException e) {
-            
+
             throw new DataSourceException(e);
         }
-        
+
     }
 
     private Object asString(int value) {
@@ -271,6 +268,7 @@ public class C3poConnectionPool extends AbstractConnectionPool {
     }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * PropertiesConns.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,104 +21,77 @@
 package org.executequery.gui.prefs;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.repository.DatabaseConnectionRepository;
 import org.executequery.repository.RepositoryCache;
 import org.underworldlabs.util.SystemProperties;
 
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1512 $
- * @date     $Date: 2015-09-27 21:23:07 +1000 (Sun, 27 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertiesConns extends AbstractPropertiesBasePanel {
-    
+
     private SimplePreferencesPanel preferencesPanel;
 
     public PropertiesConns() {
         try {
             init();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void init() {
 
-    	List<UserPreference> list = new ArrayList<UserPreference>();
+        List<UserPreference> list = new ArrayList<UserPreference>();
 
         list.add(new UserPreference(
-                    UserPreference.CATEGORY_TYPE,
-                    null,
-                    "General",
-                    null));
+                UserPreference.CATEGORY_TYPE,
+                null,
+                bundledString("General"),
+                null));
 
-        String key = "connection.initialcount";
-        list.add(new UserPreference(
-                UserPreference.INTEGER_TYPE,
-                1,
-                key,
-                "Initial open connections",
-                SystemProperties.getProperty("user", key)));
-
-        key = "connection.scheme";
-        list.add(new UserPreference(
-                UserPreference.STRING_TYPE,
-                key,
-                "Connection Scheme",
-                SystemProperties.getProperty("user", key),
-                new String[]{"Dynamic", "Static"}));
-
-        key = "connection.reuse";
+        String key = "startup.connection.connect";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
-                "Reuse connection",
-                new Boolean(SystemProperties.getProperty("user", key))));
+                bundledString("ConnectAtStartup"),
+                Boolean.valueOf(SystemProperties.getProperty("user", key))));
 
-        key = "connection.reuse.count";
+        key = "connection.shutdown.timeout";
         list.add(new UserPreference(
                 UserPreference.INTEGER_TYPE,
-                2,
                 key,
-                "Connection reuse count",
-                SystemProperties.getProperty("user", key)));
+                bundledString("Connection.shutdown.timeout"),
+                Integer.valueOf(SystemProperties.getProperty("user", key))));
 
-        key = "startup.connection.connect";
-        list.add(new UserPreference(
-                UserPreference.BOOLEAN_TYPE,
-                key,
-                "Connect at startup",
-                new Boolean(SystemProperties.getProperty("user", key))));
-        
         key = "startup.connection.name";
         list.add(new UserPreference(
                 UserPreference.STRING_TYPE,
                 key,
-                "Startup connection",
+                bundledString("StartupConnection"),
                 SystemProperties.getProperty("user", key),
                 connectionNames()));
 
-        UserPreference[] preferences = 
-                (UserPreference[])list.toArray(new UserPreference[list.size()]);
+        UserPreference[] preferences =
+                list.toArray(new UserPreference[list.size()]);
         preferencesPanel = new SimplePreferencesPanel(preferences);
         addContent(preferencesPanel);
 
     }
-   
+
     public void restoreDefaults() {
         preferencesPanel.restoreDefaults();
     }
-    
+
     public void save() {
         preferencesPanel.savePreferences();
     }
-    
+
     private String[] connectionNames() {
 
         List<DatabaseConnection> connections = connections();
@@ -132,12 +105,13 @@ public class PropertiesConns extends AbstractPropertiesBasePanel {
     }
 
     private List<DatabaseConnection> connections() {
-        
-        return ((DatabaseConnectionRepository)RepositoryCache.load(
+
+        return ((DatabaseConnectionRepository) RepositoryCache.load(
                 DatabaseConnectionRepository.REPOSITORY_ID)).findAll();
     }
 
 }
+
 
 
 

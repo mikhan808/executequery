@@ -1,7 +1,7 @@
 /*
  * Constants.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,21 +20,20 @@
 
 package org.underworldlabs;
 
-import java.awt.Dimension;
-import java.awt.Insets;
+import java.awt.*;
 
 /**
  * Static constants.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface Constants {
 
-    /** An empty string */
+    /**
+     * An empty string
+     */
     public static final String EMPTY = "";
-    
+
     public static final String NEW_LINE_STRING = "\n";
     public static final String QUOTE_STRING = "'";
     public static final char QUOTE_CHAR = '\'';
@@ -43,17 +42,18 @@ public interface Constants {
     public static final char COMMA_CHAR = ',';
 
     // tool tip html tags
-    public static final String TABLE_TAG_START = 
+    public static final String TABLE_TAG_START =
             "<table border='0' cellspacing='0' cellpadding='2'>";
 
-    public static final String TABLE_TAG_END = 
+    public static final String TABLE_TAG_END =
             "</table>";
 
-    public static final Insets EMPTY_INSETS = new Insets(0,0,0,0);
+    public static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
 
     public static final Dimension FORM_BUTTON_SIZE = new Dimension(100, 25);
-                                             
+
 }
+
 
 
 

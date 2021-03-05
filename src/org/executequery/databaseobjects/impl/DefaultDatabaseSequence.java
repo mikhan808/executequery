@@ -1,8 +1,11 @@
 package org.executequery.databaseobjects.impl;
 
+import org.executequery.GUIUtilities;
+import org.executequery.databasemediators.spi.DefaultStatementExecutor;
 import org.executequery.databaseobjects.DatabaseMetaTag;
 import org.executequery.databaseobjects.DatabaseProcedure;
-import org.firebirdsql.jdbc.FBDatabaseMetaData;
+import org.executequery.datasource.ConnectionManager;
+import org.executequery.log.Log;
 import org.underworldlabs.jdbc.DataSourceException;
 
 import java.sql.DatabaseMetaData;
@@ -18,11 +21,13 @@ public class DefaultDatabaseSequence extends DefaultDatabaseExecutable
 
     private long value = -1;
     private String description;
+    private Integer increment;
 
     /**
      * Creates a new instance.
      */
-    public DefaultDatabaseSequence() {}
+    public DefaultDatabaseSequence() {
+    }
 
     /**
      * Creates a new instance.
@@ -74,7 +79,7 @@ public class DefaultDatabaseSequence extends DefaultDatabaseExecutable
             String _catalog = getCatalogName();
             String _schema = getSchemaName();
 
-            if (dmd instanceof FBDatabaseMetaData) {
+            if (ConnectionManager.realConnection(dmd).getClass().getName().contains("FBConnection")) {
 
                 statement = dmd.getConnection().createStatement();
                 ResultSet rs = statement.executeQuery("select gen_id(" + getName() + ", 0) from rdb$database");
@@ -90,19 +95,25 @@ public class DefaultDatabaseSequence extends DefaultDatabaseExecutable
             throw new DataSourceException(e);
 
         } finally {
+            if (statement != null)
+                try {
+                    if (!statement.isClosed())
+                        statement.close();
+                } catch (SQLException e) {
+                    Log.error("Error close statement in method getSequenceValue in class DefaultDatabaseSequence", e);
+                }
 
             setMarkedForReload(false);
         }
     }
 
-    @Override
-    public String getDescription() {
+    public int getIncrement() {
 
         Statement statement = null;
 
-        if (!isMarkedForReload() && description != null) {
+        if (!isMarkedForReload() && increment != null) {
 
-            return description;
+            return increment;
         }
 
         try {
@@ -112,26 +123,32 @@ public class DefaultDatabaseSequence extends DefaultDatabaseExecutable
             String _catalog = getCatalogName();
             String _schema = getSchemaName();
 
-            if (dmd instanceof FBDatabaseMetaData) {
+            if (ConnectionManager.realConnection(dmd).getClass().getName().contains("FBConnection")) {
 
                 statement = dmd.getConnection().createStatement();
-                ResultSet rs = statement.executeQuery("select r.rdb$description\n" +
+                ResultSet rs = statement.executeQuery("select r.rdb$generator_increment\n" +
                         "from rdb$generators r\n" +
                         "where\n" +
                         "trim(r.rdb$generator_name)='" + getName() + "'");
 
                 if (rs.next())
-                    description = rs.getString(1);
+                    increment = rs.getInt(1);
             }
 
-            return description;
+            return increment;
 
         } catch (SQLException e) {
 
             throw new DataSourceException(e);
 
         } finally {
-
+            if (statement != null)
+                try {
+                    if (!statement.isClosed())
+                        statement.close();
+                } catch (SQLException e) {
+                    Log.error("Error close statement in method getIncrement in class DefaultDatabaseSequence", e);
+                }
             setMarkedForReload(false);
         }
     }
@@ -157,5 +174,31 @@ public class DefaultDatabaseSequence extends DefaultDatabaseExecutable
         sb.append(";");
 
         return sb.toString();
+    }
+
+    @Override
+    protected void getObjectInfo() {
+        super.getObjectInfo();
+        DefaultStatementExecutor querySender = new DefaultStatementExecutor(getHost().getDatabaseConnection());
+        try {
+            String query = queryForInfo();
+            ResultSet rs = querySender.getResultSet(query).getResultSet();
+            setInfoFromResultSet(rs);
+        } catch (SQLException e) {
+            GUIUtilities.displayExceptionErrorDialog("Error get info about" + getName(), e);
+        } finally {
+            querySender.releaseResources();
+            setMarkedForReload(false);
+        }
+    }
+
+    protected void setInfoFromResultSet(ResultSet rs) throws SQLException {
+        if (rs.next())
+            setRemarks(rs.getString(1));
+    }
+
+    protected String queryForInfo() {
+        return "select rdb$description from rdb$generators where \n" +
+                "     rdb$generator_name='" + getName().trim() + "'";
     }
 }

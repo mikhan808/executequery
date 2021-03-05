@@ -1,7 +1,7 @@
 /*
  * MutableListModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,16 +20,17 @@
 
 package org.underworldlabs.swing;
 
-import javax.swing.ListModel;
+import javax.swing.*;
 
 //from http://www.jroller.com/santhosh/date/20050607
-public interface MutableListModel extends ListModel { 
+public interface MutableListModel extends ListModel {
 
-    public boolean isCellEditable(int index); 
+    public boolean isCellEditable(int index);
 
-    public void setValueAt(Object value, int index); 
-    
+    public void setValueAt(Object value, int index);
+
 }
+
 
 
 

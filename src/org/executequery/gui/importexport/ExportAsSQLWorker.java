@@ -1,7 +1,7 @@
 /*
  * ExportAsSQLWorker.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,7 @@
 
 package org.executequery.gui.importexport;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Types;
-import java.util.List;
-
+import org.apache.commons.lang.StringUtils;
 import org.executequery.GUIUtilities;
 import org.executequery.databaseobjects.DatabaseColumn;
 import org.executequery.databaseobjects.DatabaseTable;
@@ -41,11 +31,16 @@ import org.executequery.util.ThreadWorker;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.util.MiscUtils;
 
-/** 
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.*;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/**
+ * @author Takis Diakoumis
  */
 public class ExportAsSQLWorker extends BaseImportExportWorker {
 
@@ -57,19 +52,19 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
     }
 
     protected void export() {
-        
+
         worker = new ThreadWorker() {
 
             public Object construct() {
-                
+
                 return doWork();
             }
-            
+
             public void finished() {
 
                 ImportExportResult importExportResult = (ImportExportResult) get();
                 setResult(importExportResult);
-                
+
                 printResults();
                 if (importExportDataModel().isSingleFileMultiTableExport()) {
 
@@ -89,11 +84,11 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
     private Object doWork() {
 
         importExportWizard().enableButtons(false);
-        
+
         ImportExportDataModel model = importExportDataModel();
-        
+
         appendProgressText("Beginning export to SQL process...");
-        appendProgressText("Using connection: " + 
+        appendProgressText("Using connection: " +
                 model.getDatabaseHost().getDatabaseConnection().getName());
 
         // record the start time
@@ -107,20 +102,20 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
         PrintWriter writer = null;
 
         try {
-        
+
             ResultSet rs = null;
             List<DatabaseTable> databaseTables = model.getDatabaseTables();
-            
+
             StringBuilder sb = new StringBuilder();
 
             StringBuilder primaryKeys = new StringBuilder();
             StringBuilder foreignKeys = new StringBuilder();
             StringBuilder uniqueKeys = new StringBuilder();
-            
+
             for (DatabaseTable table : databaseTables) {
-                
+
                 ImportExportFile importExportFile = model.getImportExportFileForTable(table);
-                
+
                 if (!model.isSingleFileMultiTableExport() || writer == null) {
 
                     writer = new PrintWriter(
@@ -132,16 +127,16 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
                     int dataRowCount = table.getDataRowCount();
 
                     setProgressStatus(0);
-                    
+
                     if (dataRowCount > 0) {
-                    
+
                         setProgressBarMaximum(dataRowCount);
-                    
+
                     } else {
-                        
+
                         setProgressBarMaximum(100);
                     }
-                
+
                     sb.append("---------------------------\nTable: ");
                     sb.append(table.getName());
                     sb.append("\nRecords found: ");
@@ -166,12 +161,12 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
 
                         primaryKeys.append(table.getAlterSQLTextForPrimaryKeys());
                     }
-                    
+
                     if (isForeignKeyStatementsIncluded()) {
 
                         foreignKeys.append(table.getAlterSQLTextForForeignKeys());
                     }
-                    
+
                     if (isUniqueKeyStatementsIncluded()) {
 
                         uniqueKeys.append(table.getAlterSQLTextForUniqueKeys());
@@ -180,50 +175,50 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
                     if (dataRowCount > 0) {
 
                         List<DatabaseColumn> columns = columnSelections(importExportFile);
-                        
+
                         appendProgressText("Exporting data...");
-                        
+
                         rs = resultSetForExport(importExportFile, columns);
                         ResultSetMetaData rsmd = rs.getMetaData();
-                        
+
                         String insertStatement = insertStatementForTable(importExportFile, columns);
 
                         while (rs.next()) {
-                            
+
                             if (Thread.interrupted()) {
-    
+
                                 setProgressStatus(dataRowCount);
                                 throw new InterruptedException();
                             }
-    
+
                             sb.append(insertStatement);
-    
+
                             for (int i = 1, n = rsmd.getColumnCount(); i <= n; i++) {
-    
+
                                 String value = formatNextValue(rs, i, rsmd.getColumnType(i));
                                 sb.append(value);
-                                
+
                                 if (i < n) {
-                                    
+
                                     sb.append(", ");
                                 }
-    
+
                             }
-                            
+
                             sb.append(");\n");
                             writer.println(sb.toString());
                             sb.setLength(0);
-    
+
                             recordCount++;
                             totalRecordCount++;
-                            
+
                             setProgressStatus(recordCount);
                         }
-                        
+
                     }
-                    
+
                     if (!model.isSingleFileMultiTableExport()) {
-                        
+
                         writeConstraints(writer, primaryKeys, foreignKeys, uniqueKeys);
                     }
 
@@ -234,7 +229,7 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
 
                     if (OnErrorOption.isLogAndContinue(
                             importExportDataModel().getOnErrorOption())) {
-                        
+
                         outputExceptionError("SQL error exporting table ", e);
 
                     } else {
@@ -243,10 +238,10 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
                     }
 
                 } finally {
-                    
+
                     if (!model.isSingleFileMultiTableExport()) {
 
-                        flushAndClose(writer);                        
+                        flushAndClose(writer);
                         printExportFileSize(importExportFile);
                     }
 
@@ -264,16 +259,16 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
 
                 tableCount++;
             }
-    
+
             if (model.isSingleFileMultiTableExport()) {
-                
+
                 writeConstraints(writer, primaryKeys, foreignKeys, uniqueKeys);
-                
+
                 flushAndClose(writer);
             }
 
             setTableCount(tableCount);
-            
+
         } catch (InterruptedException e) {
 
             cancelStatement(statement);
@@ -286,24 +281,24 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
             logException(e);
             outputExceptionError("Data source error exporting table data to file", e);
             return ImportExportResult.FAILED;
-            
+
         } catch (IOException e) {
-            
+
             errorCount++;
-            
+
             logException(e);
             outputExceptionError("I/O error exporting table data to file", e);
             return ImportExportResult.FAILED;
-            
+
         } catch (OutOfMemoryError e) {
 
             errorCount++;
 
             outputExceptionError("Error exporting table data to file", e);
             return ImportExportResult.FAILED;
-            
+
         } finally {
-            
+
             finish();
             releaseConnection();
             setTableCount(tableCount);
@@ -311,26 +306,26 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
             setErrorCount(errorCount);
             setRecordCountProcessed(totalRecordCount);
         }
-        
+
         return ImportExportResult.SUCCESS;
     }
 
     private void writeConstraints(PrintWriter writer,
-            StringBuilder primaryKeys, StringBuilder foreignKeys,
-            StringBuilder uniqueKeys) {
+                                  StringBuilder primaryKeys, StringBuilder foreignKeys,
+                                  StringBuilder uniqueKeys) {
 
         if (isPrimaryKeyStatementsIncluded()) {
-            
+
             writer.println(headerForPrimaryKeyConstraints());
             writer.println(primaryKeys);
         }
-        
+
         if (isForeignKeyStatementsIncluded()) {
-        
+
             writer.println(headerForForeignKeyConstraints());
             writer.println(foreignKeys);
         }
-        
+
         if (isUniqueKeyStatementsIncluded()) {
 
             writer.println(headerForUniqueKeyConstraints());
@@ -341,23 +336,23 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
         foreignKeys.setLength(0);
         uniqueKeys.setLength(0);
     }
-    
+
     private void releaseConnection() {
 
         importExportDataModel().getDatabaseHost().close();
     }
 
     private static final String NULL_STRING = "NULL";
-    
-    private String formatNextValue(ResultSet rs, int index, int columnType) 
-        throws SQLException {
 
-        Object value = rs.getObject(index); 
+    private String formatNextValue(ResultSet rs, int index, int columnType)
+            throws SQLException {
+
+        Object value = rs.getObject(index);
         if (rs.wasNull() || value == null) {
-            
+
             return NULL_STRING;
         }
-        
+
         switch (columnType) {
 
             case Types.LONGVARCHAR:
@@ -369,7 +364,7 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
             case Types.TIME:
             case Types.TIMESTAMP:
                 return "'" + value.toString() + "'";
-            
+
             // TODO: not really sure how well this will work with blobs et al
 
             case Types.LONGVARBINARY:
@@ -394,7 +389,7 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
             case Types.FLOAT:
             case Types.REAL:
             case Types.DOUBLE:
-                    return value.toString();
+                return value.toString();
 
             default:
                 return "'" + formatString(value.toString()) + "'";
@@ -403,24 +398,34 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
 
     }
 
+    private static final String NEW_LINE_REPLACEMENT = "\\\\n";
+    private static final String CARRIAGE_RETURN_REPLACEMENT = "\\\\r";
+    private static final String QUOTE_REPLACEMENT = "''";
+
+    private Matcher newLineMatcher = Pattern.compile("\n").matcher(StringUtils.EMPTY);
+    private Matcher carriageReturnMatcher = Pattern.compile("\r").matcher(StringUtils.EMPTY);
+    private Matcher quoteMatcher = Pattern.compile("'").matcher(StringUtils.EMPTY);
+
     private String formatString(String value) {
 
         if (value != null) {
 
-            return value.replaceAll("\n", "\\\\n").
-                replaceAll("\r", "\\\\r").
-                replaceAll("'", "''");
+            String formattedValue = newLineMatcher.reset(value).replaceAll(NEW_LINE_REPLACEMENT);
+            formattedValue = carriageReturnMatcher.reset(formattedValue).replaceAll(CARRIAGE_RETURN_REPLACEMENT);
+            formattedValue = quoteMatcher.reset(formattedValue).replaceAll(QUOTE_REPLACEMENT);
+
+            return formattedValue;
         }
 
         return value;
     }
 
     private StringBuilder stringBuilder = new StringBuilder();
-    
+
     private String insertStatementForTable(ImportExportFile importExportFile, List<DatabaseColumn> columns) throws SQLException {
 
         DatabaseTable table = importExportFile.getDatabaseTable();
-        
+
         stringBuilder.setLength(0);
         stringBuilder.append("INSERT INTO ");
         stringBuilder.append(table.getName());
@@ -430,12 +435,12 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
 
             stringBuilder.append(((DatabaseTableColumn) columns.get(i)).getNameEscaped());
             if (i < (n - 1)) {
-                
+
                 stringBuilder.append(", ");
             }
 
         }
-        
+
         stringBuilder.append(") VALUES \n    (");
         return stringBuilder.toString();
     }
@@ -443,22 +448,22 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
     private List<DatabaseColumn> columnSelections(ImportExportFile importExportFile) {
 
         if (importExportFile.hasColumnSelections()) {
-            
+
             return importExportFile.getDatabaseTableColumns();
-            
+
         } else {
-            
+
             return importExportFile.getDatabaseTable().getColumns();
-        }        
+        }
     }
 
     private Statement statement;
-    
-    private ResultSet resultSetForExport(ImportExportFile importExportFile, List<DatabaseColumn> columns) 
-        throws SQLException {
+
+    private ResultSet resultSetForExport(ImportExportFile importExportFile, List<DatabaseColumn> columns)
+            throws SQLException {
 
         closeStatement(statement);
-        
+
         DatabaseTable table = importExportFile.getDatabaseTable();
 
         Connection connection = table.getHost().getConnection();
@@ -468,24 +473,24 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
     }
 
     private String selectStatementForExport(ImportExportFile importExportFile, List<DatabaseColumn> columns) {
-        
+
         DatabaseTable table = importExportFile.getDatabaseTable();
 
         StringBuilder sb = new StringBuilder("SELECT ");
         for (int i = 0, n = columns.size(); i < n; i++) {
-            
+
             DatabaseTableColumn column = (DatabaseTableColumn) columns.get(i);
             sb.append(column.getNameEscaped());
             if (i < (n - 1)) {
-                
+
                 sb.append(',');
             }
-            
+
         }
 
         sb.append(" FROM ");
         if (table.getParentNameForStatement() != null) {
-        
+
             sb.append(table.getParentNameForStatement());
             sb.append(".");
         }
@@ -495,50 +500,50 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
 
         return sb.toString();
     }
-    
+
     private boolean isCreateTableStatementsIncluded() {
 
-        return ((ExportAsSQLDataModel)importExportDataModel()).includeCreateTableStatements();
+        return ((ExportAsSQLDataModel) importExportDataModel()).includeCreateTableStatements();
     }
 
     private boolean isPrimaryKeyStatementsIncluded() {
 
-        return ((ExportAsSQLDataModel)importExportDataModel()).includePrimaryKeyConstraints();
+        return ((ExportAsSQLDataModel) importExportDataModel()).includePrimaryKeyConstraints();
     }
 
     private boolean isForeignKeyStatementsIncluded() {
 
-        return ((ExportAsSQLDataModel)importExportDataModel()).includeForeignKeyConstraints();
+        return ((ExportAsSQLDataModel) importExportDataModel()).includeForeignKeyConstraints();
     }
 
     private boolean isUniqueKeyStatementsIncluded() {
 
-        return ((ExportAsSQLDataModel)importExportDataModel()).includeUniqueKeyConstraints();
+        return ((ExportAsSQLDataModel) importExportDataModel()).includeUniqueKeyConstraints();
     }
 
     private String headerForTable(DatabaseTable table) {
-        
+
         StringBuilder sb = new StringBuilder();
-        
+
         sb.append("\n---\n--- Table: ");
         sb.append(table.getName());
         sb.append("\n---\n");
-        
+
         return sb.toString();
     }
 
     private String headerForPrimaryKeyConstraints() {
-        
+
         return "\n---\n--- Primary Keys: \n---\n";
     }
 
     private String headerForForeignKeyConstraints() {
-        
+
         return "\n---\n--- Foreign Keys: \n---\n";
     }
 
     private String headerForUniqueKeyConstraints() {
-        
+
         return "\n---\n--- Unique Keys: \n---\n";
     }
 
@@ -562,14 +567,15 @@ public class ExportAsSQLWorker extends BaseImportExportWorker {
     }
 
     private void logException(Throwable e) {
-     
+
         if (Log.isDebugEnabled()) {
-     
+
             Log.debug("Error on SQL export.", e);
         }
     }
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * ConnectionPool.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,31 +24,28 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 interface ConnectionPool {
 
     int MAX_POOL_SIZE = 50;
     int MIN_POOL_SIZE = 1;
     int INITIAL_POOL_SIZE = 1;
-    
+
     int getMaximumConnections();
-    
+
     void setMaximumConnections(int maximumConnections);
 
-    int getMinimumConnections();    
-    
+    int getMinimumConnections();
+
     void setMinimumConnections(int minimumConnections);
 
     DataSource getDataSource();
-    
+
     void setDataSource(DataSource dataSource);
 
     int getMaximumUseCount();
-    
+
     void setMaximumUseCount(int maximumUseCount);
 
     boolean isTransactionSupported();
@@ -58,18 +55,19 @@ interface ConnectionPool {
     Connection getConnection();
 
     void close();
-    
+
     void close(Connection connection);
 
     int getSize();
 
     int getPoolActiveSize();
-    
+
     int getInitialConnections();
-    
+
     void setInitialConnections(int initialConnections);
 
 }
+
 
 
 

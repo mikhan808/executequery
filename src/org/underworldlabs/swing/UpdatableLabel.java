@@ -1,7 +1,7 @@
 /*
  * UpdatableLabel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,43 +20,40 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Dimension;
-
-import javax.swing.Icon;
-import javax.swing.JLabel;
-import javax.swing.SwingUtilities;
+import javax.swing.*;
+import java.awt.*;
 
 public class UpdatableLabel extends JLabel {
 
-	public UpdatableLabel() {
-		super();
-	}
+    public UpdatableLabel() {
+        super();
+    }
 
-	public UpdatableLabel(Icon image, int horizontalAlignment) {
-		super(image, horizontalAlignment);
-	}
+    public UpdatableLabel(Icon image, int horizontalAlignment) {
+        super(image, horizontalAlignment);
+    }
 
-	public UpdatableLabel(Icon image) {
-	    super(image);
-	}
+    public UpdatableLabel(Icon image) {
+        super(image);
+    }
 
-	public UpdatableLabel(String text, Icon icon, int horizontalAlignment) {
-		super(text, icon, horizontalAlignment);
-	}
+    public UpdatableLabel(String text, Icon icon, int horizontalAlignment) {
+        super(text, icon, horizontalAlignment);
+    }
 
-	public UpdatableLabel(String text, int horizontalAlignment) {
-		super(text, horizontalAlignment);
-	}
+    public UpdatableLabel(String text, int horizontalAlignment) {
+        super(text, horizontalAlignment);
+    }
 
-	public UpdatableLabel(String text) {
-		super(text);
-	}
+    public UpdatableLabel(String text) {
+        super(text);
+    }
 
-	@Override
-	public void setText(String text) {
-	    super.setText(text);
-	    scheduleRepaint();
-	}
+    @Override
+    public void setText(String text) {
+        super.setText(text);
+        scheduleRepaint();
+    }
 
     private void scheduleRepaint() {
 
@@ -68,6 +65,7 @@ public class UpdatableLabel extends JLabel {
         };
         SwingUtilities.invokeLater(update);
     }
-	
+
 }
+
 

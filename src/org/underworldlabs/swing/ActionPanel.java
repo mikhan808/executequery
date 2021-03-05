@@ -1,7 +1,7 @@
 /*
  * ActionPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,72 +20,71 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.LayoutManager;
+import org.executequery.localization.Bundles;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
-import javax.swing.JPanel;
 
 /**
  * Base panel with default action listener implementation using reflection.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class ActionPanel extends JPanel
-                                  implements ActionListener {
-    
-    private static Object[] args;
-    private static Class<?>[] argTypes;
-    
+        implements ActionListener {
+
+    private Object[] args;
+    private Class<?>[] argTypes;
+
     public ActionPanel() {
         super();
     }
-    
+
     public ActionPanel(boolean isDoubleBuffered) {
         super(isDoubleBuffered);
     }
-    
+
     public ActionPanel(LayoutManager layout) {
         super(layout);
     }
-    
+
     public ActionPanel(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
     }
-    
+
     public void actionPerformed(ActionEvent e) {
 
         String command = e.getActionCommand();
-        
+
         try {
 
             if (argTypes == null) {
-                
+
                 argTypes = new Class[0];
             }
 
             Method method = getClass().getMethod(command, argTypes);
-            
+
             if (args == null) {
-        
+
                 args = new Object[0];
             }
 
             method.invoke(this, args);
-        
+
         } catch (Exception ex) {
-          
+
             ex.printStackTrace();
         }
-        
+
     }
-    
+
+    protected String bundleString(String key) {
+        return Bundles.get(getClass(), key);
+    }
+
 }
-
-
-
-
-
 

@@ -1,7 +1,7 @@
 /*
  * RefreshAutocompleteListCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,10 +23,9 @@ package org.executequery.actions.queryeditor;
 import java.awt.event.ActionEvent;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision$
- * @date     $Date$
+ * @author Takis Diakoumis
+ * @version $Revision$
+ * @date $Date$
  */
 public class RefreshAutocompleteListCommand extends AbstractQueryEditorCommand {
 
@@ -36,8 +35,9 @@ public class RefreshAutocompleteListCommand extends AbstractQueryEditorCommand {
 
             queryEditor().refreshAutocompleteList();
         }
-        
+
     }
-    
+
 }
+
 

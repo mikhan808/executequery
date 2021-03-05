@@ -1,7 +1,7 @@
 /*
  * HelpLinkLabel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,21 +20,17 @@
 
 package org.executequery.gui.help;
 
-import java.awt.event.ActionEvent;
-
+import com.sun.java.help.impl.JHSecondaryViewer;
 import org.executequery.ApplicationException;
 import org.executequery.GUIUtilities;
 import org.executequery.util.SystemWebBrowserLauncher;
 import org.underworldlabs.util.MiscUtils;
 
-import com.sun.java.help.impl.JHSecondaryViewer;
+import java.awt.event.ActionEvent;
 
-/** 
-*
-* @author   Takis Diakoumis
-* @version  $Revision: 1487 $
-* @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
-*/
+/**
+ * @author Takis Diakoumis
+ */
 public class HelpLinkLabel extends JHSecondaryViewer {
 
     private String mouseOverText;
@@ -49,19 +45,19 @@ public class HelpLinkLabel extends JHSecondaryViewer {
     public void actionPerformed(ActionEvent e) {
 
         String redirect = getUrlRedirect();
-        
+
         if (!MiscUtils.isNull(redirect)) {
-            
+
             try {
-                
+
                 new SystemWebBrowserLauncher().launch(redirect);
-                
+
             } catch (ApplicationException applicationException) {
-                
+
                 GUIUtilities.displayExceptionErrorDialog(
-                        "Error launching local web browser:\n" + 
-                        applicationException.getMessage(), applicationException);
-                
+                        "Error launching local web browser:\n" +
+                                applicationException.getMessage(), applicationException);
+
             }
 
         }
@@ -84,8 +80,9 @@ public class HelpLinkLabel extends JHSecondaryViewer {
         this.mouseOverText = mouseOverText;
         setToolTipText(mouseOverText);
     }
-    
+
 }
+
 
 
 

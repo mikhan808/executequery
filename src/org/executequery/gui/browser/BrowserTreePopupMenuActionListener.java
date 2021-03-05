@@ -1,7 +1,7 @@
 /*
  * BrowserTreePopupMenuActionListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,34 +20,36 @@
 
 package org.executequery.gui.browser;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JPanel;
-import javax.swing.tree.TreePath;
-
 import org.executequery.GUIUtilities;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.databaseobjects.DatabaseHost;
 import org.executequery.databaseobjects.DatabaseObject;
 import org.executequery.databaseobjects.DatabaseTable;
 import org.executequery.databaseobjects.NamedObject;
+import org.executequery.databaseobjects.impl.*;
 import org.executequery.gui.BaseDialog;
+import org.executequery.gui.ExecuteQueryDialog;
+import org.executequery.gui.browser.managment.WindowAddRole;
 import org.executequery.gui.browser.nodes.DatabaseHostNode;
+import org.executequery.gui.browser.nodes.DatabaseObjectNode;
+import org.executequery.gui.databaseobjects.*;
+import org.executequery.gui.importexport.ImportExportDataProcess;
 import org.executequery.gui.importexport.ImportExportDelimitedPanel;
 import org.executequery.gui.importexport.ImportExportExcelPanel;
-import org.executequery.gui.importexport.ImportExportProcess;
 import org.executequery.gui.importexport.ImportExportXMLPanel;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.swing.actions.ActionBuilder;
 import org.underworldlabs.swing.actions.ReflectiveAction;
+import org.underworldlabs.util.MiscUtils;
+
+import javax.swing.*;
+import javax.swing.tree.TreePath;
+import java.awt.event.ActionEvent;
+import java.util.Objects;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
 
@@ -68,16 +70,485 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
         currentPath = null;
     }
 
+    public void deleteObject(ActionEvent e) {
+        if (currentPath != null && currentSelection != null) {
+            DatabaseObjectNode node = (DatabaseObjectNode) currentPath.getLastPathComponent();
+            DatabaseObject object = (DatabaseObject) node.getUserObject();
+            StringBuilder sb = new StringBuilder();
+            sb.append(node.getShortName());
+            sb.append(":");
+            sb.append(node.getMetaDataKey());
+            sb.append(":");
+            sb.append(object.getHost());
+            if (GUIUtilities.getOpenFrame(sb.toString()) != null) {
+                GUIUtilities.displayErrorMessage(bundledString("messageInUse", node.getShortName()));
+                return;
+            }
+            String type;
+            if (node.getType() == NamedObject.GLOBAL_TEMPORARY)
+                type = NamedObject.META_TYPES[NamedObject.TABLE];
+            else if (node.getType() == NamedObject.DATABASE_TRIGGER)
+                type = NamedObject.META_TYPES[NamedObject.TRIGGER];
+            else
+                type = NamedObject.META_TYPES[node.getType()];
+            String query = "DROP " + type + " " + MiscUtils.getFormattedObject(node.getName());
+            ExecuteQueryDialog eqd = new ExecuteQueryDialog("Dropping object", query, currentSelection, true);
+            eqd.display();
+            if (eqd.getCommit())
+                treePanel.reloadPath(currentPath.getParentPath());
+        }
+
+    }
+
+    public void createObject(ActionEvent e) {
+        if (currentPath != null && currentSelection != null) {
+            DatabaseObjectNode node = (DatabaseObjectNode) currentPath.getLastPathComponent();
+            int type = node.getType();
+            if (type == NamedObject.META_TAG)
+                for (int i = 0; i < NamedObject.META_TYPES.length; i++)
+                    if (NamedObject.META_TYPES[i].equals(node.getMetaDataKey())) {
+                        type = i;
+                        break;
+                    }
+            switch (type) {
+                case NamedObject.TABLE:
+                    if (GUIUtilities.isDialogOpen(CreateTablePanel.TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateTablePanel.TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateTablePanel.TITLE, false);
+                            CreateTablePanel panel = new CreateTablePanel(currentSelection, dialog, false);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.ROLE:
+                    try {
+                        GUIUtilities.showWaitCursor();
+                        BaseDialog dialog =
+                                new BaseDialog(WindowAddRole.TITLE, true);
+                        WindowAddRole panel = new WindowAddRole(dialog, currentSelection);
+                        dialog.addDisplayComponentWithEmptyBorder(panel);
+                        dialog.display();
+                        treePanel.reloadPath(currentPath.getParentPath());
+                    } finally {
+                        GUIUtilities.showNormalCursor();
+                    }
+                    break;
+                case NamedObject.SEQUENCE:
+                    if (GUIUtilities.isDialogOpen(CreateGeneratorPanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateGeneratorPanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateGeneratorPanel.CREATE_TITLE, false);
+                            CreateGeneratorPanel panel = new CreateGeneratorPanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.VIEW:
+                    if (GUIUtilities.isDialogOpen(CreateViewPanel.TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateViewPanel.TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateViewPanel.TITLE, false);
+                            CreateViewPanel panel = new CreateViewPanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.DOMAIN:
+                    if (GUIUtilities.isDialogOpen(CreateDomainPanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateDomainPanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateDomainPanel.CREATE_TITLE, false);
+                            CreateDomainPanel panel = new CreateDomainPanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.PROCEDURE:
+                    if (GUIUtilities.isDialogOpen(CreateProcedurePanel.TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateProcedurePanel.TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateProcedurePanel.TITLE, false);
+                            CreateProcedurePanel panel = new CreateProcedurePanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.TRIGGER:
+                case NamedObject.DATABASE_TRIGGER:
+                case NamedObject.DDL_TRIGGER:
+                    if (GUIUtilities.isDialogOpen(CreateTriggerPanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateTriggerPanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateTriggerPanel.CREATE_TITLE, false);
+                            CreateTriggerPanel panel = new CreateTriggerPanel(currentSelection, dialog,
+                                    type);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.EXCEPTION:
+                    if (GUIUtilities.isDialogOpen(CreateExceptionPanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateExceptionPanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateExceptionPanel.CREATE_TITLE, false);
+                            CreateExceptionPanel panel = new CreateExceptionPanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.INDEX:
+                    if (GUIUtilities.isDialogOpen(CreateIndexPanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateIndexPanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateIndexPanel.CREATE_TITLE, false);
+                            CreateIndexPanel panel = new CreateIndexPanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.FUNCTION:
+                    if (GUIUtilities.isDialogOpen(CreateFunctionPanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateFunctionPanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateFunctionPanel.CREATE_TITLE, false);
+                            CreateFunctionPanel panel = new CreateFunctionPanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.UDF:
+                    if (GUIUtilities.isDialogOpen(CreateUDFPanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateUDFPanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateUDFPanel.CREATE_TITLE, false);
+                            CreateUDFPanel panel = new CreateUDFPanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.PACKAGE:
+                    if (GUIUtilities.isDialogOpen(CreatePackagePanel.CREATE_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreatePackagePanel.CREATE_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreatePackagePanel.CREATE_TITLE, false);
+                            CreatePackagePanel panel = new CreatePackagePanel(currentSelection, dialog);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.GLOBAL_TEMPORARY:
+                    if (GUIUtilities.isDialogOpen(CreateTablePanel.TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateTablePanel.TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateTablePanel.TITLE, false);
+                            CreateTablePanel panel = new CreateTablePanel(currentSelection, dialog, true);
+                            showDialogCreateObject(panel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                default:
+                    GUIUtilities.displayErrorMessage(bundledString("temporaryInconvenience"));
+                    break;
+
+
+            }
+        }
+
+    }
+
+    public void editObject(ActionEvent e) {
+        if (currentPath != null && currentSelection != null) {
+            DatabaseObjectNode node = (DatabaseObjectNode) currentPath.getLastPathComponent();
+            AbstractCreateObjectPanel createObjectPanel = null;
+            int type = node.getType();
+            if (type == NamedObject.META_TAG)
+                for (int i = 0; i < NamedObject.META_TYPES.length; i++)
+                    if (Objects.equals(NamedObject.META_TYPES[i], node.getName())) {
+                        type = i;
+                        break;
+                    }
+            switch (type) {
+                case NamedObject.TABLE:
+                case NamedObject.GLOBAL_TEMPORARY:
+                case NamedObject.ROLE:
+                    treePanel.valueChanged(node, currentSelection);
+                    break;
+                case NamedObject.SEQUENCE:
+                    if (GUIUtilities.isDialogOpen(CreateGeneratorPanel.ALTER_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateGeneratorPanel.ALTER_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateGeneratorPanel.ALTER_TITLE, false);
+                            createObjectPanel = new CreateGeneratorPanel(currentSelection, dialog, (DefaultDatabaseSequence) node.getDatabaseObject());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.VIEW:
+                    if (GUIUtilities.isDialogOpen(CreateViewPanel.EDIT_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateViewPanel.EDIT_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateViewPanel.EDIT_TITLE, false);
+                            createObjectPanel = new CreateViewPanel(currentSelection, dialog, (DefaultDatabaseView) node.getDatabaseObject());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.PROCEDURE:
+                    if (GUIUtilities.isDialogOpen(CreateProcedurePanel.EDIT_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateProcedurePanel.EDIT_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+
+                            BaseDialog dialog = new BaseDialog(CreateProcedurePanel.EDIT_TITLE, false);
+                            createObjectPanel = new CreateProcedurePanel(currentSelection, dialog, node.getName().trim());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.DOMAIN:
+                    if (GUIUtilities.isDialogOpen(CreateDomainPanel.EDIT_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateDomainPanel.EDIT_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+
+                            BaseDialog dialog = new BaseDialog(CreateDomainPanel.EDIT_TITLE, false);
+                            createObjectPanel = new CreateDomainPanel(currentSelection, dialog, node.getName().trim());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.TRIGGER:
+                case NamedObject.DATABASE_TRIGGER:
+                case NamedObject.DDL_TRIGGER:
+                    if (GUIUtilities.isDialogOpen(CreateTriggerPanel.EDIT_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateTriggerPanel.EDIT_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+
+                            BaseDialog dialog = new BaseDialog(CreateTriggerPanel.EDIT_TITLE, false);
+                            createObjectPanel = new CreateTriggerPanel(currentSelection, dialog,
+                                    (DefaultDatabaseTrigger) node.getDatabaseObject(), type);
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.EXCEPTION:
+                    if (GUIUtilities.isDialogOpen(CreateExceptionPanel.ALTER_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateExceptionPanel.ALTER_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateExceptionPanel.ALTER_TITLE, false);
+                            createObjectPanel = new CreateExceptionPanel(currentSelection, dialog, (DefaultDatabaseException) node.getDatabaseObject());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.INDEX:
+                    if (GUIUtilities.isDialogOpen(CreateIndexPanel.ALTER_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateIndexPanel.ALTER_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+                            BaseDialog dialog =
+                                    new BaseDialog(CreateIndexPanel.ALTER_TITLE, false);
+                            createObjectPanel = new CreateIndexPanel(currentSelection, dialog, (DefaultDatabaseIndex) node.getDatabaseObject());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.FUNCTION:
+                    if (GUIUtilities.isDialogOpen(CreateFunctionPanel.EDIT_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateFunctionPanel.EDIT_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+
+                            BaseDialog dialog = new BaseDialog(CreateFunctionPanel.EDIT_TITLE, false);
+                            createObjectPanel = new CreateFunctionPanel(currentSelection, dialog, node.getName().trim(), (DefaultDatabaseFunction) node.getDatabaseObject());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.UDF:
+                    if (GUIUtilities.isDialogOpen(CreateUDFPanel.EDIT_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreateUDFPanel.EDIT_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+
+                            BaseDialog dialog = new BaseDialog(CreateUDFPanel.EDIT_TITLE, false);
+                            createObjectPanel = new CreateUDFPanel(currentSelection, dialog, node.getDatabaseObject());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                case NamedObject.PACKAGE:
+                    if (GUIUtilities.isDialogOpen(CreatePackagePanel.ALTER_TITLE)) {
+
+                        GUIUtilities.setSelectedDialog(CreatePackagePanel.ALTER_TITLE);
+
+                    } else {
+                        try {
+                            GUIUtilities.showWaitCursor();
+
+                            BaseDialog dialog = new BaseDialog(CreatePackagePanel.ALTER_TITLE, false);
+                            createObjectPanel = new CreatePackagePanel(currentSelection, dialog, (DefaultDatabasePackage) node.getDatabaseObject());
+                            showDialogCreateObject(createObjectPanel, dialog);
+                        } finally {
+                            GUIUtilities.showNormalCursor();
+                        }
+                    }
+                    break;
+                default:
+                    GUIUtilities.displayErrorMessage(bundledString("temporaryInconvenience"));
+                    break;
+            }
+        }
+
+    }
+
     public void addNewConnection(ActionEvent e) {
         treePanel.newConnection();
     }
 
     public void switchDefaultCatalogAndSchemaDisplay(ActionEvent e) {
 
-        JCheckBoxMenuItem check = (JCheckBoxMenuItem)e.getSource();
+        JCheckBoxMenuItem check = (JCheckBoxMenuItem) e.getSource();
 
         DatabaseHostNode node =
-            (DatabaseHostNode)currentPath.getLastPathComponent();
+                (DatabaseHostNode) currentPath.getLastPathComponent();
         node.setDefaultCatalogsAndSchemasOnly(check.isSelected());
 
         treePanel.nodeStructureChanged(node);
@@ -85,8 +556,7 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
 
     public void delete(ActionEvent e) {
         if (currentPath != null) {
-            DatabaseHostNode node =
-                    (DatabaseHostNode)currentPath.getLastPathComponent();
+            DatabaseHostNode node = (DatabaseHostNode) currentPath.getLastPathComponent();
             treePanel.deleteConnection(node);
         }
     }
@@ -95,8 +565,7 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
         DatabaseHost host = treePanel.getSelectedMetaObject();
         try {
             host.recycleConnection();
-        }
-        catch (DataSourceException dse) {
+        } catch (DataSourceException dse) {
             handleException(dse);
         }
     }
@@ -109,11 +578,17 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
 
     public void copyName(ActionEvent e) {
         if (currentPath != null) {
-            String name = currentPath.getLastPathComponent().toString();
+            String name;
+            if (currentPath.getLastPathComponent() instanceof DatabaseObjectNode) {
+                DatabaseObjectNode node = (DatabaseObjectNode) currentPath.getLastPathComponent();
+                if (node.getDatabaseObject() instanceof DefaultDatabaseColumn)
+                    name = node.getDatabaseObject().getParent().getName() + "." + node.getName();
+                else name = node.getName();
+            } else name = currentPath.getLastPathComponent().toString();
             GUIUtilities.copyToClipBoard(name);
         }
     }
-    
+
     public void disconnect(ActionEvent e) {
         treePanel.disconnect(currentSelection);
     }
@@ -123,7 +598,7 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
         if (currentSelection != null) {
 
             String name = treePanel.buildConnectionName(
-                            currentSelection.getName() + " (Copy") + ")";
+                    currentSelection.getName() + " (" + Bundles.getCommon("copy")) + ")";
             DatabaseConnection dc = currentSelection.copy().withName(name);
             treePanel.newConnection(dc);
         }
@@ -131,7 +606,7 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
     }
 
     public void duplicateWithSource(ActionEvent e) {
-        
+
         if (currentSelection != null) {
 
             String selectedSource = currentPath.getLastPathComponent().toString();
@@ -139,27 +614,39 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
             DatabaseConnection dc = currentSelection.copy().withSource(selectedSource).withName(name);
             treePanel.newConnection(dc);
         }
-        
+
     }
-    
+
     public void exportExcel(ActionEvent e) {
-        importExportDialog(ImportExportProcess.EXCEL);
+        importExportDialog(ImportExportDataProcess.EXCEL);
     }
 
     public void importXml(ActionEvent e) {
-        importExportDialog(ImportExportProcess.IMPORT_XML);
+        importExportDialog(ImportExportDataProcess.IMPORT_XML);
     }
 
     public void exportXml(ActionEvent e) {
-        importExportDialog(ImportExportProcess.EXPORT_XML);
+        importExportDialog(ImportExportDataProcess.EXPORT_XML);
     }
 
     public void importDelimited(ActionEvent e) {
-        importExportDialog(ImportExportProcess.IMPORT_DELIMITED);
+        importExportDialog(ImportExportDataProcess.IMPORT_DELIMITED);
     }
 
     public void exportDelimited(ActionEvent e) {
-        importExportDialog(ImportExportProcess.EXPORT_DELIMITED);
+        importExportDialog(ImportExportDataProcess.EXPORT_DELIMITED);
+    }
+
+    public void exportDbunit(ActionEvent e) {
+
+        NamedObject object = treePanel.getSelectedNamedObject();
+
+        if (object != null && (object instanceof DatabaseTable)) {
+
+            Action action = ActionBuilder.get("export-dbunit-command");
+            action.actionPerformed(new ActionEvent(object, e.getID(), e.getActionCommand()));
+        }
+
     }
 
     public void exportSQL(ActionEvent e) {
@@ -181,7 +668,7 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
         //reloadView = true;
         treePanel.setSelectedConnection(currentSelection);
     }
-    
+
     public void connect(ActionEvent e) {
         treePanel.connect(currentSelection);
     }
@@ -195,7 +682,7 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
 
         DatabaseConnection dc = treePanel.getSelectedDatabaseConnection();
 
-        DatabaseObject _object = (DatabaseObject)object;
+        DatabaseObject _object = (DatabaseObject) object;
         String schemaName = _object.getNamePrefix(); // _object.getSchemaName();
         String tableName = _object.getName();
 
@@ -206,53 +693,56 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
             GUIUtilities.showWaitCursor();
             switch (transferType) {
 
-                case ImportExportProcess.EXPORT_DELIMITED:
-                    dialog = new BaseDialog("Export Data", false, false);
+                case ImportExportDataProcess.EXPORT_DELIMITED:
+                    dialog = new BaseDialog(bundledString("ExportData"), false, false);
                     panel = new ImportExportDelimitedPanel(
-                                    dialog, ImportExportProcess.EXPORT,
-                                    dc, schemaName, tableName);
+                            dialog, ImportExportDataProcess.EXPORT,
+                            dc, schemaName, tableName);
                     break;
 
-                case ImportExportProcess.IMPORT_DELIMITED:
-                    dialog = new BaseDialog("Import Data", false, false);
+                case ImportExportDataProcess.IMPORT_DELIMITED:
+                    dialog = new BaseDialog(bundledString("ImportData"), false, false);
                     panel = new ImportExportDelimitedPanel(
-                                    dialog, ImportExportProcess.IMPORT,
-                                    dc, schemaName, tableName);
+                            dialog, ImportExportDataProcess.IMPORT,
+                            dc, schemaName, tableName);
                     break;
 
-                case ImportExportProcess.EXPORT_XML:
-                    dialog = new BaseDialog("Export XML", false, false);
+                case ImportExportDataProcess.EXPORT_XML:
+                    dialog = new BaseDialog(bundledString("exportXml"), false, false);
                     panel = new ImportExportXMLPanel(
-                                    dialog, ImportExportProcess.EXPORT,
-                                    dc, schemaName, tableName);
+                            dialog, ImportExportDataProcess.EXPORT,
+                            dc, schemaName, tableName);
                     break;
 
-                case ImportExportProcess.IMPORT_XML:
-                    dialog = new BaseDialog("Import XML", false, false);
+                case ImportExportDataProcess.IMPORT_XML:
+                    dialog = new BaseDialog(bundledString("importXml"), false, false);
                     panel = new ImportExportXMLPanel(
-                                    dialog, ImportExportProcess.IMPORT,
-                                    dc, schemaName, tableName);
+                            dialog, ImportExportDataProcess.IMPORT,
+                            dc, schemaName, tableName);
                     break;
 
-                case ImportExportProcess.EXCEL:
-                    dialog = new BaseDialog("Export Excel Spreadsheet", false, false);
+                case ImportExportDataProcess.EXCEL:
+                    dialog = new BaseDialog(bundledString("exportExcel"), false, false);
                     panel = new ImportExportExcelPanel(
-                                    dialog, ImportExportProcess.EXPORT,
-                                    dc, schemaName, tableName);
+                            dialog, ImportExportDataProcess.EXPORT,
+                            dc, schemaName, tableName);
                     break;
 
             }
 
-            dialog.addDisplayComponent(panel);
-            dialog.display();
-        }
-        finally {
+            if (dialog != null) {
+                dialog.addDisplayComponent(panel);
+            }
+            if (dialog != null) {
+                dialog.display();
+            }
+        } finally {
             GUIUtilities.showNormalCursor();
         }
     }
 
     private DatabaseTable getSelectedTable() {
-        return (DatabaseTable)treePanel.getSelectedNamedObject();
+        return (DatabaseTable) treePanel.getSelectedNamedObject();
     }
 
     private StatementToEditorWriter getStatementWriter() {
@@ -321,7 +811,18 @@ public class BrowserTreePopupMenuActionListener extends ReflectiveAction {
         return currentPath;
     }
 
+    protected void showDialogCreateObject(AbstractCreateObjectPanel panel, BaseDialog dialog) {
+        panel.setTreePanel(treePanel);
+        panel.setCurrentPath(currentPath);
+        dialog.addDisplayComponentWithEmptyBorder(panel);
+        dialog.display();
+    }
+
+    protected void showDialogCreateObject(CreateTablePanel panel, BaseDialog dialog) {
+        panel.setTreePanel(treePanel);
+        panel.setCurrentPath(currentPath);
+        dialog.addDisplayComponentWithEmptyBorder(panel);
+        dialog.display();
+    }
+
 }
-
-
-

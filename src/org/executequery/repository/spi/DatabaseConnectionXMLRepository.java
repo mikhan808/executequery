@@ -1,7 +1,7 @@
 /*
  * DatabaseConnectionXMLRepository.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,15 +20,6 @@
 
 package org.executequery.repository.spi;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-import java.util.Vector;
-
-import org.apache.commons.lang.StringUtils;
 import org.executequery.Constants;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.databasemediators.DatabaseConnectionFactory;
@@ -43,8 +34,12 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<DatabaseConnection>
-                                             implements DatabaseConnectionRepository {
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+
+public class DatabaseConnectionXMLRepository extends AbstractXMLResourceReaderWriter<DatabaseConnection>
+        implements DatabaseConnectionRepository {
 
     private static final String FILE_PATH = "savedconnections.xml";
 
@@ -55,6 +50,23 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
     public List<DatabaseConnection> findAll() {
 
         return connections();
+    }
+
+    @Override
+    public DatabaseConnection add(DatabaseConnection databaseConnection) {
+
+        String name = databaseConnection.getName();
+
+        int count = 1;
+        while (nameExists(null, name)) {
+
+            name += "_" + (count++);
+        }
+
+        databaseConnection.setName(name);
+        connections().add(databaseConnection);
+
+        return databaseConnection;
     }
 
     public DatabaseConnection findById(String id) {
@@ -77,14 +89,14 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
         synchronized (_connections) {
 
             for (DatabaseConnection connection : _connections) {
-                
+
                 if (connection.getName().equals(name)) {
-                    
+
                     return connection;
                 }
-                
+
             }
-            
+
         }
 
         return null;
@@ -93,22 +105,22 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
     public boolean nameExists(DatabaseConnection exclude, String name) {
 
         DatabaseConnection connection = findByName(name);
-        if (connection != null && connection != exclude) {
+        return connection != null && connection != exclude;
 
-            return true;
-        }
-
-        return false;
     }
 
     public synchronized void save() {
 
         if (namesValid()) {
-            
-            write(filePath(), new DatabaseConnectionParser(),
-                    new DatabaseConnectionInputSource(connections));
+
+            save(filePath(), connections);
         }
 
+    }
+
+    public void save(String path, List<DatabaseConnection> databaseConnections) {
+
+        write(path, new DatabaseConnectionParser(), new DatabaseConnectionInputSource(databaseConnections));
     }
 
     public String getId() {
@@ -134,13 +146,18 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
 
     private List<DatabaseConnection> open() {
 
+        ensureFileExists();
+        return open(filePath());
+    }
+
+    public List<DatabaseConnection> open(String filePath) {
+
         try {
-        
-            ensureFileExists();
-            return (List<DatabaseConnection>) read(filePath(), new DatabaseConnectionHandler());
+
+            return read(filePath, new DatabaseConnectionHandler());
 
         } catch (RepositoryException e) {
-            
+
             Log.error("Error reading saved connections file - " + e.getMessage(), e);
             return new ArrayList<DatabaseConnection>(0);
         }
@@ -167,8 +184,8 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
 
     private boolean namesValid() {
 
-        for (DatabaseConnection connection : connections()) {
-
+        for (int i = 0; i < connections().size(); i++) {
+            DatabaseConnection connection = connections().get(i);
             if (nameExists(connection, connection.getName())) {
 
                 throw new RepositoryException(
@@ -188,6 +205,9 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
     private static final String NAME = "name";
     private static final String USER = "user";
     private static final String PASSWORD = "password";
+    private static final String CONTAINER_PASSWORD = "container_password";
+    private static final String VERIFY_SERVER = "verify_server";
+    private static final String USE_NEW_API = "use_new_api";
     private static final String FOLDER_ID = "folderid";
     private static final String ENCRYPTED = "encrypted";
     private static final String DRIVER_ID = "driverid";
@@ -197,6 +217,11 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
     private static final String AUTO_COMMIT = "autocommit";
     private static final String PORT = "port";
     private static final String CHARSET = "charset";
+    private static final String ROLE = "role";
+    private static final String SERVER_VERSION = "server_version";
+    private static final String CERTIFICATE = "certificate";
+    private static final String AUTH_METHOD = "authmethod";
+    private static final String CONNECTION_METHOD = "connectionmethod";
     private static final String URL = "url";
     private static final String DRIVER_NAME = "drivername";
     private static final String ADVANCED = "advanced";
@@ -204,11 +229,13 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
     private static final String KEY = "key";
     private static final String VALUE = "value";
     private static final String STORE_PASSWORD = "storepassword";
+    private static final String STORE_CONTAINER_PASSWORD = "storecontainerpassword";
     private static final String SSH_TUNNEL = "sshtunnel";
     private static final String SSH_USER_NAME = "sshusername";
     private static final String SSH_PASSWORD = "sshpassword";
     private static final String SSH_PORT = "sshport";
     private static final String SSH_STORE_PASSWORD = "sshstorepassword";
+    private static final String NAMES_TO_UPPER_CASE = "namestouppercase";
 
     class DatabaseConnectionHandler extends AbstractXMLRepositoryHandler<DatabaseConnection> {
 
@@ -238,6 +265,24 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                     connection.setPasswordStored(Boolean.parseBoolean(value));
                 }
 
+                value = attrs.getValue(STORE_CONTAINER_PASSWORD);
+                if (!MiscUtils.isNull(value)) {
+
+                    connection.setContainerPasswordStored(Boolean.parseBoolean(value));
+                }
+
+                value = attrs.getValue(VERIFY_SERVER);
+                if (!MiscUtils.isNull(value)) {
+
+                    connection.setVerifyServerCertCheck(Boolean.parseBoolean(value));
+                }
+
+                value = attrs.getValue(USE_NEW_API);
+                if (!MiscUtils.isNull(value)) {
+
+                    connection.setUseNewAPI(Boolean.parseBoolean(value));
+                }
+
             } else if (localName.equals(PASSWORD)) {
 
                 String value = attrs.getValue(ENCRYPTED);
@@ -246,8 +291,7 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                     connection().setPasswordEncrypted(Boolean.parseBoolean(value));
                 }
 
-            }
-            else if (localName.equals(PROPERTY)) {
+            } else if (localName.equals(PROPERTY)) {
 
                 if (advancedProperties == null) {
 
@@ -264,7 +308,7 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
         public void endElement(String nameSpaceURI, String localName, String qName) {
 
             // this could be better... o_O
-            
+
             String contentsAsString = contentsAsString();
             DatabaseConnection databaseConnection = connection();
             if (localNameIsKey(localName, NAME)) {
@@ -300,6 +344,20 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                     databaseConnection.setPasswordStored(false);
                 }
 
+            } else if (localNameIsKey(localName, CONTAINER_PASSWORD)) {
+
+                if (hasContents()) {
+
+                    String value = contentsAsString;
+                    databaseConnection.setContainerPassword(value);
+
+                    databaseConnection.setContainerPasswordStored(true);
+
+                } else {
+
+                    databaseConnection.setContainerPasswordStored(false);
+                }
+
             } else if (localNameIsKey(localName, HOST)) {
 
                 databaseConnection.setHost(contentsAsString);
@@ -316,6 +374,27 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
 
                 databaseConnection.setCharset(contentsAsString);
 
+            } else if (localNameIsKey(localName, ROLE)) {
+
+                databaseConnection.setRole(contentsAsString);
+
+            } else if (localNameIsKey(localName, SERVER_VERSION)) {
+
+                if (!contentsAsString.isEmpty())
+                    databaseConnection.setServerVersion(Integer.parseInt(contentsAsString));
+
+            } else if (localNameIsKey(localName, CERTIFICATE)) {
+
+                databaseConnection.setCertificate(contentsAsString);
+
+            } else if (localNameIsKey(localName, AUTH_METHOD)) {
+
+                databaseConnection.setAuthMethod(contentsAsString);
+
+            } else if (localNameIsKey(localName, CONNECTION_METHOD)) {
+
+                databaseConnection.setConnectionMethod(contentsAsString);
+
             } else if (localNameIsKey(localName, URL)) {
 
                 databaseConnection.setURL(contentsAsString);
@@ -325,50 +404,50 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                 databaseConnection.setDriverId(contentsAsLong());
 
             } else if (localNameIsKey(localName, FOLDER_ID)) {
-                
+
                 databaseConnection.setFolderId(contentsAsString);
-                
+
             } else if (localNameIsKey(localName, DRIVER_NAME)) {
 
                 databaseConnection.setDriverName(contentsAsString);
 
             } else if (localNameIsKey(localName, SSH_STORE_PASSWORD)) {
-                
+
                 if (hasContents()) {
-                
+
                     databaseConnection.setSshPasswordStored(Boolean.valueOf(contentsAsString));
-                
+
                 } else {
 
                     databaseConnection.setSshPasswordStored(false);
                 }
-                
+
             } else if (localNameIsKey(localName, SSH_TUNNEL)) {
-                
+
                 if (hasContents()) {
-                    
+
                     databaseConnection.setSshTunnel(Boolean.valueOf(contentsAsString));
-                    
+
                 } else {
-                    
+
                     databaseConnection.setSshTunnel(false);
                 }
-                
+
             } else if (localNameIsKey(localName, SSH_USER_NAME)) {
-                
+
                 databaseConnection.setSshUserName(contentsAsString);
-                
+
             } else if (localNameIsKey(localName, SSH_PASSWORD)) {
-                
+
                 databaseConnection.setEncryptedSshPassword(contentsAsString);
-                
+
             } else if (localNameIsKey(localName, SSH_PORT)) {
-                
+
                 if (hasContents()) {
-                 
+
                     databaseConnection.setSshPort(contentsAsInt());
                 }
-                
+
             } else if (localNameIsKey(localName, AUTO_COMMIT)) {
 
                 if (hasContents()) {
@@ -376,8 +455,7 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                     databaseConnection.setAutoCommit(contentsAsBoolean());
                 }
 
-            }
-            else if (localNameIsKey(localName, TX_ISOLATION)) {
+            } else if (localNameIsKey(localName, TX_ISOLATION)) {
 
                 if (hasContents()) {
 
@@ -388,16 +466,22 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                     databaseConnection.setTransactionIsolation(-1);
                 }
 
-            }
-            else if (localNameIsKey(localName, ADVANCED)) {
+            } else if (localNameIsKey(localName, ADVANCED)) {
 
                 if (advancedProperties != null && advancedProperties.size() > 0) {
 
                     databaseConnection.setJdbcProperties(advancedProperties);
                 }
 
-            }
-            else if (localNameIsKey(localName, CONNECTION)) {
+            } else if (localNameIsKey(localName, NAMES_TO_UPPER_CASE)) {
+                if (hasContents()) {
+
+                    databaseConnection.setNamesToUpperCase(contentsAsBoolean());
+                } else {
+                    databaseConnection.setNamesToUpperCase(true);
+                }
+
+            } else if (localNameIsKey(localName, CONNECTION)) {
 
                 if (databaseConnection != null) {
 
@@ -462,7 +546,8 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
 
     class DatabaseConnectionParser extends AbstractXMLRepositoryParser {
 
-        public DatabaseConnectionParser() {}
+        public DatabaseConnectionParser() {
+        }
 
         public void parse(InputSource input) throws SAXException, IOException {
 
@@ -472,11 +557,11 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                         "Parser can only accept a DatabaseDriverInputSource");
             }
 
-            parse((DatabaseConnectionInputSource)input);
+            parse((DatabaseConnectionInputSource) input);
         }
 
         public void parse(DatabaseConnectionInputSource input)
-            throws IOException, SAXException {
+                throws IOException, SAXException {
 
             validateHandler();
 
@@ -499,15 +584,25 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
         }
 
         private void writeXMLRows(List<DatabaseConnection> connections)
-            throws SAXException {
+                throws SAXException {
 
-            for (DatabaseConnection connection : connections) {
+            for (int index = 0; index < connections.size(); index++) {
+                DatabaseConnection connection = connections.get(index);
 
                 handler().ignorableWhitespace(
                         INDENT_ONE.toCharArray(), 0, INDENT_ONE.length());
 
                 attributes().addAttribute(NSU, STORE_PASSWORD, STORE_PASSWORD,
                         CDDATA, valueToString(connection.isPasswordStored()));
+
+                attributes().addAttribute(NSU, STORE_CONTAINER_PASSWORD, STORE_CONTAINER_PASSWORD,
+                        CDDATA, valueToString(connection.isContainerPasswordStored()));
+
+                attributes().addAttribute(NSU, VERIFY_SERVER, VERIFY_SERVER,
+                        CDDATA, valueToString(connection.isVerifyServerCertCheck()));
+
+                attributes().addAttribute(NSU, USE_NEW_API, USE_NEW_API,
+                        CDDATA, valueToString(connection.useNewAPI()));
 
                 handler().startElement(NSU, CONNECTION, CONNECTION, attributes());
 
@@ -518,7 +613,7 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                 writeXML(USER, connection.getUserName(), INDENT_TWO);
 
                 attributes().addAttribute(NSU, ENCRYPTED, ENCRYPTED, CDDATA,
-                                  valueToString(connection.isPasswordEncrypted()));
+                        valueToString(connection.isPasswordEncrypted()));
 
                 if (connection.isPasswordStored()) {
 
@@ -529,12 +624,26 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
                     writeXML(PASSWORD, Constants.EMPTY, INDENT_TWO);
                 }
 
+                if (connection.isContainerPasswordStored()) {
+
+                    writeXML(CONTAINER_PASSWORD, connection.getContainerPassword(), INDENT_TWO);
+
+                } else {
+
+                    writeXML(CONTAINER_PASSWORD, Constants.EMPTY, INDENT_TWO);
+                }
+
                 resetAttributes();
 
                 writeXML(HOST, connection.getHost(), INDENT_TWO);
                 writeXML(DATA_SOURCE, connection.getSourceName(), INDENT_TWO);
                 writeXML(PORT, connection.getPort(), INDENT_TWO);
                 writeXML(CHARSET, connection.getCharset(), INDENT_TWO);
+                writeXML(ROLE, connection.getRole(), INDENT_TWO);
+                writeXML(SERVER_VERSION, String.valueOf(connection.getServerVersion()), INDENT_TWO);
+                writeXML(CERTIFICATE, connection.getCertificate(), INDENT_TWO);
+                writeXML(AUTH_METHOD, connection.getAuthMethod(), INDENT_TWO);
+                writeXML(CONNECTION_METHOD, connection.getConnectionMethod(), INDENT_TWO);
                 writeXML(URL, connection.getURL(), INDENT_TWO);
 
                 // TODO: remove driver name from save
@@ -551,17 +660,19 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
 
                 writeXML(SSH_TUNNEL,
                         valueToString(connection.isSshTunnel()), INDENT_TWO);
-                
+
                 writeXML(SSH_USER_NAME, connection.getSshUserName(), INDENT_TWO);
 
-                writeXML(SSH_STORE_PASSWORD, 
+                writeXML(SSH_STORE_PASSWORD,
                         valueToString(connection.isSshPasswordStored()), INDENT_TWO);
-                
-                writeXML(SSH_PORT, 
+
+                writeXML(SSH_PORT,
                         valueToString(connection.getSshPort()), INDENT_TWO);
-                
+                writeXML(NAMES_TO_UPPER_CASE,
+                        valueToString(connection.isNamesToUpperCase()), INDENT_TWO);
+
                 if (connection.isSshPasswordStored()) {
-                 
+
                     writeXML(SSH_PASSWORD, connection.getSshPassword(), INDENT_TWO);
                 }
 
@@ -572,9 +683,9 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
 
                     Properties properties = connection.getJdbcProperties();
 
-                    for (Enumeration<?> i = properties.keys(); i.hasMoreElements();) {
+                    for (Enumeration<?> i = properties.keys(); i.hasMoreElements(); ) {
 
-                        String key  = (String)i.nextElement();
+                        String key = (String) i.nextElement();
 
                         attributes().addAttribute(
                                 Constants.EMPTY, KEY, KEY, CDDATA, key);
@@ -606,6 +717,7 @@ public class DatabaseConnectionXMLRepository extends AbstractXMLRepository<Datab
     } // class DatabaseConnectionParser
 
 }
+
 
 
 

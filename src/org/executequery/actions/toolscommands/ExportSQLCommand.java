@@ -1,7 +1,7 @@
 /*
  * ExportSQLCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,8 +20,6 @@
 
 package org.executequery.actions.toolscommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.databaseobjects.DatabaseTable;
@@ -29,33 +27,33 @@ import org.executequery.gui.BaseDialog;
 import org.executequery.gui.importexport.ExportAsSQLWizard;
 import org.underworldlabs.swing.actions.BaseCommand;
 
-/** 
+import java.awt.event.ActionEvent;
+
+/**
  * Execution for Export Excel
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ExportSQLCommand extends OpenFrameCommand
-                                implements BaseCommand {
-    
+        implements BaseCommand {
+
     public void execute(ActionEvent e) {
         if (!isConnected()) {
             return;
         }
-        
+
         if (isActionableDialogOpen()) {
-            
+
             GUIUtilities.acionableDialogToFront();
             return;
         }
 
         if (!isDialogOpen(ExportAsSQLWizard.TITLE)) {
-            
+
             GUIUtilities.showWaitCursor();
-            
+
             try {
-            
+
                 BaseDialog dialog = createDialog(ExportAsSQLWizard.TITLE, false, false);
 
                 ExportAsSQLWizard panel = null;
@@ -64,22 +62,23 @@ public class ExportSQLCommand extends OpenFrameCommand
                     panel = new ExportAsSQLWizard(dialog, (DatabaseTable) e.getSource());
 
                 } else {
-                
+
                     panel = new ExportAsSQLWizard(dialog);
                 }
-                
+
                 dialog.addDisplayComponent(panel);
                 dialog.display();
-                
+
             } finally {
-                
+
                 GUIUtilities.showNormalCursor();
             }
         }
 
     }
-    
+
 }
+
 
 
 

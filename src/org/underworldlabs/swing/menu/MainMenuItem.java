@@ -1,7 +1,7 @@
 /*
  * MainMenuItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,16 +20,13 @@
 
 package org.underworldlabs.swing.menu;
 
-import java.awt.Dimension;
-
-import javax.swing.Action;
-import javax.swing.Icon;
-import javax.swing.JMenuItem;
-
 import org.executequery.gui.GUIConstants;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class MainMenuItem extends JMenuItem {
-    
+
     public MainMenuItem() {
         super();
     }
@@ -53,5 +50,6 @@ public class MainMenuItem extends JMenuItem {
 
         return preferredSize;
     }
-    
+
 }
+

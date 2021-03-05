@@ -6,18 +6,25 @@
     Author:       Takis Diakoumis
     Description:  Default empty JDBC driver definitions file (contains
                   ODBC definition only)
-    Date:         $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
-    Version:      $Revision: 1487 $
     =======================================================================
 -->
 
 <jdbcdrivers>
     <databasedrivers>
         <id>1111111</id>
-        <name>Firebird Driver</name>
-        <description>Firebird JDBC Driver</description>
+        <name>Jaybird 3 Driver</name>
+        <description>Jaybird 3 Driver</description>
         <type>16</type>
-        <path>./lib/jaybird-full-2.2.2.jar</path>
+        <path>./lib/jaybird-3.jar;../lib/jaybird-3.jar;./lib/jaybird-cryptoapi-3.jar;../lib/jaybird-cryptoapi-3.jar</path>
+        <classname>org.firebirdsql.jdbc.FBDriver</classname>
+        <url>jdbc:firebirdsql://[host]:[port]/[source]</url>
+    </databasedrivers>
+    <databasedrivers>
+        <id>2222222</id>
+        <name>Jaybird 4 Driver</name>
+        <description>Jaybird 4 Driver</description>
+        <type>16</type>
+        <path>./lib/jaybird-4.jar;./lib/jaybird-cryptoapi-4.jar;./lib/fbclient-4.jar;../lib/jaybird-4.jar;../lib/jaybird-cryptoapi-4.jar;../lib/fbclient-4.jar</path>
         <classname>org.firebirdsql.jdbc.FBDriver</classname>
         <url>jdbc:firebirdsql://[host]:[port]/[source]</url>
     </databasedrivers>
@@ -29,14 +36,5 @@
         <path/>
         <classname>sun.jdbc.odbc.JdbcOdbcDriver</classname>
         <url>jdbc:odbc:[source]</url>
-    </databasedrivers>
-    <databasedrivers>
-        <id>1111112</id>
-        <name>JDBC Logger Driver</name>
-        <description>Measuring performance of SQL statements executed through JDBC</description>
-        <type>-1</type>
-        <path>./lib/jdbc-perf-logger-driver-0.8.1-SNAPSHOT.jar</path>
-        <classname>ch.sla.jdbcperflogger.driver.WrappingDriver</classname>
-        <url>jdbcperflogger: jdbc connection string</url>
     </databasedrivers>
 </jdbcdrivers>

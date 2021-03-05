@@ -1,7 +1,7 @@
 /*
  * DeleteDerivedTableStrategy.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,22 +30,23 @@ public class DeleteDerivedTableStrategy extends AbstractDerivedTableStrategy {
         int whereIndex = query.indexOf(WHERE);
 
         if (whereIndex != -1 && fromIndex != -1) {
-            
+
             if (whereIndex != -1) {
-            
+
                 tables = query.substring(fromIndex + FROM.length(), whereIndex);
-                
+
             } else {
-            
+
                 tables = query.substring(fromIndex + FROM.length());
             }
-        
+
         }
-        
+
         return tables;
     }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * SystemOutputPanelPopUpMenu.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,19 +20,15 @@
 
 package org.executequery.gui;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JOptionPane;
-
 import org.executequery.GUIUtilities;
 import org.executequery.repository.LogRepository;
 import org.executequery.repository.RepositoryCache;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SystemOutputPanelPopUpMenu extends ReadOnlyTextPanePopUpMenu {
 
@@ -55,6 +51,7 @@ public class SystemOutputPanelPopUpMenu extends ReadOnlyTextPanePopUpMenu {
     }
 
 }
+
 
 
 

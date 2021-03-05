@@ -1,7 +1,7 @@
 /*
  * TextAreaLogAppender.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,35 +20,39 @@
 
 package org.executequery.components;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import javax.swing.JTextArea;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
 import org.executequery.util.ThreadUtils;
 
+import javax.swing.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1516 $
- * @date     $Date: 2015-10-05 22:31:59 +1100 (Mon, 05 Oct 2015) $
+ * @author Takis Diakoumis
  */
 public class TextAreaLogAppender extends AppenderSkeleton {
 
-    /** the text area component to be appended to */
+    /**
+     * the text area component to be appended to
+     */
     private JTextArea textArea;
 
-    /** matcher to remove new lines from log messages */
+    /**
+     * matcher to remove new lines from log messages
+     */
     private Matcher newLineMatcher;
 
-    /** space string for new line replacement */
+    /**
+     * space string for new line replacement
+     */
     private static final String SPACE = " ";
 
-    /** Creates a new instance of TextAreaLogAppender */
+    /**
+     * Creates a new instance of TextAreaLogAppender
+     */
     public TextAreaLogAppender(JTextArea textArea) {
 
         this.textArea = textArea;
@@ -63,47 +67,49 @@ public class TextAreaLogAppender extends AppenderSkeleton {
     public synchronized void append(final LoggingEvent event) {
 
         ThreadUtils.invokeLater(new Runnable() {
-            
+
             @Override
             public void run() {
-            
+
                 String text = null;
                 Object message = event.getMessage();
                 if (message instanceof String) {
-                
+
                     text = (String) message;
                     if (text.length() == 1 && Character.isWhitespace(text.charAt(0))) {
-                    
+
                         return;
                     }
-        
+
                 }
-        
+
                 text = layout.format(event);
                 newLineMatcher.reset(text);
                 text = newLineMatcher.replaceAll(SPACE).trim();
-        
+
                 textArea.append(text);
                 textArea.append(Layout.LINE_SEP);
-        
+
                 String[] s = event.getThrowableStrRep();
                 if (ArrayUtils.isNotEmpty(s)) {
-        
-                    for(int i = 0; i < s.length; i++) {
-        
+
+                    for (int i = 0; i < s.length; i++) {
+
                         textArea.append(s[i]);
                         textArea.append(Layout.LINE_SEP);
                     }
                 }
-        
+
                 textArea.setCaretPosition(textArea.getText().length());
 
             }
         });
-        
+
     }
 
-    public void close() {}
+    public void close() {
+    }
 
 }
+
 

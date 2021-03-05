@@ -1,7 +1,7 @@
 /*
  * SystemLogger.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,29 +20,32 @@
 
 package org.executequery.util;
 
+import javax.swing.*;
 import java.io.OutputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.SwingUtilities;
-
 /**
- * Base output stream for that logs to registered 
+ * Base output stream for that logs to registered
  * Log4J logger instance.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class SystemLogger extends OutputStream {
-    
-    /** string buffer for text concat */
+
+    /**
+     * string buffer for text concat
+     */
     private StringBuffer buf;
 
-    /** matcher to remove new lines from log messages */
+    /**
+     * matcher to remove new lines from log messages
+     */
     private Matcher newLineMatcher;
 
-    /** Creates a new instance of SystemLogger */
+    /**
+     * Creates a new instance of SystemLogger
+     */
     public SystemLogger() {
         init();
     }
@@ -52,8 +55,8 @@ public abstract class SystemLogger extends OutputStream {
             buf = new StringBuffer();
         }
         if (newLineMatcher == null) {
-            newLineMatcher = Pattern.compile("[\n\r]+", 
-                                    Pattern.MULTILINE).matcher("");            
+            newLineMatcher = Pattern.compile("[\n\r]+",
+                    Pattern.MULTILINE).matcher("");
         }
     }
 
@@ -76,10 +79,10 @@ public abstract class SystemLogger extends OutputStream {
     }
 
     public abstract void logText(String text);
-    
+
     public synchronized void write(int b) {
         b &= 0x000000FF;
-        char c = (char)b;
+        char c = (char) b;
         buf.append(String.valueOf(c));
     }
 
@@ -96,12 +99,13 @@ public abstract class SystemLogger extends OutputStream {
             if (buf.length() > 0) {
                 log(buf.toString());
                 buf.setLength(0);
-            }                
+            }
         }
 
-    } 
+    }
 
 }
+
 
 
 

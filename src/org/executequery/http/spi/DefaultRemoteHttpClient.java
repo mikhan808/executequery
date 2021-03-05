@@ -1,7 +1,7 @@
 /*
  * DefaultRemoteHttpClient.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,20 +20,7 @@
 
 package org.executequery.http.spi;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Map;
-import java.util.Map.Entry;
-
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.SimpleHttpConnectionManager;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -46,11 +33,14 @@ import org.executequery.http.RemoteHttpClientException;
 import org.executequery.http.RemoteHttpResponse;
 import org.underworldlabs.util.SystemProperties;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Map;
+import java.util.Map.Entry;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DefaultRemoteHttpClient implements RemoteHttpClient {
 
@@ -189,7 +179,8 @@ public class DefaultRemoteHttpClient implements RemoteHttpClient {
 
                 ((SimpleHttpConnectionManager) httpConnectionManager).shutdown();
 
-            } catch (Exception e) {}
+            } catch (Exception e) {
+            }
 
         }
     }
@@ -223,9 +214,9 @@ public class DefaultRemoteHttpClient implements RemoteHttpClient {
     private boolean isRedirection(int responseCode) {
 
         return responseCode == HttpStatus.SC_MOVED_PERMANENTLY
-            || responseCode == HttpStatus.SC_MOVED_TEMPORARILY
-            || responseCode == HttpStatus.SC_SEE_OTHER
-            || responseCode == HttpStatus.SC_TEMPORARY_REDIRECT;
+                || responseCode == HttpStatus.SC_MOVED_TEMPORARILY
+                || responseCode == HttpStatus.SC_SEE_OTHER
+                || responseCode == HttpStatus.SC_TEMPORARY_REDIRECT;
     }
 
     private RemoteHttpResponse executeMethod(HttpMethod method, HttpClient client) {
@@ -303,14 +294,15 @@ public class DefaultRemoteHttpClient implements RemoteHttpClient {
         return SystemProperties.getProperty(Constants.USER_PROPERTIES_KEY, "internet.proxy.password");
     }
 
-    public void setHttp(String http){
+    public void setHttp(String http) {
         HTTP = http;
     }
 
-    public void setHttpPort(int port){
+    public void setHttpPort(int port) {
         HTTP_PORT = port;
     }
 }
+
 
 
 

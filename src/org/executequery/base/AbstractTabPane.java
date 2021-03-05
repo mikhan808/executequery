@@ -1,7 +1,7 @@
 /*
  * AbstractTabPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,48 +20,56 @@
 
 package org.executequery.base;
 
-import java.awt.BorderLayout;
-import java.awt.CardLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Insets;
+import org.executequery.gui.browser.BrowserViewPanel;
+import org.executequery.localization.Bundles;
+import org.underworldlabs.swing.plaf.UIUtils;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JPanel;
-import javax.swing.UIManager;
-import org.underworldlabs.swing.plaf.UIUtils;
 
 /**
  * Abstract tab pane base.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1496 $
- * @date     $Date: 2015-09-17 17:09:08 +1000 (Thu, 17 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class AbstractTabPane extends JPanel
-                                      implements TabPane {
-    
-    /** the components added to this panel */
+        implements TabPane {
+
+    /**
+     * the components added to this panel
+     */
     protected List<TabComponent> components;
 
-    /** the display panel layout manager */
+    /**
+     * the display panel layout manager
+     */
     protected CardLayout cardLayout;
 
-    /** the currently selected index */
+    /**
+     * the currently selected index
+     */
     protected int selectedIndex;
 
-    /** this pane's parent container */
+    /**
+     * this pane's parent container
+     */
     protected DockedTabContainer parent;
 
-    /** the tab component panel */
+    /**
+     * the tab component panel
+     */
     protected JPanel componentPanel;
 
-    /** Whether this tab pane is the focused tab pane */
+    /**
+     * Whether this tab pane is the focused tab pane
+     */
     protected boolean isFocusedTabPane;
-    
-    /** Initialises the state of this object */
+
+    /**
+     * Initialises the state of this object
+     */
     protected void initComponents() {
         selectedIndex = -1;
 
@@ -72,13 +80,12 @@ public abstract class AbstractTabPane extends JPanel
         cardLayout = new CardLayout();
         componentPanel = new JPanel(cardLayout);
 
-        componentPanel.setBorder(BorderFactory.createMatteBorder(
-                                            0, 1, 1, 1, UIUtils.getDefaultBorderColour()));
-
         add(componentPanel, BorderLayout.CENTER);
     }
 
-    /** the selected tab background */
+    /**
+     * the selected tab background
+     */
     private Color selectedTabBackground;
 
     /**
@@ -91,14 +98,14 @@ public abstract class AbstractTabPane extends JPanel
             if ((UIUtils.isMetalLookAndFeel()) ||// && !UIUtils.usingOcean()) ||
                     UIUtils.isMotifLookAndFeel() || UIUtils.isWindowsLookAndFeel()) {
 
-            	selectedTabBackground = UIUtils.getDefaultActiveBackgroundColour();
-            
+                selectedTabBackground = UIUtils.getDefaultActiveBackgroundColour();
+
             } else if (UIUtils.isNativeMacLookAndFeel()) {
-            	
-            	selectedTabBackground = UIManager.getColor("Focus.color");
-            	
+
+                selectedTabBackground = UIManager.getColor("Focus.color");
+
             } else {
-            	
+
                 double darker = 0.9;
                 // check that the normal panel bg is not 
                 // the same as the tab selection bg
@@ -110,11 +117,9 @@ public abstract class AbstractTabPane extends JPanel
                     } else {
                         selectedTabBackground = color1;
                     }
-                }
-                else if (color1 == null && color2 != null) {
+                } else if (color1 == null && color2 != null) {
                     selectedTabBackground = UIUtils.getDarker(color2, darker);
-                }
-                else if (color2 == null && color1 != null) {
+                } else if (color2 == null && color1 != null) {
                     selectedTabBackground = color1;
                 }
             }
@@ -131,7 +136,9 @@ public abstract class AbstractTabPane extends JPanel
         return getTabForeground();
     }
 
-    /** the selected tab foreground */
+    /**
+     * the selected tab foreground
+     */
     private Color tabForeground;
 
     /**
@@ -141,18 +148,20 @@ public abstract class AbstractTabPane extends JPanel
      */
     protected Color getTabForeground() {
         if (tabForeground == null) {
-        	
-        	if (!UIUtils.isNativeMacLookAndFeel()) {
-        		tabForeground = UIManager.getColor("TabbedPane.foreground");
-        	} else {
-        		tabForeground = UIManager.getColor("text");        		
-        	}
+
+            if (!UIUtils.isNativeMacLookAndFeel()) {
+                tabForeground = UIManager.getColor("TabbedPane.foreground");
+            } else {
+                tabForeground = UIManager.getColor("text");
+            }
 
         }
         return tabForeground;
     }
 
-    /** the default tab background */
+    /**
+     * the default tab background
+     */
     private Color tabBackground;
 
     /**
@@ -167,7 +176,9 @@ public abstract class AbstractTabPane extends JPanel
         return tabBackground;
     }
 
-    /** the selected no-focus tab background */
+    /**
+     * the selected no-focus tab background
+     */
     private Color nofocusTabBackground;
 
     /**
@@ -181,12 +192,12 @@ public abstract class AbstractTabPane extends JPanel
         }
         return nofocusTabBackground;
     }
-    
+
     /**
      * Indicates a top-level focus change.
      */
     protected abstract void focusChanged();
-    
+
     /**
      * Indicates whether this tab pane has focus.
      *
@@ -228,8 +239,8 @@ public abstract class AbstractTabPane extends JPanel
     }
 
     /**
-     * Sets the title of the specified component to title which can be null. 
-     * An internal exception is raised if there is no tab for the 
+     * Sets the title of the specified component to title which can be null.
+     * An internal exception is raised if there is no tab for the
      * specified component.
      *
      * @param the component where the title should be set
@@ -238,7 +249,7 @@ public abstract class AbstractTabPane extends JPanel
     public void setTabTitleForComponent(Component component, String title) {
         int index = indexOfComponent(component);
         if (index == -1) {
-            throw new IndexOutOfBoundsException("Tab pane component not found.");
+            throw new IndexOutOfBoundsException(bundledString("error.notFound"));
         }
         setTabTitleAt(index, title);
     }
@@ -251,16 +262,16 @@ public abstract class AbstractTabPane extends JPanel
         int tabCount = getTabCount();
 
         if (tabCount > 0) {
-        
+
             if (selectedIndex < tabCount - 1) {
-            
+
                 setSelectedIndex(selectedIndex + 1);
 
             } else {
-                
+
                 setSelectedIndex(0);
             }
-        
+
         }
     }
 
@@ -272,13 +283,13 @@ public abstract class AbstractTabPane extends JPanel
         int tabCount = getTabCount();
 
         if (tabCount > 0) {
-        
+
             if (selectedIndex > 0) {
-            
+
                 setSelectedIndex(selectedIndex - 1);
-                
+
             } else {
-                
+
                 setSelectedIndex(tabCount - 1);
             }
 
@@ -286,18 +297,18 @@ public abstract class AbstractTabPane extends JPanel
     }
 
     /**
-     * Sets the title at index to title which can be null. 
+     * Sets the title at index to title which can be null.
      * An internal exception is raised if there is no tab at that index.
      *
      * @param the tab index where the title should be set
      * @param the title to be displayed in the tab
      */
     public void setTabTitleAt(int index, String title) {
-        
+
         //Log.debug("Setting tab title at: " + index + " to: " + title);
-        
+
         if (components == null || components.isEmpty()) {
-            throw new IndexOutOfBoundsException("Tab pane is empty.");
+            throw new IndexOutOfBoundsException(Bundles.get(AbstractTabPane.class, "error.paneEmpty"));
         }
         TabComponent tabComponent = components.get(index);
         tabComponent.setTitle(title);
@@ -341,13 +352,13 @@ public abstract class AbstractTabPane extends JPanel
                 tabComponent.setSameTitleIndex(counterIndex);
                 return " [" + counterIndex + "]";
             }
-            
+
         }
         return null;
     }
 
     /**
-     * Sets the tool tip at index to toolTipText which can be null. 
+     * Sets the tool tip at index to toolTipText which can be null.
      * An internal exception is raised if there is no tab at that index.
      *
      * @param the tab index where the tool tip should be set
@@ -355,7 +366,7 @@ public abstract class AbstractTabPane extends JPanel
      */
     public void setToolTipTextAt(int index, String toolTipText) {
         if (components == null || components.isEmpty()) {
-            throw new IndexOutOfBoundsException("Tab pane is empty.");
+            throw new IndexOutOfBoundsException(Bundles.get(AbstractTabPane.class, "error.paneEmpty"));
         }
         TabComponent tabComponent = components.get(index);
         tabComponent.setToolTip(toolTipText);
@@ -363,8 +374,8 @@ public abstract class AbstractTabPane extends JPanel
     }
 
     /**
-     * Sets the tool tip for the specified component to toolTipText 
-     * which can be null. An internal exception is raised if there 
+     * Sets the tool tip for the specified component to toolTipText
+     * which can be null. An internal exception is raised if there
      * is no tab for the specified component.
      *
      * @param the component where the tool tip should be set
@@ -373,14 +384,14 @@ public abstract class AbstractTabPane extends JPanel
     public void setToolTipTextForComponent(Component component, String toolTipText) {
         int index = indexOfComponent(component);
         if (index == -1) {
-            throw new IndexOutOfBoundsException("Tab pane component not found.");
+            throw new IndexOutOfBoundsException(Bundles.get(AbstractTabPane.class, "error.notFound"));
         }
         setToolTipTextAt(index, toolTipText);
     }
 
     /**
      * Returns the index of the tab for the specified component.
-     * 
+     *
      * @param the component
      * @return of the index of component or -1 if not found
      */
@@ -408,10 +419,10 @@ public abstract class AbstractTabPane extends JPanel
             removeIndex(index);
         }
     }
-    
+
     /**
      * Returns the index of the tab for the specified title.
-     * 
+     *
      * @param the title
      * @return of the index of component or -1 if not found
      */
@@ -436,7 +447,7 @@ public abstract class AbstractTabPane extends JPanel
     protected void setTabPanel(JPanel panel) {
         add(panel, BorderLayout.NORTH);
     }
-    
+
     public void addTab(String title, Component component) {
         addTab(-1, title, null, component, null);
     }
@@ -449,7 +460,7 @@ public abstract class AbstractTabPane extends JPanel
         addTab(new TabComponent(position, component, title, icon, tip));
     }
 
-    /** 
+    /**
      * Adds the specified tab component to the pane.
      *
      * @param the component to be added
@@ -480,11 +491,11 @@ public abstract class AbstractTabPane extends JPanel
         }
         return 0;
     }
-    
+
     /**
      * Notifies all registered listeners of a tab minimised event.
      *
-     * @param the event 
+     * @param the event
      */
     protected void fireTabMinimised(DockedTabEvent e) {
         parent.fireTabMinimised(e);
@@ -493,7 +504,7 @@ public abstract class AbstractTabPane extends JPanel
     /**
      * Notifies all registered listeners of a tab restored event.
      *
-     * @param the event 
+     * @param the event
      */
     protected void fireTabRestored(DockedTabEvent e) {
         parent.fireTabRestored(e);
@@ -502,12 +513,12 @@ public abstract class AbstractTabPane extends JPanel
     /**
      * Notifies all registered listeners of a tab selected event.
      *
-     * @param the event 
+     * @param the event
      */
     protected void fireTabSelected(DockedTabEvent e) {
-        TabComponent tabComponent = (TabComponent)e.getSource();
+        TabComponent tabComponent = (TabComponent) e.getSource();
         if (tabComponent.getComponent() instanceof TabView) {
-            ((TabView)tabComponent.getComponent()).tabViewSelected();
+            ((TabView) tabComponent.getComponent()).tabViewSelected();
         }
         parent.fireTabSelected(e);
     }
@@ -515,16 +526,16 @@ public abstract class AbstractTabPane extends JPanel
     /**
      * Notifies all registered listeners of a tab deselected event.
      *
-     * @param the event 
+     * @param the event
      */
     protected void fireTabDeselected(DockedTabEvent e) {
         parent.fireTabDeselected(e);
     }
-    
+
     /**
      * Notifies all registered listeners of a tab closed event.
      *
-     * @param the event 
+     * @param the event
      */
     protected void fireTabClosed(DockedTabEvent e) {
         /*
@@ -533,6 +544,10 @@ public abstract class AbstractTabPane extends JPanel
             ((DockedTabView)tabComponent.getComponent()).tabViewClosing();
         }
          */
+        TabComponent tabComponent = (TabComponent)e.getSource();
+        if (tabComponent.getComponent() instanceof BrowserViewPanel) {
+            ((BrowserViewPanel)tabComponent.getComponent()).getCurrentView().cleanup();
+        }
         parent.fireTabClosed(e);
     }
 
@@ -560,21 +575,20 @@ public abstract class AbstractTabPane extends JPanel
             // fire the deselected event
             TabComponent tabComponent = components.get(selectedIndex);
             if (tabComponent.getComponent() instanceof TabView) {
-                TabView dockedView = (TabView)tabComponent.getComponent();
+                TabView dockedView = (TabView) tabComponent.getComponent();
                 if (dockedView.tabViewDeselected()) {
                     fireTabDeselected(new DockedTabEvent(tabComponent));
-                } 
-                else {
+                } else {
                     return;
                 }
-            }            
+            }
         }
 
         selectedIndex = index;
         TabComponent tabComponent = components.get(index);
         cardLayout.show(componentPanel, tabComponent.getLayoutName());
     }
-    
+
     /**
      * Removes the tab from the panel at the specified index.
      *
@@ -585,13 +599,13 @@ public abstract class AbstractTabPane extends JPanel
     public void removeSelectedTab() {
 
         if (selectedIndex != -1) {
-        
+
             removeIndex(selectedIndex);
         }
     }
-    
+
     /**
-     * Checks whether a close of the panel will not be 
+     * Checks whether a close of the panel will not be
      * vetoed by the panel itself.
      *
      * @param the tab component to be closed
@@ -599,7 +613,7 @@ public abstract class AbstractTabPane extends JPanel
      */
     protected boolean okToClose(TabComponent tabComponent) {
         if (tabComponent.getComponent() instanceof TabView) {
-            TabView dockedView = (TabView)tabComponent.getComponent();
+            TabView dockedView = (TabView) tabComponent.getComponent();
             return dockedView.tabViewClosing();
         }
         return true;
@@ -638,19 +652,19 @@ public abstract class AbstractTabPane extends JPanel
     }
 
     protected final Insets tabInsets() {
-        
+
         Insets insets = UIManager.getInsets("TabbedPane.tabInsets");
         if (insets == null) {
-            
+
             insets = new Insets(0, 9, 1, 9);
         }
 
         return insets;
     }
 
+    protected String bundledString(String key) {
+        return Bundles.get(getClass(), key);
+    }
+
 }
-
-
-
-
 

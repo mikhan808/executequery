@@ -1,7 +1,7 @@
 /*
  * SingleColumnTableModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,32 @@
 
 package org.underworldlabs.swing.table;
 
+import javax.swing.table.AbstractTableModel;
 import java.util.List;
 import java.util.Vector;
-import javax.swing.table.AbstractTableModel;
 
 /**
  * Basic updateable table model with a single column.
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
 public class SingleColumnTableModel extends AbstractTableModel {
-    
-    /** the column header */
+
+    /**
+     * the column header
+     */
     private String header;
-    
-    /** the data values */
+
+    /**
+     * the data values
+     */
     private String[] values;
-    
-    /** Creates a new instance of SingleColumnTableModel */
-    public SingleColumnTableModel() {}
+
+    /**
+     * Creates a new instance of SingleColumnTableModel
+     */
+    public SingleColumnTableModel() {
+    }
 
     public SingleColumnTableModel(String header) {
         this.header = header;
@@ -81,7 +86,7 @@ public class SingleColumnTableModel extends AbstractTableModel {
         this.values = values;
         fireTableDataChanged();
     }
-    
+
     public int getColumnCount() {
         return 1;
     }
@@ -105,6 +110,7 @@ public class SingleColumnTableModel extends AbstractTableModel {
     }
 
 }
+
 
 
 

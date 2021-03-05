@@ -1,7 +1,7 @@
 /*
  * FeedbackCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,89 +20,69 @@
 
 package org.executequery.actions.helpcommands;
 
-import java.awt.event.ActionEvent;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-
 import org.executequery.GUIUtilities;
 import org.executequery.actions.othercommands.AbstractBaseCommand;
 import org.executequery.gui.BaseDialog;
 import org.executequery.gui.FeedbackPanel;
 import org.executequery.log.Log;
 
-/** 
+import java.awt.event.ActionEvent;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+/**
  * Command to open the feedback dialog.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class FeedbackCommand extends AbstractBaseCommand {
-    
+
     public void execute(ActionEvent e) {
 
         String actionCommand = e.getActionCommand();
-        
         try {
 
             Method method = getClass().getMethod(
                     actionCommand, new Class[]{ActionEvent.class});
-            
+
             method.invoke(this, e);
 
-        } catch (SecurityException e1) {
-            
-            handleException(e1);
-
-        } catch (NoSuchMethodException e1) {
-
-            handleException(e1);
-            
-        } catch (IllegalArgumentException e1) {
-
-            handleException(e1);
-
-        } catch (IllegalAccessException e1) {
-
-            handleException(e1);
-
-        } catch (InvocationTargetException e1) {
+        } catch (SecurityException | NoSuchMethodException | IllegalArgumentException
+                | IllegalAccessException | InvocationTargetException e1) {
 
             handleException(e1);
         }
-        
+
     }
 
     private void handleException(Throwable e) {
 
-        Log.error("Error executing feedback command:", e);
+        Log.error(bundledString("errorExecutingFeedbackCommand"), e);
     }
 
     public void featureRequest(ActionEvent e) {
-        
-        showDialog(FeedbackPanel.FEATURE_REQUEST, "Feature Request");
+
+        showDialog(FeedbackPanel.FEATURE_REQUEST, bundledString("featureRequest"));
     }
 
     public void userComments(ActionEvent e) {
-        
-        showDialog(FeedbackPanel.USER_COMMENTS, "User Comments");
+
+        showDialog(FeedbackPanel.USER_COMMENTS, bundledString("userComments"));
     }
 
     public void bugReport(ActionEvent e) {
-        
-        showDialog(FeedbackPanel.BUG_REPORT, "Report Bug");
+
+        showDialog(FeedbackPanel.BUG_REPORT, bundledString("reportBug"));
     }
 
     private void showDialog(int type, String title) {
-        
-        GUIUtilities.showWaitCursor();
 
+        GUIUtilities.showWaitCursor();
         try {
 
             BaseDialog dialog = new BaseDialog(title, true, true);
-
             FeedbackPanel panel = new FeedbackPanel(dialog, type);
-            
+
             dialog.addDisplayComponent(panel);
             dialog.display();
 
@@ -113,13 +93,4 @@ public class FeedbackCommand extends AbstractBaseCommand {
     }
 
 }
-
-
-
-
-
-
-
-
-
 

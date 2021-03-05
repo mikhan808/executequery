@@ -1,7 +1,7 @@
 /*
  * SystemErrLogger.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,39 +20,47 @@
 
 package org.executequery.util;
 
+import org.executequery.log.Log;
+
 import java.io.IOException;
 import java.io.PrintStream;
-
-import org.executequery.log.Log;
 
 /**
  * Output stream for System.err or System.out that logs to registered Log4J
  * logger instance as well as standard System.err output.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SystemErrLogger extends SystemLogger {
 
-    /** System.out stream identifier */
+    /**
+     * System.out stream identifier
+     */
     public static final int SYSTEM_OUT = 0;
 
-    /** System.err stream identifier */
+    /**
+     * System.err stream identifier
+     */
     public static final int SYSTEM_ERR = 1;
 
-    /** the output type */
+    /**
+     * the output type
+     */
     private int outputType;
-    
-    /** indicates whether to log to standard System.out/err */
+
+    /**
+     * indicates whether to log to standard System.out/err
+     */
     private boolean logToConsole;
-    
-    /** the system print stream */
+
+    /**
+     * the system print stream
+     */
     private PrintStream stream;
 
-    /** 
+    /**
      * Creates a new instance of SystemErrLogger and specifies
-     * whether to write to the 'original' specified output stream 
+     * whether to write to the 'original' specified output stream
      * also - out of System.out or System.err.
      *
      * @param useConsole - true | false
@@ -72,13 +80,12 @@ public class SystemErrLogger extends SystemLogger {
         if (stream == null) {
             if (outputType == SYSTEM_ERR) {
                 stream = System.err;
-            }
-            else {
+            } else {
                 stream = System.out;
             }
         }
     }
-    
+
     public synchronized void logText(String text) {
         if (outputType == SYSTEM_OUT) {
             Log.info(text);
@@ -87,7 +94,7 @@ public class SystemErrLogger extends SystemLogger {
             Log.error(text);
         }
     }
-    
+
     public synchronized void write(int b) {
         if (logToConsole) {
             stream.write(b);
@@ -106,7 +113,8 @@ public class SystemErrLogger extends SystemLogger {
         if (logToConsole) {
             try {
                 stream.write(b);
-            } catch (IOException e) {}
+            } catch (IOException e) {
+            }
         }
         super.write(b);
     }
@@ -116,9 +124,10 @@ public class SystemErrLogger extends SystemLogger {
             stream.flush();
         }
         super.flush();
-    } 
+    }
 
 }
+
 
 
 

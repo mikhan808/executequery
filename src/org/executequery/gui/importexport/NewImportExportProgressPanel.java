@@ -1,7 +1,7 @@
 /*
  * NewImportExportProgressPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,41 +20,33 @@
 
 package org.executequery.gui.importexport;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.executequery.components.LoggingOutputPane;
+import org.executequery.gui.WidgetFactory;
+import org.executequery.sql.SqlMessages;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JProgressBar;
-import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
-
-import org.executequery.components.LoggingOutputPane;
-import org.executequery.sql.SqlMessages;
 
 /*
  * This will eventually replace ImportExportProgressPanel
  */
 
-/** 
+/**
  * The progress display during an import/export
  * process. This is standard across all import/export
  * types - XML or delimited.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class NewImportExportProgressPanel extends AbstractImportExportPanel
-                                       implements ActionListener, ImportExportMonitor {
-    
+        implements ActionListener, ImportExportMonitor {
+
     private JButton stopButton;
-    
+
     private JProgressBar progressBar;
-    
+
     private LoggingOutputPane output;
 
     public NewImportExportProgressPanel(ImportExportWizard importExportWizard) {
@@ -63,31 +55,31 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
 
         init();
     }
-    
+
     private void init() {
-        
+
         String labelText = null;
         if (isExport()) {
 
-            labelText = getString("ImportExportProgressPanel.exportDataLabel");
+            labelText = bundledString("ImportExportProgressPanel.exportDataLabel");
 
         } else {
-            
-            labelText = getString("ImportExportProgressPanel.importDataLabel");
+
+            labelText = bundledString("ImportExportProgressPanel.importDataLabel");
         }
-        
+
         output = new LoggingOutputPane();
         output.setBackground(getBackground());
-        
+
         progressBar = new JProgressBar(0, 100);
-        stopButton = new JButton("Stop");
+        stopButton = WidgetFactory.createButton("Stop");
         stopButton.addActionListener(this);
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
         gbc.gridx = 0;
         gbc.weightx = 1.0;
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(new JLabel(labelText), gbc);
@@ -96,7 +88,6 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         gbc.insets.right = 0;
         gbc.gridwidth = 1;
         gbc.weightx = 1.0;
-        gbc.fill = GridBagConstraints.HORIZONTAL;
         add(progressBar, gbc);
         gbc.gridx = 1;
         gbc.weightx = 0;
@@ -106,7 +97,7 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         gbc.gridy++;
         gbc.gridx = 0;
         gbc.weighty = 1.0;
-        gbc.insets.top = 0;
+        gbc.insets.top = 5;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         add(new JScrollPane(output), gbc);
@@ -125,7 +116,7 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         };
         SwingUtilities.invokeLater(updateStop);
     }
-    
+
     /**
      * Resets the progress bar to zero and clears the output text area.
      */
@@ -142,15 +133,15 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         importExportWizard().stopTransfer();
         stopButton.setEnabled(false);
     }
-    
+
     /**
      * Returns the text currently displayed in the output pane.
      */
     public String getText() {
         return output.getText();
     }
-    
-    /** 
+
+    /**
      * Sets the progress bar's position during the process.
      *
      * @param the new process status
@@ -164,8 +155,8 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         };
         SwingUtilities.invokeLater(setProgressBar);
     }
-    
-    /** 
+
+    /**
      * Retrieves the progress bar's maximum value.
      *
      * @param the progress bar's maximum value
@@ -173,16 +164,16 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
     public int getMaximum() {
         return progressBar.getMaximum();
     }
-    
-    /** 
+
+    /**
      * Sets the progress bar to track indeterminate values - action of
      * unknown length is taking place.
      */
     public void setIndeterminate(boolean indeterminate) {
         progressBar.setIndeterminate(indeterminate);
     }
-    
-    /** 
+
+    /**
      * Sets the text to be appended within the progress info text area.
      *
      * @param the text to append
@@ -196,7 +187,7 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         SwingUtilities.invokeLater(setProgressText);
     }
 
-    /** 
+    /**
      * Sets the text to be appended within the
      * progress info text area as an error message.
      *
@@ -211,8 +202,8 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         SwingUtilities.invokeLater(setProgressText);
     }
 
-    /** 
-     * Sets the text to be appended within the progress info 
+    /**
+     * Sets the text to be appended within the progress info
      * text area as a warning message.
      *
      * @param the text to append
@@ -226,7 +217,7 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
         SwingUtilities.invokeLater(setProgressText);
     }
 
-    /** 
+    /**
      * Sets the progress bar's minimum value to the specified value.
      *
      * @param the minimum value
@@ -234,8 +225,8 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
     public void setMinimum(int min) {
         progressBar.setMaximum(min);
     }
-    
-    /** 
+
+    /**
      * Sets the progress bar's maximum value to the specified value.
      *
      * @param the maximum value
@@ -243,8 +234,9 @@ public class NewImportExportProgressPanel extends AbstractImportExportPanel
     public void setMaximum(int max) {
         progressBar.setMaximum(max);
     }
-    
+
 }
+
 
 
 

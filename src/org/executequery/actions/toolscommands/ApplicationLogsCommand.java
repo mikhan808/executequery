@@ -1,7 +1,7 @@
 /*
  * ApplicationLogsCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,10 +20,6 @@
 
 package org.executequery.actions.toolscommands;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JOptionPane;
-
 import org.executequery.GUIUtilities;
 import org.executequery.gui.SystemLogsViewer;
 import org.executequery.repository.LogRepository;
@@ -32,14 +28,13 @@ import org.executequery.util.ThreadUtils;
 import org.underworldlabs.swing.actions.BaseCommand;
 import org.underworldlabs.swing.actions.ReflectiveAction;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class ApplicationLogsCommand extends ReflectiveAction
-                                    implements BaseCommand {
+public class ApplicationLogsCommand extends ReflectiveAction implements BaseCommand {
 
     public void execute(ActionEvent e) {
 
@@ -48,8 +43,7 @@ public class ApplicationLogsCommand extends ReflectiveAction
 
     public void resetAllLogs(ActionEvent e) {
 
-        String message = "Are you sure you want to reset ALL system logs?";
-
+        String message = bundledString("messageResetAll");
         if (confirmReset(message)) {
 
             logRepository().resetAll();
@@ -100,10 +94,10 @@ public class ApplicationLogsCommand extends ReflectiveAction
                 } else {
 
                     GUIUtilities.addCentralPane(SystemLogsViewer.TITLE,
-                                                SystemLogsViewer.FRAME_ICON,
-                                                new SystemLogsViewer(type),
-                                                null,
-                                                true);
+                            SystemLogsViewer.FRAME_ICON,
+                            new SystemLogsViewer(type),
+                            null,
+                            true);
                 }
             }
 
@@ -112,7 +106,7 @@ public class ApplicationLogsCommand extends ReflectiveAction
 
     private SystemLogsViewer logViewer() {
 
-        return (SystemLogsViewer)GUIUtilities.getCentralPane(SystemLogsViewer.TITLE);
+        return (SystemLogsViewer) GUIUtilities.getCentralPane(SystemLogsViewer.TITLE);
     }
 
     private boolean isLogViewerOpen() {
@@ -142,20 +136,20 @@ public class ApplicationLogsCommand extends ReflectiveAction
 
     private boolean resetLogConfirmed(int type) {
 
-        String message = "Are you sure you want to reset the ";
+        String message = bundledString("messageReset");
 
         switch (type) {
 
             case LogRepository.ACTIVITY:
-                message += "system activity log?";
+                message += bundledString("systemActivityLog");
                 break;
 
             case LogRepository.EXPORT:
-                message += "data export log?";
+                message += bundledString("dataExportLog");
                 break;
 
             case LogRepository.IMPORT:
-                message += "data import log?";
+                message += bundledString("dataImportLog");
                 break;
 
         }
@@ -169,13 +163,4 @@ public class ApplicationLogsCommand extends ReflectiveAction
     }
 
 }
-
-
-
-
-
-
-
-
-
 

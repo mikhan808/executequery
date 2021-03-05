@@ -1,7 +1,7 @@
 /*
  * ConnectionRepositoryChangeListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,6 +30,12 @@ import org.executequery.util.ThreadUtils;
 public final class ConnectionRepositoryChangeListener implements ConnectionRepositoryListener {
 
     public void connectionAdded(ConnectionRepositoryEvent connectionRepositoryEvent) {
+
+        saveConnections();
+    }
+
+    @Override
+    public void connectionImported(ConnectionRepositoryEvent connectionRepositoryEvent) {
 
         saveConnections();
     }
@@ -64,11 +70,12 @@ public final class ConnectionRepositoryChangeListener implements ConnectionRepos
 
     private DatabaseConnectionRepository databaseConnectionRepository() {
 
-        return (DatabaseConnectionRepository)RepositoryCache.load(
-                    DatabaseConnectionRepository.REPOSITORY_ID);
+        return (DatabaseConnectionRepository) RepositoryCache.load(
+                DatabaseConnectionRepository.REPOSITORY_ID);
     }
 
 }
+
 
 
 

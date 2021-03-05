@@ -1,7 +1,7 @@
 /*
  * SuppressedException.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -35,10 +35,10 @@ public class SuppressedException extends RuntimeException {
     public String getMessage() {
         return message;
     }
-    
+
     private boolean stackPrintable() {
 //      return Log.isDebugEnabled();
-      return false;
+        return false;
     }
 
     @Override
@@ -61,13 +61,14 @@ public class SuppressedException extends RuntimeException {
             super.printStackTrace(s);
         }
     }
-    
+
     @Override
     public StackTraceElement[] getStackTrace() {
         return new StackTraceElement[0];
     }
-    
+
 }
+
 
 
 

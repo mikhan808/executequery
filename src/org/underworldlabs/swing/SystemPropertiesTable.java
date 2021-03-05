@@ -1,7 +1,7 @@
 /*
  * SystemPropertiesTable.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,60 +20,65 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Component;
-import javax.swing.JTable;
-import javax.swing.UIManager;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.table.DefaultTableCellRenderer;
 import org.underworldlabs.swing.table.DefaultTableHeaderRenderer;
 import org.underworldlabs.swing.table.PropertyWrapperModel;
 
+import javax.swing.*;
+import javax.swing.plaf.metal.MetalLookAndFeel;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
+
 /**
- * Simple system properties table with the values 
+ * Simple system properties table with the values
  * from <code>System.getProperties()</code>.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SystemPropertiesTable extends JTable {
-    
-    /** table model */
+
+    /**
+     * table model
+     */
     private PropertyWrapperModel model;
-    
-    /** Creates a new instance of SystemPropertiesTable */
+
+    /**
+     * Creates a new instance of SystemPropertiesTable
+     */
     public SystemPropertiesTable() {
         if (UIManager.getLookAndFeel() instanceof MetalLookAndFeel) {
             getTableHeader().setDefaultRenderer(new DefaultTableHeaderRenderer());
         }
 
-        model = new PropertyWrapperModel(System.getProperties(), 
-                                         PropertyWrapperModel.SORT_BY_KEY);
+        model = new PropertyWrapperModel(System.getProperties(),
+                PropertyWrapperModel.SORT_BY_KEY);
         setModel(model);
-        
+
         getTableHeader().setReorderingAllowed(false);
         getColumnModel().getColumn(0).setCellRenderer(new PropertiesTableCellRenderer());
         getColumnModel().getColumn(1).setCellRenderer(new PropertiesTableCellRenderer());
     }
-    
+
     private class PropertiesTableCellRenderer extends DefaultTableCellRenderer {
-        public PropertiesTableCellRenderer() {}
-        public Component getTableCellRendererComponent(JTable table, 
-                                                       Object value, 
-                                                       boolean isSelected, 
-                                                       boolean hasFocus, 
-                                                       int row, 
+        public PropertiesTableCellRenderer() {
+        }
+
+        public Component getTableCellRendererComponent(JTable table,
+                                                       Object value,
+                                                       boolean isSelected,
+                                                       boolean hasFocus,
+                                                       int row,
                                                        int column) {
             if (value != null) {
                 String toolTip = value.toString();
                 setToolTipText(toolTip);
             }
             return super.getTableCellRendererComponent(
-                            table, value, isSelected, hasFocus, row, column);
+                    table, value, isSelected, hasFocus, row, column);
         }
     }
-    
+
 }
+
 
 
 

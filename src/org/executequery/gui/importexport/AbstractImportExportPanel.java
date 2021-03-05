@@ -1,7 +1,7 @@
 /*
  * AbstractImportExportPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,18 +20,15 @@
 
 package org.executequery.gui.importexport;
 
-import java.awt.LayoutManager;
+import org.executequery.localization.Bundles;
 
-import javax.swing.JPanel;
-
-import org.executequery.util.StringBundle;
-import org.executequery.util.SystemResources;
+import javax.swing.*;
+import java.awt.*;
 
 abstract class AbstractImportExportPanel extends JPanel {
 
-    private StringBundle bundle;
     private final ImportExportWizard importExportWizard;
-    
+
     public AbstractImportExportPanel(ImportExportWizard importExportWizard) {
         super();
         this.importExportWizard = importExportWizard;
@@ -45,34 +42,18 @@ abstract class AbstractImportExportPanel extends JPanel {
     protected final boolean isExport() {
         return importExportDataModel().isExport();
     }
-    
+
     protected final ImportExportWizard importExportWizard() {
         return importExportWizard;
     }
-    
+
     protected final ImportExportDataModel importExportDataModel() {
         return importExportWizard.getExportDataModel();
     }
 
-    protected final StringBundle getBundle() {
-        return bundle();
-    }
-
-    private StringBundle bundle() {
-        if (bundle == null) {            
-            bundle = SystemResources.loadBundle(getClass());
-        }
-        return bundle;
-    }
-
-    protected final String getString(String key) {
-        return getBundle().getString(key);
+    protected final String bundledString(String key) {
+        return Bundles.get(key);
     }
 
 }
-
-
-
-
-
 

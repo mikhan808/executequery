@@ -1,7 +1,7 @@
 /*
  * ManageShortcutsPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,6 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.swing.Action;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.ListModel;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-
 import org.apache.commons.lang.StringUtils;
 import org.executequery.Constants;
 import org.executequery.EventMediator;
@@ -54,23 +33,27 @@ import org.executequery.gui.text.SQLTextPane;
 import org.executequery.repository.EditorSQLShortcut;
 import org.executequery.repository.EditorSQLShortcuts;
 import org.executequery.repository.RepositoryException;
-import org.executequery.util.StringBundle;
-import org.executequery.util.SystemResources;
 import org.underworldlabs.swing.DefaultMutableListModel;
 import org.underworldlabs.swing.FlatSplitPane;
 import org.underworldlabs.swing.MutableValueJList;
 import org.underworldlabs.swing.actions.ActionUtilities;
 import org.underworldlabs.util.MiscUtils;
 
-/** 
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
+/**
+ * @author Takis Diakoumis
  */
-public class ManageShortcutsPanel extends DefaultActionButtonsPanel 
-                                  implements ListSelectionListener {
-    
+public class ManageShortcutsPanel extends DefaultActionButtonsPanel
+        implements ListSelectionListener {
+
     public static final String TITLE = "Manage Editor SQL Shortcuts";
     public static final String FRAME_ICON = "Shortcut16.png";
 
@@ -81,19 +64,17 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
 
     private SQLTextPane textPane;
 
-    private StringBundle bundle;
-
     private int lastSelectedIndex = -1;
-    
+
     private final ActionContainer parent;
 
     public ManageShortcutsPanel(ActionContainer parent) {
-        
+
         this.parent = parent;
-        
+
         init();
     }
-    
+
     private void init() {
 
         createTextPane();
@@ -104,7 +85,7 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
         splitPane.setRightComponent(new JScrollPane(textPane));
 
         JPanel panel = new JPanel(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.gridy = 0;
@@ -131,14 +112,14 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
         addActionButton(createCancelButton());
 
         addContentPanel(panel);
-        
-        setPreferredSize(new Dimension(600, 350));
+
+        setPreferredSize(new Dimension(650, 400));
     }
 
     private JButton createCancelButton() {
 
         JButton button = new DefaultPanelButton(bundleString("cancelButton"));
-        
+
         button.setActionCommand(CANCEL_COMMAND_NAME);
         button.addActionListener(this);
 
@@ -148,7 +129,7 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     private JButton createSaveButton() {
 
         JButton button = new DefaultPanelButton(bundleString("okButton"));
-        
+
         button.setActionCommand(SAVE_COMMAND_NAME);
         button.addActionListener(this);
 
@@ -167,66 +148,66 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
 
         list.addListSelectionListener(this);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        
+
         if (modelFromList().size() >= 0) {
 
             list.setSelectedIndex(0);
         }
-        
+
     }
 
     public void deleteShortcut() {
-        
+
         int index = selectedIndex();
-        
+
         if (index != -1) {
-            
+
             try {
-            
+
                 list.removeListSelectionListener(this);
-                
+
                 DefaultListModel model = modelFromList();
                 model.remove(index);
-    
+
                 lastSelectedIndex = -1;
-    
+
                 int size = model.getSize();
                 if (size > 0) {
-    
+
                     if (index > size - 1) {
-    
+
                         list.setSelectedIndex(size - 1);
-                        
+
                     } else {
-    
+
                         list.setSelectedIndex(index);
                     }
 
                     shortcutSelected();
 
                 } else {
-                    
+
                     textPane.setText("");
                 }
-                
+
             } finally {
 
                 list.addListSelectionListener(this);
             }
-            
+
         }
 
     }
 
     public void addShortcut() {
-        
+
         EditorSQLShortcut shortcut = new EditorSQLShortcut();
         shortcut.setShortcut(bundleString("newShortcutName"));
         shortcut.setQuery(Constants.EMPTY);
-        
+
         DefaultListModel model = modelFromList();
 
-        model.addElement(shortcut);        
+        model.addElement(shortcut);
         int index = model.indexOf(shortcut);
 
         list.setSelectedIndex(index);
@@ -238,7 +219,7 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     private Action listEditingAction() {
         return list.getActionMap().get("startEditing");
     }
-    
+
     private ActionEvent actionEventForEdit() {
         return new ActionEvent(list, ActionEvent.ACTION_FIRST, null);
     }
@@ -280,12 +261,12 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
             if (nameExists(shortcut, shortcut.getShortcut()) ||
                     StringUtils.containsAny(shortcut.getShortcut(), whitespaces) ||
                     MiscUtils.isNull(shortcut.getQuery())) {
-                
+
                 return false;
             }
-            
+
         }
-        
+
         return true;
     }
 
@@ -305,11 +286,11 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     private int selectedIndex() {
         return list.getSelectedIndex();
     }
-    
+
     private void storeQueryForShortcut() {
-        
+
         EditorSQLShortcut shortcut = getShortcutAt(lastSelectedIndex);
-        
+
         if (shortcut != null) {
 
             shortcut.setQuery(textPane.getText().trim());
@@ -318,27 +299,27 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     }
 
     private void shortcutSelected() {
-        
-        EditorSQLShortcut shortcut = getSelectedShortcut();        
+
+        EditorSQLShortcut shortcut = getSelectedShortcut();
         textPane.setText(shortcut.getQuery().trim());
-        
+
         lastSelectedIndex = selectedIndex();
     }
 
     private EditorSQLShortcut getShortcutAt(int index) {
-        
+
         DefaultListModel model = modelFromList();
 
         if (index >= model.size()) {
-            
+
             return null;
         }
 
-        return (EditorSQLShortcut)model.elementAt(index);
+        return (EditorSQLShortcut) model.elementAt(index);
     }
 
     private EditorSQLShortcut getSelectedShortcut() {
-        return (EditorSQLShortcut)list.getSelectedValue();
+        return (EditorSQLShortcut) list.getSelectedValue();
     }
 
     private EditorSQLShortcuts shortcuts() {
@@ -348,37 +329,26 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     private List<EditorSQLShortcut> shortcutsFromList() {
 
         Object[] shortcuts = modelFromList().toArray();
-        List<EditorSQLShortcut> shortcutList = 
-            new ArrayList<EditorSQLShortcut>(shortcuts.length);
-        
+        List<EditorSQLShortcut> shortcutList =
+                new ArrayList<EditorSQLShortcut>(shortcuts.length);
+
         for (Object shortcut : shortcuts) {
-            
-            shortcutList.add((EditorSQLShortcut)shortcut);
+
+            shortcutList.add((EditorSQLShortcut) shortcut);
         }
-        
+
         return shortcutList;
-    }
-
-    private StringBundle bundle() {
-        if (bundle == null) {
-            bundle = SystemResources.loadBundle(ManageShortcutsPanel.class);
-        }
-        return bundle;
-    }
-
-    private String bundleString(String key) {
-        return bundle().getString("ManageShortcutsPanel." + key);
     }
 
     private DefaultListModel modelFromList() {
 
-        return (DefaultListModel)list.getModel();
+        return (DefaultListModel) list.getModel();
     }
 
     private ListModel createModel() {
-        
+
         EditorSQLShortcutsListModel model = new EditorSQLShortcutsListModel();
-        
+
         List<EditorSQLShortcut> shortcuts = shortcuts().getEditorShortcuts();
         for (EditorSQLShortcut shortcut : shortcuts) {
 
@@ -389,27 +359,27 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     }
 
     class EditorSQLShortcutsListModel extends DefaultMutableListModel {
-        
+
         public void setValueAt(Object value, int index) {
-            
+
             if (value == null) {
-                
+
                 return;
             }
-            
+
             String name = value.toString();
-            
+
             if (MiscUtils.isNull(name)) {
-                
+
                 return;
             }
-            
-            EditorSQLShortcut shortcut = (EditorSQLShortcut)modelFromList().get(index);
+
+            EditorSQLShortcut shortcut = (EditorSQLShortcut) modelFromList().get(index);
 
             if (!nameExists(shortcut, name)) {
-                
+
                 shortcut.setShortcut(name);
-                
+
             } else {
 
                 GUIUtilities.displayErrorMessage(
@@ -417,38 +387,38 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
             }
 
         }
-        
+
     }
 
     public boolean nameExists(EditorSQLShortcut shortcut, String name) {
 
-        for (Enumeration<?> i = modelFromList().elements(); i.hasMoreElements();) {
-            
-            EditorSQLShortcut _shortcut = (EditorSQLShortcut)i.nextElement();
-            
-            if (name.equals(_shortcut.getShortcut()) 
+        for (Enumeration<?> i = modelFromList().elements(); i.hasMoreElements(); ) {
+
+            EditorSQLShortcut _shortcut = (EditorSQLShortcut) i.nextElement();
+
+            if (name.equals(_shortcut.getShortcut())
                     && _shortcut != shortcut) {
-                
+
                 return true;
             }
-            
+
         }
-        
+
         return false;
     }
 
     private JPanel createMoveButtonsPanel() {
-        
+
         JPanel panel = new JPanel(new GridBagLayout());
 
-        JButton addButton = ActionUtilities.createButton(
-                this, 
+        JButton addButton = ActionUtilities.createToolbarButton(
+                this,
                 "addShortcut",
-                GUIUtilities.loadIcon("ShortcutAdd16.png"), 
+                GUIUtilities.loadIcon("ShortcutAdd16.png"),
                 "Add shortcut");
 
-        JButton deleteButton = ActionUtilities.createButton(
-                this, 
+        JButton deleteButton = ActionUtilities.createToolbarButton(
+                this,
                 "deleteShortcut",
                 GUIUtilities.loadIcon("ShortcutDelete16.png"),
                 "Delete shortcut");
@@ -470,11 +440,11 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     private JLabel labelForKey(String key) {
         return new JLabel(bundleString(key));
     }
-    
+
     private JSplitPane createSplitPane() {
-        
+
         JSplitPane splitPane = new FlatSplitPane(JSplitPane.VERTICAL_SPLIT);
-        
+
         splitPane.setDividerSize(4);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerLocation(0.5);
@@ -483,6 +453,7 @@ public class ManageShortcutsPanel extends DefaultActionButtonsPanel
     }
 
 }
+
 
 
 

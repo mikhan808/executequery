@@ -1,7 +1,7 @@
 /*
  * SimpleMetaDataModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,11 +20,11 @@
 
 package org.executequery.gui.browser;
 
-import java.util.Map;
+import org.executequery.Constants;
 
 import javax.swing.table.AbstractTableModel;
-
-import org.executequery.Constants;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public class SimpleMetaDataModel extends AbstractTableModel {
 
@@ -32,14 +32,14 @@ public class SimpleMetaDataModel extends AbstractTableModel {
     private String[] propertyNames;
     private String[] propertyValues;
     private Map<String, String> map;
-    
+
     public int getRowCount() {
         if (propertyNames == null) {
             return 0;
         }
         return propertyNames.length;
     }
-    
+
     public int getColumnCount() {
         return columns.length;
     }
@@ -51,7 +51,7 @@ public class SimpleMetaDataModel extends AbstractTableModel {
             return;
         }
         this.map = map;
-        
+
         if (map == null) {
 
             propertyNames = new String[0];
@@ -63,51 +63,52 @@ public class SimpleMetaDataModel extends AbstractTableModel {
         int size = map.size();
         propertyNames = new String[size];
         propertyValues = new String[size];
-        
-        int count = 0;
-        for (String key : map.keySet()) {
 
-            propertyNames[count] = key;
-            propertyValues[count] = (String) map.get(key);
-            count++;            
-        }        
-        
+        int count = 0;
+        for (Entry<String, String> entry : map.entrySet()) {
+
+            propertyNames[count] = entry.getKey();
+            propertyValues[count] = entry.getValue();
+            count++;
+        }
+
         fireTableDataChanged();
     }
-    
+
     public Object getValueAt(int row, int col) {
-        switch (col) {                
+        switch (col) {
             case 0:
                 return propertyNames[row];
             case 1:
                 return propertyValues[row];
             default:
-                return Constants.EMPTY;                   
+                return Constants.EMPTY;
         }
     }
-    
+
     public void setValueAt(Object value, int row, int col) {
-        
+
         switch (col) {
             case 0:
-                propertyNames[row] = ((String)value);
-                break;                    
+                propertyNames[row] = ((String) value);
+                break;
             case 1:
-                propertyValues[row] = ((String)value);
-                break;                    
+                propertyValues[row] = ((String) value);
+                break;
         }
-        
-        fireTableCellUpdated(row, col);            
+
+        fireTableCellUpdated(row, col);
     }
-    
+
     public String getColumnName(int col) {
         return columns[col];
     }
-    
+
     public boolean isCellEditable(int row, int col) {
         return false;
     }
-    
+
 
 }
+
 

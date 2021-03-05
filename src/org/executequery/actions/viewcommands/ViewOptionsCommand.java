@@ -1,7 +1,7 @@
 /*
  * ViewOptionsCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,39 +20,30 @@
 
 package org.executequery.actions.viewcommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.gui.NotepadDockedPanel;
 import org.executequery.gui.SystemOutputPanel;
 import org.executequery.gui.SystemPropertiesDockedTab;
 import org.executequery.gui.browser.ConnectionsTreePanel;
 import org.executequery.gui.drivers.DriversTreePanel;
-import org.executequery.gui.jdbclogger.JdbcLoggerPanel;
 import org.executequery.gui.keywords.KeywordsDockedPanel;
 import org.executequery.gui.sqlstates.SQLStateCodesDockedPanel;
 
+import java.awt.event.ActionEvent;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ViewOptionsCommand extends AbstractViewOptionsCommand {
-    
+
     public void viewStatusBar(ActionEvent e) {
-        
+
         GUIUtilities.displayStatusBar(selectionFromEvent(e));
     }
-    
+
     public void viewConsole(ActionEvent e) {
 
         displayDockedComponent(e, SystemOutputPanel.PROPERTY_KEY);
-    }
-
-    public void viewJdbcLogger(ActionEvent e) {
-
-        displayDockedComponent(e, JdbcLoggerPanel.PROPERTY_KEY);
     }
 
     public void viewConnections(ActionEvent e) {
@@ -89,8 +80,9 @@ public class ViewOptionsCommand extends AbstractViewOptionsCommand {
 
         GUIUtilities.displayDockedComponent(key, selectionFromEvent(e));
     }
-    
+
 }
+
 
 
 

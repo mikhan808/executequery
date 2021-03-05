@@ -1,7 +1,7 @@
 /*
  * DatabaseExecutable.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,19 +20,18 @@
 
 package org.executequery.databaseobjects;
 
-import java.util.List;
 import org.underworldlabs.jdbc.DataSourceException;
+
+import java.util.List;
 
 /**
  * Defines a database executable object such as a function or
  * stored database procedure.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1504 $
- * @date     $Date: 2015-09-23 11:09:23 +1000 (Wed, 23 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public interface DatabaseExecutable extends DatabaseObject {
-    
+
     /**
      * The executable (procedure) type.
      *
@@ -46,12 +45,12 @@ public interface DatabaseExecutable extends DatabaseObject {
      * @return true | false
      */
     boolean hasParameters();
-   
+
     /**
      * Adds the specified values as a single parameter to this object.
      */
-    ProcedureParameter addParameter(String name, int type, int dataType, String sqlType, int size);
-    
+    ProcedureParameter addParameter(String name, int type, int dataType, String sqlType, int size, int nullable);
+
     /**
      * Returns this object's parameters.
      */
@@ -70,6 +69,7 @@ public interface DatabaseExecutable extends DatabaseObject {
 
     String getProcedureSourceCode();
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * PropertyWrapperModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,26 +20,26 @@
 
 package org.underworldlabs.swing.table;
 
+import org.executequery.localization.Bundles;
+import org.underworldlabs.util.KeyValuePair;
+
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Properties;
 
-import org.underworldlabs.util.KeyValuePair;
-
-/** Simple wrapper class for key/value property values
- *  providing table model and sorting by key or value.
+/**
+ * Simple wrapper class for key/value property values
+ * providing table model and sorting by key or value.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertyWrapperModel extends AbstractSortableTableModel {
 
     public static final int SORT_BY_KEY = 0;
     public static final int SORT_BY_VALUE = 1;
 
-    private static final String[] HEADER = {"Property", "Value"};
+    private static final String[] HEADER = Bundles.get(PropertyWrapperModel.class, new String[]{"property", "value"});
 
     private int sortBy;
     private KeyValuePair[] valuePairs;
@@ -70,27 +70,27 @@ public class PropertyWrapperModel extends AbstractSortableTableModel {
             valuePairs[count++] = new KeyValuePair(
                     entry.getKey().toString(), entry.getValue().toString());
         }
-        
+
         fireTableDataChanged();
     }
 
     public void setValues(Map<Object, Object> values, boolean sort) {
 
         Properties properties = new Properties();
-        
+
         for (Map.Entry<Object, Object> entry : values.entrySet()) {
 
             properties.put(entry.getKey(), entry.getValue());
         }
 
         setValues(properties);
-        
+
         if (sort) {
             sort();
         }
-        
+
     }
-    
+
     public void sort() {
         if (valuePairs == null || valuePairs.length == 0) {
             return;
@@ -103,7 +103,7 @@ public class PropertyWrapperModel extends AbstractSortableTableModel {
         this.sortBy = sortBy;
         sort();
     }
-    
+
     public int getColumnCount() {
         return 2;
     }
@@ -118,17 +118,17 @@ public class PropertyWrapperModel extends AbstractSortableTableModel {
     public boolean isCellEditable(int row, int col) {
         return true;
     }
-    
-    public Object getValueAt(int row, int col) {        
+
+    public Object getValueAt(int row, int col) {
 
         KeyValuePair value = valuePairs[row];
-        
+
         if (col == 0) {
             return value.getKey();
         } else {
             return value.getValue();
         }
-        
+
     }
 
     public String getColumnName(int col) {
@@ -155,8 +155,9 @@ public class PropertyWrapperModel extends AbstractSortableTableModel {
         }
 
     } // class KeyValuePairSorter
-    
+
 }
+
 
 
 

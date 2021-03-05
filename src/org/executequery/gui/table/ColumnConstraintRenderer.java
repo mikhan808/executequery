@@ -1,7 +1,7 @@
 /*
  * ColumnConstraintRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,36 +20,39 @@
 
 package org.executequery.gui.table;
 
-import java.awt.Color;
-import java.awt.Component;
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
 import org.executequery.GUIUtilities;
 import org.executequery.databaseobjects.impl.ColumnConstraint;
 
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
+
 /**
- *
  * @author takisd
  */
 public class ColumnConstraintRenderer extends DefaultTableCellRenderer {
-    
-    /** deleted flag icon */
-    private static ImageIcon deleteImage;
-    
-    /** new column flag icon */
-    private static ImageIcon newImage;
 
-    /** Creates a new instance of ColumnConstraintRenderer */
+    /**
+     * deleted flag icon
+     */
+    private ImageIcon deleteImage;
+
+    /**
+     * new column flag icon
+     */
+    private ImageIcon newImage;
+
+    /**
+     * Creates a new instance of ColumnConstraintRenderer
+     */
     public ColumnConstraintRenderer() {
         deleteImage = GUIUtilities.loadIcon("MarkDeleted16.png", true);
         newImage = GUIUtilities.loadIcon("MarkNew16.png", true);
     }
-    
+
     public Component getTableCellRendererComponent(JTable table,
-                                                   Object value, 
-                                                   boolean isSelected, 
+                                                   Object value,
+                                                   boolean isSelected,
                                                    boolean hasFocus,
                                                    int row, int col) {
 
@@ -59,16 +62,14 @@ public class ColumnConstraintRenderer extends DefaultTableCellRenderer {
         }
 
         if (value != null) {
-            ColumnConstraint constraint = (ColumnConstraint)value;
+            ColumnConstraint constraint = (ColumnConstraint) value;
             if (constraint.isMarkedDeleted()) {
                 setIcon(deleteImage);
                 setToolTipText("This constraint marked to be dropped");
-            }
-            else if (constraint.isNewConstraint()) {
+            } else if (constraint.isNewConstraint()) {
                 setIcon(newImage);
                 setToolTipText("This constraint marked new");
-            }
-            else {
+            } else {
                 setIcon(null);
                 setToolTipText(null);
             }
@@ -78,6 +79,7 @@ public class ColumnConstraintRenderer extends DefaultTableCellRenderer {
         return this;
     }
 }
+
 
 
 

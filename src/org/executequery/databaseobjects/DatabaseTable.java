@@ -1,7 +1,7 @@
 /*
  * DatabaseTable.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,20 +20,17 @@
 
 package org.executequery.databaseobjects;
 
+import org.executequery.databaseobjects.impl.ColumnConstraint;
+import org.executequery.databaseobjects.impl.DefaultDatabaseIndex;
+import org.underworldlabs.jdbc.DataSourceException;
+
 import java.sql.ResultSet;
 import java.util.List;
 
-import org.executequery.databaseobjects.impl.ColumnConstraint;
-import org.executequery.databaseobjects.impl.TableColumnIndex;
-import org.underworldlabs.jdbc.DataSourceException;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public interface DatabaseTable extends DatabaseObject {
+public interface DatabaseTable extends DatabaseTableObject {
 
     /**
      * Propagates the call to getColumns().
@@ -43,7 +40,7 @@ public interface DatabaseTable extends DatabaseObject {
     List<DatabaseColumn> getExportedKeys() throws DataSourceException;
 
     DatabaseColumn getColumn(String name) throws DataSourceException;
-    
+
     /**
      * Returns the columns of this table.
      *
@@ -63,7 +60,7 @@ public interface DatabaseTable extends DatabaseObject {
      *
      * @return the indexes
      */
-    List<TableColumnIndex> getIndexes() throws DataSourceException;
+    List<DefaultDatabaseIndex> getIndexes() throws DataSourceException;
 
     /**
      * Returns this table's column meta data result set.
@@ -106,8 +103,10 @@ public interface DatabaseTable extends DatabaseObject {
      */
     int applyChanges() throws DataSourceException;
 
+    int applyTableDefinitionChanges();
+
     /**
-     * Indicates whether this table or any of its columns 
+     * Indicates whether this table or any of its columns
      * or constraints have pending modifications to be applied.
      *
      * @return true | false
@@ -119,13 +118,19 @@ public interface DatabaseTable extends DatabaseObject {
      */
     String getAlteredSQLText() throws DataSourceException;
 
-    /** identifier for no constraints in CREATE statement */
+    /**
+     * identifier for no constraints in CREATE statement
+     */
     int STYLE_NO_CONSTRAINTS = 0;
 
-    /** identifier for embedded constraints in CREATE statement */
+    /**
+     * identifier for embedded constraints in CREATE statement
+     */
     int STYLE_CONSTRAINTS_DEFAULT = 1;
 
-    /** identifier for constraints as ALTER TABLE statements */
+    /**
+     * identifier for constraints as ALTER TABLE statements
+     */
     int STYLE_CONSTRAINTS_ALTER = 2;
 
     String getCreateSQLText() throws DataSourceException;
@@ -138,8 +143,8 @@ public interface DatabaseTable extends DatabaseObject {
     String getCreateSQLText(int style) throws DataSourceException;
 
     /**
-     * Returns the user modified SQL text to apply 
-     * any pending changes. If this has not been set (no 
+     * Returns the user modified SQL text to apply
+     * any pending changes. If this has not been set (no
      * changes were made) then a call to getAlteredSQLText()
      * is made.
      *
@@ -150,7 +155,7 @@ public interface DatabaseTable extends DatabaseObject {
     void setModifiedSQLText(String modifiedSQLText);
 
     String getDropSQLText(boolean cascadeConstraints);
-    
+
     String getInsertSQLText();
 
     String getUpdateSQLText();
@@ -170,7 +175,7 @@ public interface DatabaseTable extends DatabaseObject {
     List<ColumnConstraint> getUniqueKeys();
 
     String getAlterSQLTextForUniqueKeys();
-    
+
     String getAlterSQLTextForPrimaryKeys();
 
     String getAlterSQLTextForForeignKeys();
@@ -179,23 +184,27 @@ public interface DatabaseTable extends DatabaseObject {
 
     boolean hasPrimaryKey();
 
-    String prepareStatement(List<String> columns);
+    String prepareStatementWithPK(List<String> columns);
+
+    String prepareStatementDeletingWithPK();
 
     List<String> getPrimaryKeyColumnNames();
 
-    void addTableDataChange(TableDataChange tableDataChange);
+    boolean hasForeignKey();
 
-    boolean hasTableDataChanges();
-
-	boolean hasForeignKey();
-
-	List<String> getForeignKeyColumnNames();
+    List<String> getForeignKeyColumnNames();
 
     void cancelChanges();
 
     boolean hasTableDefinitionChanges();
 
+    void resetRowsCount();
+
+    String getExternalFile();
+
+    String getAdapter();
 }
+
 
 
 

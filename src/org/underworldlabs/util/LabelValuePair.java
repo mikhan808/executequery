@@ -1,7 +1,7 @@
 /*
  * LabelValuePair.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,17 +21,17 @@
 package org.underworldlabs.util;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision$
- * @date     $Date$
+ * @author Takis Diakoumis
+ * @version $Revision$
+ * @date $Date$
  */
 public class LabelValuePair implements java.io.Serializable {
-    
+
     private String label;
     private Object value;
-    
-    public LabelValuePair() {}
+
+    public LabelValuePair() {
+    }
 
     public LabelValuePair(Object value, String label) {
         this.label = label;
@@ -41,16 +41,17 @@ public class LabelValuePair implements java.io.Serializable {
     public Object getValue() {
         return value;
     }
-    
+
     public String getLabel() {
         return label;
     }
-    
+
     @Override
     public String toString() {
         return label;
     }
-    
-    
+
+
 }
+
 

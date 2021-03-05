@@ -1,7 +1,7 @@
 /*
  * DropDatabaseObjectCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,16 @@
 
 package org.executequery.actions.othercommands;
 
-import java.awt.event.ActionEvent;
-import javax.swing.JPanel;
 import org.executequery.GUIUtilities;
 import org.executequery.gui.browser.BrowserViewPanel;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Performs the drop object command for the browser.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DropDatabaseObjectCommand extends AbstractBaseCommand {
 
@@ -39,14 +38,15 @@ public class DropDatabaseObjectCommand extends AbstractBaseCommand {
         if (panel != null) {
             // check if we are on the browser
             if (panel instanceof BrowserViewPanel) {
-                BrowserViewPanel viewPanel = (BrowserViewPanel)panel;
+                BrowserViewPanel viewPanel = (BrowserViewPanel) panel;
                 viewPanel.dropSelectedObject();
             }
         }
-        
+
     }
-    
+
 }
+
 
 
 

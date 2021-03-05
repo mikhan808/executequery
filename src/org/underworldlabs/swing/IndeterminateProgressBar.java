@@ -1,7 +1,7 @@
 /*
  * IndeterminateProgressBar.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,66 +20,63 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Color;
-import java.awt.Graphics;
+import org.underworldlabs.swing.plaf.UIUtils;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JComponent;
-import javax.swing.Timer;
-import javax.swing.UIManager;
-
-import org.underworldlabs.swing.plaf.UIUtils;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class IndeterminateProgressBar extends JComponent
-                                      implements Runnable, ProgressBar {
-    
+        implements Runnable, ProgressBar {
+
     private Color scrollbarColour;
-    
+
     private int scrollerWidth;
     private int animationOffset;
-    
+
     private boolean inProgress;
     private boolean paintBorder;
-    
+
+    private boolean stopped;
+    private boolean fillWhenStopped;
+
     private Timer timer;
-    
+
     public IndeterminateProgressBar() {
         this(true);
     }
-    
+
     public IndeterminateProgressBar(boolean paintBorder) {
+
         inProgress = false;
         scrollerWidth = 20;
         this.paintBorder = paintBorder;
 
         animationOffset = scrollerWidth * -1;
         Color foregroundColour = UIManager.getColor("ProgressBar.foreground");
-        
+
         if (UIUtils.isNativeMacLookAndFeel()) {
-        	foregroundColour = UIManager.getColor("Focus.color");
+            foregroundColour = UIManager.getColor("Focus.color");
         }
-        
-		setScrollbarColour(foregroundColour);
-		
+
+        setScrollbarColour(foregroundColour);
+
         createTimer();
     }
 
-	private void createTimer() {
-		timer = new Timer(25, new ActionListener() {
+    private void createTimer() {
+        timer = new Timer(25, new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 run();
             }
         });
         timer.setInitialDelay(0);
-	}
-    
+    }
+
     public void run() {
         animationOffset++;
         repaint();
@@ -87,19 +84,20 @@ public class IndeterminateProgressBar extends JComponent
             animationOffset = scrollerWidth * -1;
         }
     }
-    
+
     public void stop() {
         if (hasTimer()) {
             timer.stop();
         }
         inProgress = false;
+        stopped = true;
         repaint();
     }
 
     private boolean hasTimer() {
         return timer != null;
     }
-    
+
     public void start() {
         if (!hasTimer()) {
             createTimer();
@@ -108,63 +106,82 @@ public class IndeterminateProgressBar extends JComponent
         inProgress = true;
         repaint();
     }
-    
+
     public void cleanup() {
         if (hasTimer()) {
             timer.stop();
         }
         timer = null;
     }
-    
+
+    @Override
+    public int getHeight() {
+
+        return (int) Math.max(super.getHeight(), getPreferredSize().getHeight());
+    }
+
     public void paintComponent(Graphics g) {
-        
-    	UIUtils.antialias(g);
-    	
+
+        UIUtils.antialias(g);
+
         int width = getWidth();
         int height = getHeight();
-        
+
         int y1 = height - 2;
         int y4 = height - 3;
-        
+
         if (paintBorder) {
+
             // draw the line border
             g.setColor(getScrollbarColour());
             g.drawRect(0, 0, width - 2, height - 2);
             width--;
-        }
-        
-        else {
+
+        } else {
+
             // draw the default border
-            paintBorder(g);
-            y1 = height;
-            y4 = height - 1;
+//            paintBorder(g);
+//            y1 = height;
+//            y4 = height - 1;
         }
-        
+
         if (!inProgress) {
+
+            if (stopped && fillWhenStopped) {
+
+                g.setColor(getScrollbarColour());
+                g.fillRect(0, 0, width, height);
+            }
+
             return;
         }
-        
+
         // set the polygon points
         int[] xPosns = {0, 0, 0, 0};
         int[] yPosns = {y1, 1, 1, y1};
-        
+
         // constrain the clip
         //g.setClip(1, 1, width - 3, y4);
         g.setClip(0, 1, width, y4);
-        
+
         g.setColor(getScrollbarColour());
-        
+
         for (int i = 0, k = width + scrollerWidth; i < k; i += scrollerWidth) {
-            
+
             xPosns[0] = i + animationOffset;
             xPosns[1] = xPosns[0] + (scrollerWidth / 2);
             xPosns[2] = xPosns[0] + scrollerWidth;
             xPosns[3] = xPosns[1];
 
             g.fillPolygon(xPosns, yPosns, 4);
-            
+
         }
-        
+
+    }
+
+    @Override
+    public void fillWhenStopped() {
+        this.fillWhenStopped = true;
     }
 
     public Color getScrollbarColour() {
@@ -174,6 +191,7 @@ public class IndeterminateProgressBar extends JComponent
     public void setScrollbarColour(Color scrollbarColour) {
         this.scrollbarColour = scrollbarColour;
     }
-   
+
 }
+
 

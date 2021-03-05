@@ -1,7 +1,7 @@
 /*
  * PropertiesResultSetTableGeneral.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,138 +21,141 @@
 package org.executequery.gui.prefs;
 
 
+import org.underworldlabs.util.SystemProperties;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import org.underworldlabs.util.SystemProperties;
 
 /**
  * The properties for the editor's results panel
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1512 $
- * @date     $Date: 2015-09-27 21:23:07 +1000 (Sun, 27 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertiesResultSetTableGeneral extends AbstractPropertiesBasePanel {
 
     private SimplePreferencesPanel preferencesPanel;
 
     public PropertiesResultSetTableGeneral() {
-        try  {
+        try {
             init();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void init() throws Exception {
+    private void init() {
 
         List<UserPreference> list = new ArrayList<UserPreference>();
 
         list.add(new UserPreference(
-                    UserPreference.CATEGORY_TYPE,
-                    null,
-                    "ResultSet Table",
-                    null));
+                UserPreference.CATEGORY_TYPE,
+                null,
+                bundledString("ResultSetTable"),
+                null));
 
         String key = "results.table.column.resize";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Columns resizeable",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("ColumnsResizeable"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "results.table.column.reorder";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Column reordering",
-                    Boolean.valueOf(stringUserProperty(key))));
-
-        key = "results.table.row.select";
-        list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Row selection",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("ColumnReordering"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "results.table.row.numbers";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Row number header",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("RowNumberHeader"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "results.table.column.width";
         list.add(new UserPreference(
-                    UserPreference.INTEGER_TYPE,
-                    3,
-                    key,
-                    "Column width",
-                    SystemProperties.getProperty("user", key)));
+                UserPreference.INTEGER_TYPE,
+                3,
+                key,
+                bundledString("ColumnWidth"),
+                SystemProperties.getProperty("user", key)));
 
         key = "results.table.column.height";
         list.add(new UserPreference(
-                    UserPreference.INTEGER_TYPE,
-                    3,
-                    key,
-                    "Column Height",
-                    SystemProperties.getProperty("user", key)));
+                UserPreference.INTEGER_TYPE,
+                3,
+                key,
+                bundledString("ColumnHeight"),
+                SystemProperties.getProperty("user", key)));
 
         key = "results.table.column.width.save";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
-                "Save column width state between queries",
+                bundledString("SaveColumnWidthStateBetweenQueries"),
                 Boolean.valueOf(stringUserProperty(key))));
 
         key = "resuts.date.pattern";
         list.add(new UserPreference(
-                    UserPreference.STRING_TYPE,
-                    -1,
-                    key,
-                    "Date pattern format",
-                    stringUserProperty(key)));
+                UserPreference.STRING_TYPE,
+                -1,
+                key,
+                bundledString("DatePatternFormat"),
+                stringUserProperty(key)));
 
         key = "results.table.cell.null.text";
         list.add(new UserPreference(
-                    UserPreference.STRING_TYPE,
-                    key,
-                    "Null value cell text",
-                    SystemProperties.getStringProperty("user", key)));
-
-        key = "results.table.clob.length";
-        list.add(new UserPreference(
-                    UserPreference.INTEGER_TYPE,
-                    5,
-                    key,
-                    "Max CLOB character length shown",
-                    SystemProperties.getProperty("user", key)));
+                UserPreference.STRING_TYPE,
+                key,
+                bundledString("NullValueCellText"),
+                SystemProperties.getStringProperty("user", key)));
 
         key = "results.table.double-click.record.dialog";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Cell double-click opens data item viewer",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("CellDouble-clickOpensDataItemViewer"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "results.table.single.row.transpose";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Transpose when single row result",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("TransposeWhenSingleRowResult"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "results.table.right.align.numeric";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
-                "Right-align numeric values",
+                bundledString("Right-alignNumericValues"),
                 Boolean.valueOf(stringUserProperty(key))));
 
+        key = "results.table.use.form.adding.deleting";
+        list.add(new UserPreference(
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("UseFormForAddingDeletingRecords"),
+                Boolean.valueOf(stringUserProperty(key))));
+
+        key = "results.table.use.other.color.null";
+        list.add(new UserPreference(
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("UseOtherColorForNullWhenAddingDeletingRecords"),
+                Boolean.valueOf(stringUserProperty(key))));
+
+        key = "results.table.fetch.size";
+        list.add(new UserPreference(
+                UserPreference.INTEGER_TYPE,
+                key,
+                bundledString("FetchSize"),
+                Integer.valueOf(stringUserProperty(key))));
+
         UserPreference[] preferences =
-                (UserPreference[])list.toArray(new UserPreference[list.size()]);
+                list.toArray(new UserPreference[list.size()]);
         preferencesPanel = new SimplePreferencesPanel(preferences);
         addContent(preferencesPanel);
 
@@ -167,6 +170,7 @@ public class PropertiesResultSetTableGeneral extends AbstractPropertiesBasePanel
     }
 
 }
+
 
 
 

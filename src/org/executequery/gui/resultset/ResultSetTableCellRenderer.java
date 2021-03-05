@@ -1,7 +1,7 @@
 /*
  * ResultSetTableCellRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,21 +20,17 @@
 
 package org.executequery.gui.resultset;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.sql.Types;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import javax.swing.JTable;
-import javax.swing.SwingConstants;
-import javax.swing.UIManager;
-import javax.swing.border.Border;
-import javax.swing.table.DefaultTableCellRenderer;
-
 import org.executequery.Constants;
 import org.underworldlabs.util.MiscUtils;
 import org.underworldlabs.util.SystemProperties;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.table.DefaultTableCellRenderer;
+import java.awt.*;
+import java.sql.Types;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 // much of this from the article Christmas Tree Applications at
 // http://java.sun.com/products/jfc/tsc/articles/ChristmasTree
@@ -42,10 +38,7 @@ import org.underworldlabs.util.SystemProperties;
 // results table.
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1545 $
- * @date     $Date: 2015-12-22 10:22:44 +1100 (Tue, 22 Dec 2015) $
+ * @author Takis Diakoumis
  */
 class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
@@ -68,13 +61,20 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
     private String nullValueDisplayString;
 
     private Color nullValueDisplayColor;
+    private Color nullValueAddDisplayColor;
+    private Color nullValueDeleteDisplayColor;
     private Color numericValueDisplayColor;
     private Color otherValueDisplayColor;
     private Color booleanValueDisplayColor;
     private Color dateValueDisplayColor;
     private Color charValueDisplayColor;
     private Color blobValueDisplayColor;
-    
+    private Color changedValueDisplayColor;
+    private Color deletedValueDisplayColor;
+    private Color newValueDisplayColor;
+    private boolean otherColorForNull;
+    private Color focusRowBackground;
+
     private Color alternatingRowBackground;
 
     private boolean rightAlignNumeric;
@@ -100,15 +100,17 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
     }
 
     public Component getTableCellRendererComponent(
-				JTable table, Object value,
-				boolean isSelected, boolean hasFocus,
-				int row, int column) {
+            JTable table, Object value,
+            boolean isSelected, boolean hasFocus,
+            int row, int column) {
 
         if (isSelected) {
 
             setForeground(selectionForeground);
             setBackground(selectionBackground);
 
+        } else if (row == table.getSelectedRow()) {
+            setBackground(focusRowBackground);
         } else {
 
             if (tableBackground == null) {
@@ -118,11 +120,11 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
             setForeground(tableForeground);
             if (row % 2 > 0) {
-                
+
                 setBackground(alternatingRowBackground);
 
             } else {
-             
+
                 setBackground(tableBackground);
             }
         }
@@ -141,12 +143,13 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
             setBorder(noFocusBorder);
         }
-
+        isSelected = isSelected || row == table.getSelectedRow();
         formatValueForDisplay(value, isSelected);
         if (rightAlignNumeric) {
 
             alignNumeric(value);
         }
+
 
         return this;
     }
@@ -154,7 +157,7 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
     private void alignNumeric(Object value) {
 
         RecordDataItem recordDataItem = (RecordDataItem) value;
-        if (recordDataItem == null || recordDataItem.isValueNull()) {
+        if (recordDataItem == null || recordDataItem.isDisplayValueNull()) {
 
             return;
         }
@@ -185,28 +188,28 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
         if (value != null) {
 
-        	if (value instanceof RecordDataItem) {
+            if (value instanceof RecordDataItem) {
 
-        		RecordDataItem recordDataItem = (RecordDataItem) value;
-        		if (recordDataItem.isValueNull()) {
+                RecordDataItem recordDataItem = (RecordDataItem) value;
+                if (recordDataItem.isDisplayValueNull()) {
 
-        		    formatForNullValue(isSelected);
-        			return;
+                    formatForNullValue(isSelected, recordDataItem.isChanged(), recordDataItem.isDeleted(), recordDataItem.isNew());
+                    return;
 
-        		} else {
+                } else {
 
-        			formatForDataItem(recordDataItem, isSelected);
-        			return;
-        		}
+                    formatForDataItem(recordDataItem, isSelected);
+                    return;
+                }
 
-        	} else {
+            } else {
 
-        	    formatForOther(value, isSelected);
-        	}
+                formatForOther(value, isSelected);
+            }
 
         } else {
 
-            formatForNullValue(isSelected);
+            formatForNullValue(isSelected, false, false, false);
         }
 
     }
@@ -225,53 +228,61 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
         boolean isDateValue = false;
         Color color = tableBackground;
-        int sqlType = recordDataItem.getDataType();
-        
-        switch (sqlType) {
+        if (recordDataItem.isNew() && newValueDisplayColor.getRGB() != tableBackground.getRGB()) {
+            color = newValueDisplayColor;
+        } else if (recordDataItem.isDeleted() && deletedValueDisplayColor.getRGB() != tableBackground.getRGB()) {
+            color = deletedValueDisplayColor;
+        } else if (recordDataItem.isChanged() && changedValueDisplayColor.getRGB() != tableBackground.getRGB()) {
+            color = changedValueDisplayColor;
+        } else {
+            int sqlType = recordDataItem.getDataType();
 
-            case Types.LONGVARCHAR:
-            case Types.LONGNVARCHAR:
-            case Types.CHAR:
-            case Types.NCHAR:
-            case Types.VARCHAR:
-            case Types.NVARCHAR:
-            case Types.CLOB:
-                color = charValueDisplayColor;
-                break;
+            switch (sqlType) {
 
-            case Types.BIT:
-            case Types.BOOLEAN:
-                color = booleanValueDisplayColor;
-                break;
+                case Types.LONGVARCHAR:
+                case Types.LONGNVARCHAR:
+                case Types.CHAR:
+                case Types.NCHAR:
+                case Types.VARCHAR:
+                case Types.NVARCHAR:
+                case Types.CLOB:
+                    color = charValueDisplayColor;
+                    break;
 
-            case Types.TINYINT:
-            case Types.BIGINT:
-            case Types.NUMERIC:
-            case Types.DECIMAL:
-            case Types.INTEGER:
-            case Types.SMALLINT:
-            case Types.FLOAT:
-            case Types.REAL:
-            case Types.DOUBLE:
-                color = numericValueDisplayColor;
-                break;
+                case Types.BIT:
+                case Types.BOOLEAN:
+                    color = booleanValueDisplayColor;
+                    break;
 
-            case Types.DATE:
-            case Types.TIME:
-            case Types.TIMESTAMP:
-                color = dateValueDisplayColor;
-                isDateValue = true;
-                break;
+                case Types.TINYINT:
+                case Types.BIGINT:
+                case Types.NUMERIC:
+                case Types.DECIMAL:
+                case Types.INTEGER:
+                case Types.SMALLINT:
+                case Types.FLOAT:
+                case Types.REAL:
+                case Types.DOUBLE:
+                    color = numericValueDisplayColor;
+                    break;
 
-            case Types.LONGVARBINARY:
-            case Types.VARBINARY:
-            case Types.BINARY:
-            case Types.BLOB:
-                color = blobValueDisplayColor;
+                case Types.DATE:
+                case Types.TIME:
+                case Types.TIMESTAMP:
+                    color = dateValueDisplayColor;
+                    isDateValue = true;
+                    break;
 
-            default:
-                color = otherValueDisplayColor;
+                case Types.LONGVARBINARY:
+                case Types.VARBINARY:
+                case Types.BINARY:
+                case Types.BLOB:
+                    color = blobValueDisplayColor;
+                    break;
+                default:
+                    color = otherValueDisplayColor;
 
+            }
         }
 
         Object value = recordDataItem.getDisplayValue();
@@ -284,14 +295,14 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
             // account for possible dump on parse conversion
             if (value instanceof Date) {
-                
+
                 setValue(dateFormatted((Date) value));
 
             } else {
-                
+
                 setValue(value);
             }
-            
+
         }
 
         if (!isSelected) {
@@ -301,7 +312,7 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
                 // if its not the bg, apply the bg otherwise run 
                 // with alternating bg alreday set 
-                
+
                 setBackground(color);
             }
 
@@ -309,15 +320,28 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
     }
 
-    private void formatForNullValue(boolean isSelected) {
+    private void formatForNullValue(boolean isSelected, boolean changed, boolean deleted, boolean newValue) {
 
         setValue(nullValueDisplayString);
         setHorizontalAlignment(SwingConstants.CENTER);
         if (!isSelected) {
-
-            setBackground(nullValueDisplayColor);
+            if (!deleted || deletedValueDisplayColor.getRGB() == tableBackground.getRGB()) {
+                if (!newValue || newValueDisplayColor.getRGB() == tableBackground.getRGB()) {
+                    if (!changed)
+                        setBackground(nullValueDisplayColor);
+                    else setBackground(changedValueDisplayColor);
+                } else if (otherColorForNull) {
+                    setBackground(nullValueAddDisplayColor);
+                } else {
+                    setBackground(newValueDisplayColor);
+                }
+            } else if (otherColorForNull) {
+                setBackground(nullValueDeleteDisplayColor);
+            } else {
+                setBackground(deletedValueDisplayColor);
+            }
         }
-        
+
     }
 
     public void applyUserPreferences() {
@@ -340,6 +364,21 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
         nullValueDisplayColor = SystemProperties.getColourProperty(
                 Constants.USER_PROPERTIES_KEY, "results.table.cell.null.background.colour");
 
+        nullValueAddDisplayColor = SystemProperties.getColourProperty(
+                Constants.USER_PROPERTIES_KEY, "results.table.cell.null.adding.background.colour");
+
+        nullValueDeleteDisplayColor = SystemProperties.getColourProperty(
+                Constants.USER_PROPERTIES_KEY, "results.table.cell.null.deleting.background.colour");
+
+        changedValueDisplayColor = SystemProperties.getColourProperty(
+                Constants.USER_PROPERTIES_KEY, "results.table.cell.changed.background.colour");
+
+        deletedValueDisplayColor = SystemProperties.getColourProperty(
+                Constants.USER_PROPERTIES_KEY, "results.table.cell.deleted.background.colour");
+
+        newValueDisplayColor = SystemProperties.getColourProperty(
+                Constants.USER_PROPERTIES_KEY, "results.table.cell.new.background.colour");
+
         blobValueDisplayColor = SystemProperties.getColourProperty(
                 Constants.USER_PROPERTIES_KEY, "results.table.cell.blob.background.colour");
 
@@ -360,9 +399,15 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
 
         alternatingRowBackground = SystemProperties.getColourProperty(
                 Constants.USER_PROPERTIES_KEY, "results.alternating.row.background");
-        
+
         nullValueDisplayString = SystemProperties.getStringProperty(
                 Constants.USER_PROPERTIES_KEY, "results.table.cell.null.text");
+
+        otherColorForNull = SystemProperties.getBooleanProperty(
+                Constants.USER_PROPERTIES_KEY, "results.table.use.other.color.null");
+
+        focusRowBackground = SystemProperties.getColourProperty(
+                Constants.USER_PROPERTIES_KEY, "results.table.focus.row.background.colour");
     }
 
     private String dateFormatted(Date date) {
@@ -407,11 +452,19 @@ class ResultSetTableCellRenderer extends DefaultTableCellRenderer {
         return background != null;
     }
 
-    public void invalidate() {}
-    public void repaint() {}
-    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {}
-    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {}
+    public void invalidate() {
+    }
 
-    
+    public void repaint() {
+    }
+
+    public void firePropertyChange(String propertyName, boolean oldValue, boolean newValue) {
+    }
+
+    protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+    }
+
+
 }
+
 

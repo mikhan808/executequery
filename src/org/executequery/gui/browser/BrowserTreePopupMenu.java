@@ -1,7 +1,7 @@
 /*
  * BrowserTreePopupMenu.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,105 +20,104 @@
 
 package org.executequery.gui.browser;
 
-import java.awt.Component;
-import java.awt.event.ActionListener;
-
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreePath;
-
+import org.apache.commons.lang.StringUtils;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.databaseobjects.DatabaseCatalog;
 import org.executequery.databaseobjects.NamedObject;
+import org.executequery.databaseobjects.impl.DefaultDatabaseMetaTag;
 import org.executequery.gui.browser.nodes.DatabaseCatalogNode;
-import org.executequery.gui.browser.nodes.DatabaseHostNode;
 import org.executequery.gui.browser.nodes.DatabaseObjectNode;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.swing.menu.MenuItemFactory;
 
-/**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
- */
-class BrowserTreePopupMenu extends JPopupMenu {
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.ActionListener;
 
-    private JMenuItem addNewConnection;
-    private JMenuItem connect;
-    private JMenuItem disconnect;
-    private JMenuItem reload;
-    private JMenuItem duplicate;
-    private JMenuItem duplicateWithSource;
-    private JMenuItem delete;
-    private JMenuItem recycleConnection;
-    private JMenuItem copyName;
-    
-    private JCheckBoxMenuItem showDefaultCatalogsAndSchemas; 
+/**
+ * @author Takis Diakoumis
+ */
+public class BrowserTreePopupMenu extends JPopupMenu {
+
+    private final JMenuItem addNewConnection;
+    private final JMenuItem connect;
+    private final JMenuItem disconnect;
+    private final JMenuItem reload;
+    private final JMenuItem createObject;
+    private final JMenuItem editObject;
+    private final JMenuItem deleteObject;
+    private final JMenuItem duplicate;
+    private final JMenuItem duplicateWithSource;
+    private final JMenuItem delete;
+    private final JMenuItem recycleConnection;
+    private final JMenuItem copyName;
+    private final JMenuItem moveToFolder;
+
+    private JCheckBoxMenuItem showDefaultCatalogsAndSchemas;
 
     private JMenu sql;
     private JMenu exportData;
     private JMenu importData;
 
-    private BrowserTreePopupMenuActionListener listener;
-    
+    private final BrowserTreePopupMenuActionListener listener;
+
     BrowserTreePopupMenu(BrowserTreePopupMenuActionListener listener) {
 
         this.listener = listener;
-        
-        connect = createMenuItem("Connect", "connect", listener);
+
+        connect = createMenuItem(bundleString("connect"), "connect", listener);
         add(connect);
-        disconnect = createMenuItem("Disconnect", "disconnect", listener);
+        disconnect = createMenuItem(bundleString("disconnect"), "disconnect", listener);
         add(disconnect);
-
-        addSeparator();
-
-        reload = createMenuItem("Reload", "reload", listener);
+        reload = createMenuItem(bundleString("reload"), "reload", listener);
         add(reload);
-        recycleConnection = createMenuItem("Recycle this Connection", "recycle", listener);
+        recycleConnection = createMenuItem(bundleString("recycle"), "recycle", listener);
         add(recycleConnection);
+        createObject = createMenuItem(bundleString("create"), "createObject", listener);
+        add(createObject);
+        editObject = createMenuItem(bundleString("edit"), "editObject", listener);
+        add(editObject);
+        deleteObject = createMenuItem(bundleString("delete"), "deleteObject", listener);
+        add(deleteObject);
 
         addSeparator();
 
-        showDefaultCatalogsAndSchemas = createCheckBoxMenuItem(
-                "Show only default Catalog or Schema", 
+        /*showDefaultCatalogsAndSchemas = createCheckBoxMenuItem(
+                bundleString("switchDefaultCatalogAndSchemaDisplay"),
                 "switchDefaultCatalogAndSchemaDisplay", listener);
-        add(showDefaultCatalogsAndSchemas);
+        add(showDefaultCatalogsAndSchemas);*/
 
-        addSeparator();
-
-        addNewConnection = createMenuItem("New Connection", "addNewConnection", listener);
+        addNewConnection = createMenuItem(bundleString("addNewConnection"), "addNewConnection", listener);
         add(addNewConnection);
-        duplicate = createMenuItem("Duplicate", "duplicate", listener);
+        duplicate = createMenuItem(bundleString("duplicate"), "duplicate", listener);
         add(duplicate);
-        duplicateWithSource = createMenuItem("Duplicate source", "duplicateWithSource", listener);
+        duplicateWithSource = createMenuItem(bundleString("duplicateWithSource"), "duplicateWithSource", listener);
         add(duplicateWithSource);
-        delete = createMenuItem("Delete", "delete", listener);
+        delete = createMenuItem(bundleString("delete"), "delete", listener);
         add(delete);
 
+        copyName = createMenuItem(bundleString("copyName"), "copyName", listener);
+        add(copyName);
+
         addSeparator();
 
-        copyName = createMenuItem("Copy Name", "copyName", listener);
-        add(copyName);
-        
         createSqlMenu(listener);
         createExportMenu(listener);
         createImportMenu(listener);
-
-        addSeparator();
-        add(createMenuItem("Move to folder...", "moveToFolder", listener));
-        add(createMenuItem("Connection Properties", "properties", listener));
+        moveToFolder = createMenuItem(bundleString("moveToFolder"), "moveToFolder", listener);
+        add(moveToFolder);
+        //add(createMenuItem(bundleString("properties"), "properties", listener));
     }
 
     public void show(Component invoker, int x, int y) {
         setToConnect(!getCurrentSelection().isConnected());
         super.show(invoker, x, y);
     }
-    
-    private JMenuItem createMenuItem(String text, 
-                                     String actionCommand, 
+
+    private JMenuItem createMenuItem(String text,
+                                     String actionCommand,
                                      ActionListener listener) {
 
         JMenuItem menuItem = MenuItemFactory.createMenuItem(text);
@@ -127,9 +126,9 @@ class BrowserTreePopupMenu extends JPopupMenu {
         return menuItem;
     }
 
-    private JCheckBoxMenuItem createCheckBoxMenuItem(String text, 
-                                     String actionCommand, 
-                                     ActionListener listener) {
+    private JCheckBoxMenuItem createCheckBoxMenuItem(String text,
+                                                     String actionCommand,
+                                                     ActionListener listener) {
 
         JCheckBoxMenuItem menuItem = MenuItemFactory.createCheckBoxMenuItem(text);
         menuItem.setActionCommand(actionCommand);
@@ -139,9 +138,10 @@ class BrowserTreePopupMenu extends JPopupMenu {
 
     private void setToConnect(boolean canConnect) {
 
-        connect.setEnabled(canConnect);
-        disconnect.setEnabled(!canConnect);
-        delete.setEnabled(canConnect);
+        connect.setVisible(canConnect);
+        disconnect.setVisible(!canConnect);
+        delete.setVisible(canConnect);
+        reload.setVisible(!canConnect);
 
         String label = null;
         DefaultMutableTreeNode currentPathComponent = (DefaultMutableTreeNode) listener.getCurrentPathComponent();
@@ -150,36 +150,57 @@ class BrowserTreePopupMenu extends JPopupMenu {
         if (listener.hasCurrentPath()) {
 
             if (currentPathComponent instanceof DatabaseObjectNode) {
-                
+
                 DatabaseObjectNode node = asDatabaseObjectNode(currentPathComponent);
-                
+
                 //if (node.getUserObject() instanceof DatabaseHost) {
-                
+
                 if (node.isHostNode()) {
 
-                    reload.setEnabled(false);
-                    sql.setEnabled(false);
-                    exportData.setEnabled(false);
-                    importData.setEnabled(false);
-                    
-                    showDefaultCatalogsAndSchemas.setEnabled(true);
-                    showDefaultCatalogsAndSchemas.setSelected(
-                            ((DatabaseHostNode)node).isDefaultCatalogsAndSchemasOnly());
-                    
-                    recycleConnection.setEnabled(!canConnect);
-                } 
-                else {
+                    //reload.setEnabled(false);
+                    sql.setVisible(false);
+                    exportData.setVisible(false);
+                    importData.setVisible(false);
+
+                    recycleConnection.setVisible(!canConnect);
+                    deleteObject.setVisible(false);
+                    createObject.setVisible(false);
+                    editObject.setVisible(false);
+                } else {
 
                     label = node.toString();
+                    disconnect.setVisible(false);
+                    reload.setVisible(true);
+                    recycleConnection.setVisible(false);
+                    moveToFolder.setVisible(false);
+                    duplicate.setVisible(false);
+                    addNewConnection.setVisible(false);
+                    int type = node.getType();
+                    boolean deleteObjectEnabled = type >= 0 && type < NamedObject.META_TYPES.length;
+                    if (deleteObjectEnabled)
+                        deleteObjectEnabled = !node.isSystem();
+                    boolean createObjectEnabled = deleteObjectEnabled || type == NamedObject.META_TAG;
+                    if (type == NamedObject.META_TAG)
+                        createObjectEnabled = !NamedObject.META_TYPES[((DefaultDatabaseMetaTag) node.getDatabaseObject()).getSubType()].contains("SYSTEM");
+                    deleteObject.setVisible(deleteObjectEnabled);
+                    createObject.setVisible(createObjectEnabled);
+                    editObject.setVisible(deleteObjectEnabled);
+                    if (deleteObjectEnabled) {
+                        deleteObject.setText(bundleString("delete") + " " + node.toString());
+                        editObject.setText(bundleString("edit") + " " + node.toString());
+                    }
+                    if (createObjectEnabled) {
+                        String str = "";
+                        if (type == NamedObject.META_TAG)
+                            str = node.getMetaDataKey();
+                        else
+                            str = NamedObject.META_TYPES[node.getType()];
+                        createObject.setText(bundleString("create") + " " + str);
+                    }
 
-                    reload.setEnabled(true);
-                    recycleConnection.setEnabled(false);
-                    showDefaultCatalogsAndSchemas.setEnabled(false);
 
                     boolean importExport = (node.getType() == NamedObject.TABLE);
-                    sql.setEnabled(importExport);
-                    exportData.setEnabled(importExport);
-                    importData.setEnabled(importExport);
+                    sql.setVisible(importExport);
                 }
             }
         }
@@ -188,27 +209,27 @@ class BrowserTreePopupMenu extends JPopupMenu {
         if (listener.hasCurrentSelection()) {
 
             String name = listener.getCurrentSelection().getName();
-            connect.setText("Connect Data Source " + name);
-            disconnect.setText("Disconnect Data Source " + name);
-            delete.setText("Remove Data Source " + name);
-            duplicate.setText("Create Duplicate of Connection " + name);
-            
+            connect.setText(bundleString("connectText", name));
+            disconnect.setText(bundleString("disconnectText", name));
+            delete.setText(bundleString("deleteText", name));
+            duplicate.setText(bundleString("duplicateText", name));
+
             // eeekkk...
             if (isCatalog(currentPathComponent) && asDatabaseCatalog(currentPathComponent).getHost().supportsCatalogsInTableDefinitions()) {
-                
-                duplicateWithSource.setEnabled(true);
-                duplicateWithSource.setText("Create Connection with Data Source as " + currentPathComponent.toString());
+
+                duplicateWithSource.setVisible(true);
+                duplicateWithSource.setText(bundleString("duplicateWithSourceText1", currentPathComponent.toString()));
 
             } else {
 
-                duplicateWithSource.setText("Create Connection with Selected Data Source");
-                duplicateWithSource.setEnabled(false);
+                duplicateWithSource.setText(bundleString("duplicateWithSourceText2"));
+                duplicateWithSource.setVisible(false);
             }
 
             if (label != null) {
-                reload.setText("Reload " + label);
+                reload.setText(bundleString("reload", label));
             } else {
-                reload.setText("Reload");
+                reload.setText(bundleString("reload", StringUtils.EMPTY));
             }
 
         }
@@ -226,32 +247,33 @@ class BrowserTreePopupMenu extends JPopupMenu {
     }
 
     private boolean isCatalog(DefaultMutableTreeNode currentPathComponent) {
-        
+
         return currentPathComponent instanceof DatabaseCatalogNode;
     }
 
     private void createImportMenu(ActionListener listener) {
-        importData = MenuItemFactory.createMenu("Import Data");
-        importData.add(createMenuItem("Import from XML File", "importXml", listener));
-        importData.add(createMenuItem("Import from Delimited File", "importDelimited", listener));
+        importData = MenuItemFactory.createMenu(bundleString("ImportData"));
+        importData.add(createMenuItem(bundleString("importXml"), "importXml", listener));
+        importData.add(createMenuItem(bundleString("importDelimited"), "importDelimited", listener));
         add(importData);
     }
 
     private void createExportMenu(ActionListener listener) {
-        exportData = MenuItemFactory.createMenu("Export Data");
-        exportData.add(createMenuItem("Export as SQL", "exportSQL", listener));
-        exportData.add(createMenuItem("Export to XML File", "exportXml", listener));
-        exportData.add(createMenuItem("Export to Delimited File", "exportDelimited", listener));
-        exportData.add(createMenuItem("Export to Excel Spreadsheet", "exportExcel", listener));
+        exportData = MenuItemFactory.createMenu(bundleString("ExportData"));
+        exportData.add(createMenuItem(bundleString("exportSQL"), "exportSQL", listener));
+        exportData.add(createMenuItem(bundleString("exportXml"), "exportXml", listener));
+        exportData.add(createMenuItem(bundleString("exportDbunit"), "exportDbunit", listener));
+        exportData.add(createMenuItem(bundleString("exportDelimited"), "exportDelimited", listener));
+        exportData.add(createMenuItem(bundleString("exportExcel"), "exportExcel", listener));
         add(exportData);
     }
 
     private void createSqlMenu(ActionListener listener) {
-        sql = MenuItemFactory.createMenu("SQL");
-        sql.add(createMenuItem("SELECT statement", "selectStatement", listener));
-        sql.add(createMenuItem("INSERT statement", "insertStatement", listener));
-        sql.add(createMenuItem("UPDATE statement", "updateStatement", listener));
-        sql.add(createMenuItem("CREATE TABLE statement", "createTableStatement", listener));            
+        sql = MenuItemFactory.createMenu(bundleString("SQL"));
+        sql.add(createMenuItem(bundleString("selectStatement"), "selectStatement", listener));
+        sql.add(createMenuItem(bundleString("insertStatement"), "insertStatement", listener));
+        sql.add(createMenuItem(bundleString("updateStatement"), "updateStatement", listener));
+        sql.add(createMenuItem(bundleString("createTableStatement"), "createTableStatement", listener));
         add(sql);
     }
 
@@ -275,9 +297,8 @@ class BrowserTreePopupMenu extends JPopupMenu {
         return listener.getCurrentPath();
     }
 
+    private String bundleString(String key, Object... args) {
+        return Bundles.get(getClass(), key, args);
+    }
+
 }
-
-
-
-
-

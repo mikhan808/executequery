@@ -1,7 +1,7 @@
 /*
  * ImportExportType.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,23 +24,23 @@ enum ImportExportType {
 
     EXPORT_SQL_ALL_TABLES,
     EXPORT_SQL_ONE_TABLE;
-    
+
     public static boolean isMultipleTableImportExport(ImportExportType importExportType) {
-     
+
         return importExportType == EXPORT_SQL_ALL_TABLES;
     }
 
     public static boolean isDataExport(ImportExportType importExportType) {
-        
+
         ImportExportType[] exportTypes = {
                 EXPORT_SQL_ALL_TABLES,
                 EXPORT_SQL_ONE_TABLE
         };
-        
+
         for (ImportExportType type : exportTypes) {
-        
+
             if (importExportType == type) {
-                
+
                 return true;
             }
 
@@ -50,6 +50,7 @@ enum ImportExportType {
     }
 
 }
+
 
 
 

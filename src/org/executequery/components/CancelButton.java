@@ -1,7 +1,7 @@
 /*
  * CancelButton.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,28 +22,28 @@ package org.executequery.components;
 
 import org.executequery.actions.othercommands.CancelCommand;
 import org.executequery.gui.DefaultPanelButton;
+import org.executequery.localization.Bundles;
 
-/** 
+/**
  * <p>Simple button and action for closing an
  * internal frame typically implemented as a
  * 'Cancel' button within the frame.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CancelButton extends DefaultPanelButton {
-    
+
     public CancelButton() {
 
-        this("Cancel");
+        this(Bundles.get("common.cancel.button"));
     }
-    
+
     public CancelButton(String text) {
-        
-        super(text);        
+
+        super(text);
         setAction(new CancelCommand());
     }
-    
+
 }
+
 

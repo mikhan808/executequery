@@ -1,7 +1,7 @@
 /*
  * StopCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,20 +22,13 @@ package org.executequery.actions.queryeditor;
 
 import java.awt.event.ActionEvent;
 
-import javax.swing.JPanel;
-
-import org.executequery.GUIUtilities;
-import org.executequery.gui.editor.QueryEditor;
-
-/** 
+/**
  * The Query Editor's cancel statement command execution.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class StopCommand extends AbstractQueryEditorCommand {
-    
+
     public void execute(ActionEvent e) {
 
         if (isQueryEditorTheCentralPanel()) {
@@ -44,15 +37,6 @@ public class StopCommand extends AbstractQueryEditorCommand {
         }
 
     }
-    
+
 }
-
-
-
-
-
-
-
-
-
 

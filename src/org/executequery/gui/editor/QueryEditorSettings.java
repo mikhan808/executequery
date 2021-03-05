@@ -1,7 +1,7 @@
 /*
  * QueryEditorSettings.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,78 +20,106 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.Color;
-import java.awt.Font;
-
-import org.underworldlabs.util.SystemProperties;
-import org.executequery.gui.text.syntax.TokenTypes;
 import org.executequery.gui.text.syntax.SyntaxStyle;
+import org.executequery.gui.text.syntax.TokenTypes;
+import org.underworldlabs.util.SystemProperties;
+
+import java.awt.*;
 
 /**
  * Query editor settings.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class QueryEditorSettings {
 
-    /** Whether to display the line higlight */
+    /**
+     * Whether to display the line higlight
+     */
     private static boolean displayLineHighlight;
-    /** Whether to display the right margin */
+    /**
+     * Whether to display the right margin
+     */
     private static boolean displayRightMargin;
-    /** The right margin size */
+    /**
+     * The right margin size
+     */
     private static int rightMarginSize;
-    /** The right margin colour */
+    /**
+     * The right margin colour
+     */
     private static Color rightMarginColour;
-    /** Selection colour */
+    /**
+     * Selection colour
+     */
     private static Color selectionColour;
-    /** Selected text colour */
+    /**
+     * Selected text colour
+     */
     private static Color selectedTextColour;
-    /** The line highlight colour */
+    /**
+     * The line highlight colour
+     */
     private static Color lineHighlightColour;
-    /** Editor background */
+    /**
+     * Editor background
+     */
     private static Color editorBackground;
-    /** the caret colour */
+    /**
+     * the caret colour
+     */
     private static Color caretColour;
-    /** The currently installed font - in plain - no styles */
+    /**
+     * The currently installed font - in plain - no styles
+     */
     private static Font editorFont;
-    /** The characters for a TAB */
+    /**
+     * The characters for a TAB
+     */
     private static int tabSize;
-    /** converting tabs to spaces */
+    /**
+     * converting tabs to spaces
+     */
     private static boolean tabsToSpaces;
-    /** tab text when converting to spaces */
+    /**
+     * tab text when converting to spaces
+     */
     private static String tabs;
-    /** maximum values held in history */
+    /**
+     * maximum values held in history
+     */
     private static int historyMax;
-    /** the syntax styles */
+    /**
+     * the syntax styles
+     */
     private static SyntaxStyle[] syntaxStyles;
-    
-    private QueryEditorSettings() {}
+
+    private QueryEditorSettings() {
+    }
 
     static {
         initialise();
     }
-    
+
     public static void initialise() {
         selectionColour = SystemProperties.getColourProperty(
-"user",                                          "editor.text.selection.background");
+                "user", "editor.text.selection.background");
         selectedTextColour = SystemProperties.getColourProperty(
-"user",                                          "editor.text.selection.foreground");
-        
+                "user", "editor.text.selection.foreground");
+
         editorBackground = SystemProperties.getColourProperty(
-"user",                                          "editor.text.background.colour");
-        
+                "user", "editor.text.background.colour");
+
         lineHighlightColour = SystemProperties.getColourProperty(
-"user",                                          "editor.display.linehighlight.colour");
-        
+                "user", "editor.display.linehighlight.colour");
+
         displayRightMargin = SystemProperties.getBooleanProperty("user", "editor.display.margin");
         rightMarginSize = SystemProperties.getIntProperty("user", "editor.margin.size");
         rightMarginColour = SystemProperties.getColourProperty("user", "editor.margin.colour");
-        
+
         displayLineHighlight = SystemProperties.getBooleanProperty(
-"user",                                          "editor.display.linehighlight");
-        
+                "user", "editor.display.linehighlight");
+
         int fontSize = SystemProperties.getIntProperty("user", "sqlsyntax.font.size");
         String fontName = SystemProperties.getProperty("user", "sqlsyntax.font.name");
         editorFont = new Font(fontName, Font.PLAIN, fontSize);
@@ -109,9 +137,9 @@ public class QueryEditorSettings {
         }
 
         caretColour = SystemProperties.getColourProperty("user", "editor.caret.colour");
-        
+
         historyMax = SystemProperties.getIntProperty("user", "editor.history.count");
-        
+
         initialiseStyles();
     }
 
@@ -124,7 +152,7 @@ public class QueryEditorSettings {
         // -----------------------------
         // user defined styles
         int fontStyle = SystemProperties.getIntProperty("user", "sqlsyntax.style.multicomment");
-        Color color = SystemProperties.getColourProperty("user", "sqlsyntax.colour.multicomment"); 
+        Color color = SystemProperties.getColourProperty("user", "sqlsyntax.colour.multicomment");
         createStyle(TokenTypes.COMMENT, color, fontStyle, null);
 
         color = SystemProperties.getColourProperty("user", "sqlsyntax.colour.normal");
@@ -155,6 +183,10 @@ public class QueryEditorSettings {
         fontStyle = SystemProperties.getIntProperty("user", "sqlsyntax.style.operator");
         createStyle(TokenTypes.OPERATOR, color, fontStyle, null);
 
+        color = SystemProperties.getColourProperty("user", "sqlsyntax.colour.dbobjects");
+        fontStyle = SystemProperties.getIntProperty("user", "sqlsyntax.style.dbobjects");
+        createStyle(TokenTypes.DBOBJECT, color, fontStyle, null);
+
         color = SystemProperties.getColourProperty("user", "sqlsyntax.colour.braces");
         fontStyle = SystemProperties.getIntProperty("user", "sqlsyntax.style.braces");
         createStyle(TokenTypes.BRACKET, color, fontStyle, null);
@@ -168,16 +200,16 @@ public class QueryEditorSettings {
         fontStyle = SystemProperties.getIntProperty("user", "sqlsyntax.style.braces.error");
         createStyle(TokenTypes.BRACKET_HIGHLIGHT_ERR, Color.BLACK, fontStyle, color);
     }
-    
-    private static void createStyle(int type, Color fcolor, 
+
+    private static void createStyle(int type, Color fcolor,
                                     int fontStyle, Color bcolor) {
         syntaxStyles[type] = new SyntaxStyle(type, fontStyle, fcolor, bcolor);
     }
-    
+
     public static SyntaxStyle[] getSyntaxStyles() {
         return syntaxStyles;
     }
-    
+
     public static boolean isDisplayLineHighlight() {
         return displayLineHighlight;
     }
@@ -291,6 +323,7 @@ public class QueryEditorSettings {
     }
 
 }
+
 
 
 

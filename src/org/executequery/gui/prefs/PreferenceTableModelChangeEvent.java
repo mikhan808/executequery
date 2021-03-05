@@ -1,7 +1,7 @@
 /*
  * PreferenceTableModelChangeEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,34 +23,32 @@ package org.executequery.gui.prefs;
 import org.underworldlabs.util.LabelValuePair;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class PreferenceTableModelChangeEvent {
 
     private UserPreference userPreference;
-    
+
     public PreferenceTableModelChangeEvent(UserPreference userPreference) {
 
         this.userPreference = userPreference;
     }
-    
+
     public String getKey() {
-        
+
         return userPreference.getKey();
     }
-    
+
     public Object getValue() {
 
-        Object value = userPreference.getValue(); 
+        Object value = userPreference.getValue();
         if (value instanceof LabelValuePair) {
-            
+
             value = ((LabelValuePair) value).getValue();
         }
-        
+
         return value;
     }
-    
+
 }
+

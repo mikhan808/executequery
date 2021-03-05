@@ -1,7 +1,7 @@
 /*
  * EditableDatabaseTable.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,38 +20,37 @@
 
 package org.executequery.gui.databaseobjects;
 
-import java.awt.Point;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JTextField;
-import javax.swing.table.TableCellEditor;
-
 import org.executequery.databaseobjects.DatabaseTable;
 import org.executequery.databaseobjects.impl.DatabaseTableColumn;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.util.MiscUtils;
 
+import javax.swing.*;
+import javax.swing.table.TableCellEditor;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class EditableDatabaseTable extends DefaultDatabaseObjectTable
-                                   implements KeyListener {
+        implements KeyListener {
 
-    /** Creates a new instance of EditableDatabaseTable */
+    /**
+     * Creates a new instance of EditableDatabaseTable
+     */
     public EditableDatabaseTable() {
         super();
-        getDatabaseTableModel().setEditable(true);
+        getDatabaseTableModel().setEditable(false);
         setCellEditorListeners();
-        addMouseListener(new MouseHandler());
+        //addMouseListener(new MouseHandler());
     }
 
-    /** Sets listeners on respective column cell editors. */
+    /**
+     * Sets listeners on respective column cell editors.
+     */
     protected void setCellEditorListeners() {
 
         // interested in string and int editors
@@ -65,7 +64,7 @@ public class EditableDatabaseTable extends DefaultDatabaseObjectTable
                 DefaultCellEditor defaultCellEditor = (DefaultCellEditor) cellEditor;
                 if (defaultCellEditor.getComponent() instanceof JTextField) {
 
-                    ((JTextField)defaultCellEditor.getComponent()).addKeyListener(this);
+                    ((JTextField) defaultCellEditor.getComponent()).addKeyListener(this);
                 }
 
             }
@@ -129,7 +128,7 @@ public class EditableDatabaseTable extends DefaultDatabaseObjectTable
         }
 
         DatabaseObjectTableModel _model = getDatabaseTableModel();
-        DatabaseTableColumn column = (DatabaseTableColumn)_model.getValueAt(selectedRow, 0);
+        DatabaseTableColumn column = (DatabaseTableColumn) _model.getValueAt(selectedRow, 0);
 
         // if its a new column - just remove it
         if (column.isNewColumn()) {
@@ -151,7 +150,8 @@ public class EditableDatabaseTable extends DefaultDatabaseObjectTable
     public void resetDatabaseTable() {
         try {
             setDatabaseTable(null);
-        } catch (DataSourceException e) {}
+        } catch (DataSourceException e) {
+        }
     }
 
     /**
@@ -190,8 +190,8 @@ public class EditableDatabaseTable extends DefaultDatabaseObjectTable
      * column has changed to the specified value and notifies the
      * table model.
      *
-     * @param row the table row edited
-     * @param col the table column edited
+     * @param row   the table row edited
+     * @param col   the table column edited
      * @param value the value to be set
      */
     public void tableChanged(int row, int col, Object value) {
@@ -202,12 +202,14 @@ public class EditableDatabaseTable extends DefaultDatabaseObjectTable
      * Invoked when a key has been typed.
      * This event occurs when a key press is followed by a key release.
      */
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {
+    }
 
     /**
      * Invoked when a key has been pressed.
      */
-    public void keyPressed(KeyEvent e) {}
+    public void keyPressed(KeyEvent e) {
+    }
 
     /**
      * Mouse adapter class to handle click events within
@@ -217,7 +219,7 @@ public class EditableDatabaseTable extends DefaultDatabaseObjectTable
 
         public void mouseClicked(MouseEvent e) {
 
-            int mouseX = e.getX();
+            /*int mouseX = e.getX();
             int mouseY = e.getY();
 
             int col = columnAtPoint(new Point(mouseX, mouseY));
@@ -233,13 +235,15 @@ public class EditableDatabaseTable extends DefaultDatabaseObjectTable
 
                 column.setMarkedDeleted(false);
                 _model.fireTableRowsUpdated(row, row);
-            }
+            }*/
+
 
         }
 
     } // class MouseHandler
 
 }
+
 
 
 

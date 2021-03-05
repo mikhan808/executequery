@@ -1,7 +1,7 @@
 /*
  * DefaultInlineFieldButton.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,11 +20,10 @@
 
 package org.executequery.gui.browser;
 
-import javax.swing.Action;
-import javax.swing.Icon;
-
 import org.executequery.gui.GUIConstants;
 import org.underworldlabs.swing.DefaultButton;
+
+import javax.swing.*;
 
 public class DefaultInlineFieldButton extends DefaultButton {
 
@@ -48,11 +47,12 @@ public class DefaultInlineFieldButton extends DefaultButton {
         super(text);
     }
 
-    public int getHeight() {        
+    public int getHeight() {
         return GUIConstants.DEFAULT_FIELD_HEIGHT + 1;
     }
-    
+
 }
+
 
 
 

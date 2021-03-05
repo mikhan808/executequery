@@ -1,7 +1,7 @@
 /*
  * CreateIndexCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,26 +20,24 @@
 
 package org.executequery.actions.databasecommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.gui.BaseDialog;
-import org.executequery.gui.CreateIndexPanel;
+import org.executequery.gui.databaseobjects.CreateIndexPanel;
 import org.underworldlabs.swing.actions.BaseCommand;
 
-/** 
+import java.awt.event.ActionEvent;
+
+/**
  * Command execution for Database | Create Index.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CreateIndexCommand extends OpenFrameCommand
-                                implements BaseCommand {
-    
+        implements BaseCommand {
+
     public void execute(ActionEvent e) {
-        
+
         if (!isConnected()) {
             return;
         }
@@ -49,30 +47,31 @@ public class CreateIndexCommand extends OpenFrameCommand
             return;
         }
 
-        if (!isDialogOpen(CreateIndexPanel.TITLE)) {
+        if (!isDialogOpen(CreateIndexPanel.CREATE_TITLE)) {
 
             try {
 
                 GUIUtilities.showWaitCursor();
 
-                BaseDialog dialog = 
-                        createDialog(CreateIndexPanel.TITLE, false);
-                
-                CreateIndexPanel panel = new CreateIndexPanel(dialog);
-                
+                BaseDialog dialog =
+                        createDialog(CreateIndexPanel.CREATE_TITLE, false);
+
+                CreateIndexPanel panel = new CreateIndexPanel(null,dialog);
+
                 dialog.addDisplayComponentWithEmptyBorder(panel);
                 dialog.display();
 
             } finally {
-              
+
                 GUIUtilities.showNormalCursor();
             }
 
         }
 
     }
-    
+
 }
+
 
 
 

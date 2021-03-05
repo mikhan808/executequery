@@ -1,7 +1,7 @@
 /*
  * ImportExportResult.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,16 +29,17 @@ enum ImportExportResult {
     public static boolean isSuccess(ImportExportResult importExportResult) {
         return importExportResult == SUCCESS;
     }
-    
+
     public static boolean isCancelled(ImportExportResult importExportResult) {
         return importExportResult == CANCELLED;
     }
-    
+
     public static boolean isFailed(ImportExportResult importExportResult) {
         return importExportResult == FAILED;
     }
-    
+
 }
+
 
 
 

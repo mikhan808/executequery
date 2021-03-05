@@ -1,7 +1,7 @@
 /*
  * SimpleRecordDataItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,10 +22,11 @@ package org.executequery.gui.resultset;
 
 public class SimpleRecordDataItem extends AbstractRecordDataItem {
 
-	public SimpleRecordDataItem(String name, int dataType, String dataTypeName) {
+    public SimpleRecordDataItem(String name, int dataType, String dataTypeName) {
 
-		super(name, dataType, dataTypeName);
-	}
+        super(name, dataType, dataTypeName);
+    }
 
 }
+
 

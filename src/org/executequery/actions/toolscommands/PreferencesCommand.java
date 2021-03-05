@@ -1,7 +1,7 @@
 /*
  * PreferencesCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,22 +20,22 @@
 
 package org.executequery.actions.toolscommands;
 
-import java.awt.event.ActionEvent;
 import org.executequery.GUIUtilities;
-import org.underworldlabs.swing.actions.BaseCommand;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.gui.BaseDialog;
 import org.executequery.gui.prefs.PropertiesPanel;
+import org.underworldlabs.swing.actions.BaseCommand;
 
-/** <p>Executes the Tools | Preferences command.
+import java.awt.event.ActionEvent;
+
+/**
+ * <p>Executes the Tools | Preferences command.
  *
- *  @author   Takis Diakoumis
- *  @version  $Revision: 1500 $
- *  @date     $Date: 2015-09-20 21:20:04 +1000 (Sun, 20 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PreferencesCommand extends OpenFrameCommand
-                                implements BaseCommand {
-    
+        implements BaseCommand {
+
     public void execute(ActionEvent e) {
         try {
             GUIUtilities.showWaitCursor();
@@ -43,12 +43,12 @@ public class PreferencesCommand extends OpenFrameCommand
             PropertiesPanel panel = new PropertiesPanel(dialog);
             dialog.addDisplayComponentWithEmptyBorder(panel);
             dialog.display();
-        }
-        finally {
+        } finally {
             GUIUtilities.showNormalCursor();
         }
 
     }
-    
+
 }
+
 

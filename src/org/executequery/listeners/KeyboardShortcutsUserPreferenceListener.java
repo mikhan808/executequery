@@ -1,7 +1,7 @@
 /*
  * KeyboardShortcutsUserPreferenceListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,16 +20,16 @@
 
 package org.executequery.listeners;
 
-import javax.swing.JComponent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.event.UserPreferenceEvent;
 import org.executequery.event.UserPreferenceListener;
 import org.executequery.util.SystemResources;
 import org.underworldlabs.swing.actions.ActionBuilder;
 
+import javax.swing.*;
+
 public class KeyboardShortcutsUserPreferenceListener extends AbstractUserPreferenceListener
-                                       implements UserPreferenceListener {
+        implements UserPreferenceListener {
 
     public void preferencesChanged(UserPreferenceEvent event) {
 
@@ -41,10 +41,11 @@ public class KeyboardShortcutsUserPreferenceListener extends AbstractUserPrefere
                     SystemResources.getUserActionShortcuts());
 
         }
-        
+
     }
-    
+
 }
+
 
 
 

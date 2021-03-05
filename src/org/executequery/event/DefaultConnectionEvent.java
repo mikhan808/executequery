@@ -1,7 +1,7 @@
 /*
  * DefaultConnectionEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,25 +25,26 @@ import org.executequery.databasemediators.DatabaseConnection;
 /**
  * Defines a connection connect/disconnect event.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class DefaultConnectionEvent extends AbstractApplicationEvent 
-                                    implements ConnectionEvent {
-    
-    /** Creates a new instance of ConnectionEvent */
+public class DefaultConnectionEvent extends AbstractApplicationEvent
+        implements ConnectionEvent {
+
+    /**
+     * Creates a new instance of ConnectionEvent
+     */
     public DefaultConnectionEvent(DatabaseConnection databaseConnection, String method) {
-        
+
         super(databaseConnection, method);
     }
 
     public DatabaseConnection getDatabaseConnection() {
 
-        return (DatabaseConnection)super.getSource();
+        return (DatabaseConnection) super.getSource();
     }
 
 }
+
 
 
 

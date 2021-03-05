@@ -1,7 +1,7 @@
 /*
  * AcmeGifImageWriter.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,18 +20,18 @@
 
 package org.executequery.imageio;
 
+import org.executequery.imageio.acme.encoders.GifEncoder;
+
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-
-import org.executequery.imageio.acme.encoders.GifEncoder;
 
 public class AcmeGifImageWriter extends AbstractImageWriter {
 
     public void write(ImageWriterInfo imageWriterInfo) {
 
         FileOutputStream fos = null;
-        
+
         try {
 
             fos = new FileOutputStream(imageWriterInfo.getWriteToFile());
@@ -42,26 +42,28 @@ public class AcmeGifImageWriter extends AbstractImageWriter {
         } catch (FileNotFoundException e) {
 
             handleException(e);
-            
+
         } catch (IOException e) {
 
             handleException(e);
-            
+
         } finally {
-            
+
             if (fos != null) {
-                
+
                 try {
                     fos.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                }
 
             }
-            
+
         }
 
     }
 
 }
+
 
 
 

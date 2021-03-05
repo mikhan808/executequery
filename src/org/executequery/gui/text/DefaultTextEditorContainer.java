@@ -1,7 +1,7 @@
 /*
  * DefaultTextEditorContainer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,35 +20,34 @@
 
 package org.executequery.gui.text;
 
-import java.awt.Component;
-import java.awt.LayoutManager;
-import java.awt.print.Printable;
-
-import javax.swing.JPanel;
-import javax.swing.text.JTextComponent;
-
 import org.executequery.Constants;
 import org.executequery.GUIUtilities;
 import org.executequery.print.TextPrinter;
 
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.print.Printable;
+
 /**
  * Default TextEditor combined with TextEditorContainer implementation.
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
-public class DefaultTextEditorContainer extends JPanel 
-                                        implements TextEditor,
-                                                   TextEditorContainer {
-    
-    /** the text component contained within this panel */
+public class DefaultTextEditorContainer extends JPanel
+        implements TextEditor,
+        TextEditorContainer {
+
+    /**
+     * the text component contained within this panel
+     */
     protected JTextComponent textComponent;
 
     /**
      * Creates a new instance of DefaultTextEditorContainer.
      */
-    public DefaultTextEditorContainer() {}
+    public DefaultTextEditorContainer() {
+    }
 
     /**
      * Creates a new instance of DefaultTextEditorContainer with
@@ -57,7 +56,7 @@ public class DefaultTextEditorContainer extends JPanel
     public DefaultTextEditorContainer(LayoutManager layout) {
         super(layout);
     }
- 
+
     /**
      * Returns the TextEditor component that this container holds.
      */
@@ -73,7 +72,7 @@ public class DefaultTextEditorContainer extends JPanel
     public Component getDefaultFocusComponent() {
         return textComponent;
     }
-    
+
     /**
      * Pastes text from the system clipboard into the text component.
      */
@@ -87,26 +86,26 @@ public class DefaultTextEditorContainer extends JPanel
     public void copy() {
         textComponent.copy();
     }
-    
+
     /**
      * Cuts selected text from the text component.
      */
     public void cut() {
         textComponent.cut();
     }
-    
+
     /**
      * Kicks off a save or save as process for the text components
      * contents as specified.
      *
      * @param saveAs - whether this is a save as call. When this is false
-     *                 the contents are saved to some already known file name
-     *                 and path. Otherwise the standard save dialog is shown.
+     *               the contents are saved to some already known file name
+     *               and path. Otherwise the standard save dialog is shown.
      */
     public int save(boolean saveAs) {
         return TextUtilities.save(textComponent);
     }
-    
+
     /**
      * Returns the actual text component encapsulated by this panel.
      */
@@ -125,88 +124,90 @@ public class DefaultTextEditorContainer extends JPanel
         } catch (OutOfMemoryError e) {
             System.gc();
             GUIUtilities.displayErrorMessage("Out of Memory.\nThe file is " +
-                                             "too large to\nopen for viewing.");
+                    "too large to\nopen for viewing.");
             textComponent.setText(Constants.EMPTY);
             return;
         }
-        
+
     }
-    
+
     public String getEditorText() {
         return textComponent.getText();
     }
-    
+
     public void changeSelectionToUnderscore() {
         TextUtilities.changeSelectionToUnderscore(textComponent);
     }
-    
+
     public void changeSelectionToCamelCase() {
         TextUtilities.changeSelectionToCamelCase(textComponent);
     }
-    
+
     public void changeSelectionCase(boolean upper) {
         TextUtilities.changeSelectionCase(textComponent, upper);
     }
-    
+
     public void deleteLine() {
         TextUtilities.deleteLine(textComponent);
     }
-    
+
     public void deleteWord() {
         TextUtilities.deleteWord(textComponent);
     }
-    
+
     public void deleteSelection() {
         TextUtilities.deleteSelection(textComponent);
     }
-    
+
     public void insertFromFile() {
         TextUtilities.insertFromFile(textComponent);
     }
-    
+
     public void selectAll() {
         TextUtilities.selectAll(textComponent);
     }
-    
+
     public void selectNone() {
         TextUtilities.selectNone(textComponent);
     }
-    
+
     public void insertLineAfter() {
         TextUtilities.insertLineAfter(textComponent);
     }
-    
+
     public void insertLineBefore() {
         TextUtilities.insertLineBefore(textComponent);
     }
-    
+
     public boolean contentCanBeSaved() {
         return false;
     }
-    
-    public void disableUpdates(boolean disable) {}
-    
+
+    public void disableUpdates(boolean disable) {
+    }
+
     public boolean canSearch() {
         return true;
     }
-    
+
     public boolean canPrint() {
         return true;
     }
-    
+
     public Printable getPrintable() {
         return new TextPrinter(textComponent.getText());
     }
 
     public String getPrintJobName() {
-        return "Red Expert";
+        return "RedXpert";
     }
-    
+
     public String getDisplayName() {
         return Constants.EMPTY;
     }
 
 }
+
 
 
 

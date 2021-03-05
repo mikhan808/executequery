@@ -1,7 +1,7 @@
 /*
  * WizardPanelButton.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,19 +20,17 @@
 
 package org.underworldlabs.swing.wizard;
 
-import java.awt.Dimension;
-import java.awt.Insets;
-
-import javax.swing.JButton;
+import javax.swing.*;
+import java.awt.*;
 
 public class WizardPanelButton extends JButton {
 
     public static final int DEFAULT_WIDTH = 75;
-    
+
     public static final int DEFAULT_HEIGHT = 30;
-    
+
     public static final Insets DEFAULT_INSETS = new Insets(2, 2, 2, 2);
-    
+
     public WizardPanelButton(String text) {
         super(text);
         prepare();
@@ -44,24 +42,25 @@ public class WizardPanelButton extends JButton {
         if (!isPreferredSizeSet()) {
 
             Dimension preferredSizeUI = getUI().getPreferredSize(this);
-            
+
             Dimension size = new Dimension(
-                    Math.max(preferredSizeUI.width, DEFAULT_WIDTH), 
+                    Math.max(preferredSizeUI.width, DEFAULT_WIDTH),
                     Math.max(preferredSizeUI.height, DEFAULT_HEIGHT));
-    
+
             setPreferredSize(size);
             setMinimumSize(size);
         }
 
         return super.getPreferredSize();
     }
-    
+
     private void prepare() {
-        
+
         setMargin(DEFAULT_INSETS);
     }
 
 }
+
 
 
 

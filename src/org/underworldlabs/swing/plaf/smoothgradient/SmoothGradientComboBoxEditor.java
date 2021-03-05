@@ -1,7 +1,7 @@
 /*
  * SmoothGradientComboBoxEditor.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,33 +20,29 @@
 
 package org.underworldlabs.swing.plaf.smoothgradient;
 
-import javax.swing.JTextField;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.plaf.basic.BasicComboBoxEditor;
 
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 class SmoothGradientComboBoxEditor extends BasicComboBoxEditor {
 
-  public SmoothGradientComboBoxEditor() {
-    editor = new JTextField("",9) {
-        // workaround for 4530952
-        public void setText(String s) {
-            if (getText().equals(s)) {
-                return;
+    public SmoothGradientComboBoxEditor() {
+        editor = new JTextField("", 9) {
+            // workaround for 4530952
+            public void setText(String s) {
+                if (getText().equals(s)) {
+                    return;
+                }
+                super.setText(s);
             }
-            super.setText(s);
-        }
-      };
+        };
 
-      editor.setBorder(UIManager.getBorder("ComboBox.editorBorder"));
-  }
-    
+        editor.setBorder(UIManager.getBorder("ComboBox.editorBorder"));
+    }
+
     /**
      * A subclass of BasicComboBoxEditor that implements UIResource.
      * BasicComboBoxEditor doesn't implement UIResource
@@ -54,10 +50,11 @@ class SmoothGradientComboBoxEditor extends BasicComboBoxEditor {
      * cellRenderer property with BasicListCellRenderer subclasses.
      */
     public static final class UIResource extends SmoothGradientComboBoxEditor
-    	implements javax.swing.plaf.UIResource {
+            implements javax.swing.plaf.UIResource {
     }
 
 }
+
 
 
 

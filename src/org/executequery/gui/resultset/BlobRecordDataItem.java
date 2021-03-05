@@ -1,7 +1,7 @@
 /*
  * BlobRecordDataItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,14 @@
 
 package org.executequery.gui.resultset;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.sql.Blob;
-import java.sql.SQLException;
-
+import biz.redsoft.IFBBlob;
 import org.executequery.log.Log;
 import org.executequery.util.mime.MimeType;
 import org.executequery.util.mime.MimeTypes;
+
+import java.io.ByteArrayInputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
 
 public class BlobRecordDataItem extends AbstractLobRecordDataItem {
 
@@ -47,6 +47,11 @@ public class BlobRecordDataItem extends AbstractLobRecordDataItem {
     }
 
     @Override
+    public Object getNewValue() {
+        return new ByteArrayInputStream(getData());
+    }
+
+    @Override
     public String getLobRecordItemName() {
 
         MimeType mimeType = mimeTypeFromByteArray(getData());
@@ -61,9 +66,25 @@ public class BlobRecordDataItem extends AbstractLobRecordDataItem {
 
     }
 
+    public String getLobRecordItemName(byte[] data) {
+
+        MimeType mimeType = mimeTypeFromByteArray(data);
+        if (mimeType != null) {
+
+            return mimeType.getName();
+
+        } else {
+
+            return getDataTypeName() + " Type"; //UNKNOWN_TYPE;
+        }
+
+    }
+
     @Override
     protected byte[] readLob() {
 
+        if (isValueNull())
+            return null;
         Object value = getValue();
         if (value instanceof String) { // eg. oracle RAW type
 
@@ -74,37 +95,34 @@ public class BlobRecordDataItem extends AbstractLobRecordDataItem {
             return (byte[]) value;
         }
 
-        Blob blob = (Blob) value;
+        byte[] blobBytes = new byte[0];
 
-        byte[] blobBytes = null;
-        InputStream binaryStream = null;
-
-        try {
-
-            blobBytes = blob.getBytes(1, (int) blob.length());
-
-        } catch (SQLException e) {
-
-            if (Log.isDebugEnabled()) {
-
-                Log.debug("Error reading BLOB data", e);
+        if (value.getClass().getName().contains("FBBlobImpl")) {
+            IFBBlob ifbBlob = (IFBBlob) value;
+            try {
+                blobBytes = ifbBlob.getBytes(1, (int) ifbBlob.lenght());
+                ifbBlob.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
-
-            return e.getMessage().getBytes();
-
-        } finally {
-
+        } else {
+            Blob blob = (Blob) value;
             try {
 
-                if (binaryStream != null) {
+                blobBytes = blob.getBytes(1, (int) blob.length());
+                //executor.releaseResources();
 
-                    binaryStream.close();
+            } catch (SQLException e) {
+
+                if (Log.isDebugEnabled()) {
+
+                    Log.debug("Error reading BLOB data", e);
                 }
 
-            } catch (IOException e) {}
+                return e.getMessage().getBytes();
 
+            }
         }
-
         return blobBytes;
     }
 
@@ -118,7 +136,6 @@ public class BlobRecordDataItem extends AbstractLobRecordDataItem {
 
         return true;
     }
-
 
 }
 

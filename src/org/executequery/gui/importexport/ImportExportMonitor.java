@@ -1,7 +1,7 @@
 /*
  * ImportExportMonitor.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,11 +20,8 @@
 
 package org.executequery.gui.importexport;
 
-/** 
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+/**
+ * @author Takis Diakoumis
  */
 public interface ImportExportMonitor {
 
@@ -45,34 +42,34 @@ public interface ImportExportMonitor {
      */
     String getText();
 
-    /** 
+    /**
      * Sets the progress bar's position during the process.
      *
      * @param the new process status
      */
     void setProgressStatus(int status);
 
-    /** 
+    /**
      * Retrieves the progress bar's maximum value.
      *
      * @param the progress bar's maximum value
      */
     int getMaximum();
 
-    /** 
+    /**
      * Sets the progress bar to track indeterminate values - action of
      * unknown length is taking place.
      */
     void setIndeterminate(boolean indeterminate);
 
-    /** 
+    /**
      * Sets the text to be appended within the progress info text area.
      *
      * @param the text to append
      */
     void appendProgressText(final String t);
 
-    /** 
+    /**
      * Sets the text to be appended within the
      * progress info text area as an error message.
      *
@@ -80,22 +77,22 @@ public interface ImportExportMonitor {
      */
     void appendProgressErrorText(final String t);
 
-    /** 
-     * Sets the text to be appended within the progress info 
+    /**
+     * Sets the text to be appended within the progress info
      * text area as a warning message.
      *
      * @param the text to append
      */
     void appendProgressWarningText(final String t);
 
-    /** 
+    /**
      * Sets the progress bar's minimum value to the specified value.
      *
      * @param the minimum value
      */
     void setMinimum(int min);
 
-    /** 
+    /**
      * Sets the progress bar's maximum value to the specified value.
      *
      * @param the maximum value
@@ -103,6 +100,7 @@ public interface ImportExportMonitor {
     void setMaximum(int max);
 
 }
+
 
 
 

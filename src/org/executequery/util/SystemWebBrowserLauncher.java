@@ -1,7 +1,7 @@
 /*
  * SystemWebBrowserLauncher.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,41 +20,40 @@
 
 package org.executequery.util;
 
-import org.executequery.ApplicationException;
-
 import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
+import org.executequery.ApplicationException;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 public class SystemWebBrowserLauncher {
 
     public void launch(final String url) {
 
         ThreadUtils.startWorker(new Runnable() {
-           
+
             public void run() {
 
                 try {
-
-                    BrowserLauncher launcher = new BrowserLauncher();
-                    launcher.openURLinBrowser(url);
-
-                } catch (BrowserLaunchingInitializingException e) {
-                    
-                    throw new ApplicationException(e);
-
-                } catch (UnsupportedOperatingSystemException e) {
-                  
-                    throw new ApplicationException(e);
+                    URI uri = new URI(url);
+                    java.awt.Desktop.getDesktop().browse(uri);
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
             }
-            
+
         });
 
     }
-    
+
 }
+
 
 
 

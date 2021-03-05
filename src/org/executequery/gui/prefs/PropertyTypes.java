@@ -1,7 +1,7 @@
 /*
  * PropertyTypes.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,10 +21,7 @@
 package org.executequery.gui.prefs;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1500 $
- * @date     $Date: 2015-09-20 21:20:04 +1000 (Sun, 20 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertyTypes {
 
@@ -56,11 +53,19 @@ public class PropertyTypes {
     public static final int RESULT_SET_CELL_COLOURS = 25;
     public static final int BROWSER_DATA_TAB = 26;
     public static final int EDITOR_COLOURS = 27;
+    public static final int TREE_CONNECTIONS_FONTS = 28;
+    public static final int TREE_CONNECTIONS_GENERAL = 29;
+    public static final int OUTPUT_CONSOLE = 30;
+    public static final int CONSOLE_FONTS = 31;
 
-    /** Creates a new instance of PropertyTypes */
-    private PropertyTypes() {}
+    /**
+     * Creates a new instance of PropertyTypes
+     */
+    private PropertyTypes() {
+    }
 
 }
+
 
 
 

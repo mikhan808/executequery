@@ -1,7 +1,7 @@
 /*
  * DriverPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,22 +21,24 @@
 package org.executequery.gui.drivers;
 
 import org.executequery.databasemediators.DatabaseDriver;
+import org.executequery.localization.Bundles;
 
 public interface DriverPanel {
 
-    String TITLE = "Drivers";
+    String TITLE = Bundles.getCommon("drivers");
 
     String FRAME_ICON = "DatabaseDrivers16.png";
 
     boolean saveDrivers();
-    
+
     void driverNameChanged();
-    
+
     void setDriver(DatabaseDriver databaseDriver);
-    
+
     DatabaseDriver getDriver();
-    
+
 }
+
 
 
 

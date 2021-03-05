@@ -1,7 +1,7 @@
 /*
  * PrintCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,10 +20,6 @@
 
 package org.executequery.actions.filecommands;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JPanel;
-
 import org.executequery.GUIUtilities;
 import org.executequery.gui.BaseDialog;
 import org.executequery.gui.editor.PrintSelectDialog;
@@ -32,35 +28,36 @@ import org.executequery.print.PrintFunction;
 import org.executequery.util.Printer;
 import org.underworldlabs.swing.actions.BaseCommand;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 /**
  * Implements the 'PRINT' command for those objects where this function is
  * available.
- * 
+ *
  * @author Takis Diakoumis
- * @version $Revision: 1487 $
- * @date $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
  */
 public class PrintCommand implements BaseCommand {
 
     public void execute(ActionEvent e) {
 
         if (!hasPrintableInFocus()) {
-            
+
             return;
         }
-        
+
         PrintFunction printFunction = null;
 
         try {
 
             printFunction = GUIUtilities.getPrintableInFocus();
-            
+
             // if the frame in focus is a Query Editor
             // display the print selection dialog (text or table)
             if (printFunction instanceof QueryEditor) {
 
-                BaseDialog dialog = 
-                    new BaseDialog(PrintSelectDialog.PRINT_TITLE, true, false);
+                BaseDialog dialog =
+                        new BaseDialog(PrintSelectDialog.PRINT_TITLE, true, false);
 
                 dialog.addDisplayComponent(createPanel(dialog, printFunction));
                 dialog.display();
@@ -69,9 +66,9 @@ public class PrintCommand implements BaseCommand {
             }
 
             new Printer().print(printFunction);
-            
+
         } finally {
-        
+
             printFunction = null;
         }
 
@@ -89,6 +86,7 @@ public class PrintCommand implements BaseCommand {
     }
 
 }
+
 
 
 

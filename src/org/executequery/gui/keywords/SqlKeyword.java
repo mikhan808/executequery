@@ -1,7 +1,7 @@
 /*
  * SqlKeyword.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,39 +23,51 @@ package org.executequery.gui.keywords;
 /**
  * Defines an SQL keyword.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SqlKeyword {
-  
-    /** the text */
+
+    /**
+     * the text
+     */
     private String text;
-    
-    /** the database name */
+
+    /**
+     * the database name
+     */
     private String databaseProductName;
-    
-    /** indicates a sql92 keyword */
+
+    /**
+     * indicates a sql92 keyword
+     */
     private boolean sql92;
-    
-    /** indicates a database specific keyword */
+
+    /**
+     * indicates a database specific keyword
+     */
     private boolean databaseSpecific;
-    
-    /** indicates a user defined keyword */
+
+    /**
+     * indicates a user defined keyword
+     */
     private boolean userDefined;
-    
-    /** Creates a new instance of SqlKeyword */
-    public SqlKeyword(String text, 
-                      boolean sql92, 
+
+    /**
+     * Creates a new instance of SqlKeyword
+     */
+    public SqlKeyword(String text,
+                      boolean sql92,
                       boolean databaseSpecific,
                       boolean userDefined) {
         this(text, null, sql92, databaseSpecific, userDefined);
     }
 
-    /** Creates a new instance of SqlKeyword */
-    public SqlKeyword(String text, 
+    /**
+     * Creates a new instance of SqlKeyword
+     */
+    public SqlKeyword(String text,
                       String databaseProductName,
-                      boolean sql92, 
+                      boolean sql92,
                       boolean databaseSpecific,
                       boolean userDefined) {
         this.text = text;
@@ -80,7 +92,7 @@ public class SqlKeyword {
     public boolean isUserDefined() {
         return userDefined;
     }
-    
+
     public String toString() {
         return text;
     }
@@ -104,8 +116,9 @@ public class SqlKeyword {
     public void setUserDefined(boolean userDefined) {
         this.userDefined = userDefined;
     }
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * SimpleButtonsPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,24 +20,18 @@
 
 package org.executequery.components;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-
 import org.executequery.gui.DefaultPanelButton;
-import org.executequery.util.StringBundle;
-import org.executequery.util.SystemResources;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.util.MiscUtils;
 
-/** 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionListener;
+
+/**
  * <p>Simple button panel with ok, cancel buttons.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SimpleButtonsPanel extends JPanel {
 
@@ -51,16 +45,16 @@ public class SimpleButtonsPanel extends JPanel {
 
     private final String cancelButtonCommand;
 
-    public SimpleButtonsPanel(ActionListener actionListener, 
-            String okButtonCommand, String cancelButtonCommand) {
+    public SimpleButtonsPanel(ActionListener actionListener,
+                              String okButtonCommand, String cancelButtonCommand) {
 
         this(actionListener, null, okButtonCommand, null, cancelButtonCommand);
     }
 
-    public SimpleButtonsPanel(ActionListener actionListener, 
-            String okButtonText, String okButtonCommand, 
-            String cancelButtonText, String cancelButtonCommand) {
-        
+    public SimpleButtonsPanel(ActionListener actionListener,
+                              String okButtonText, String okButtonCommand,
+                              String cancelButtonText, String cancelButtonCommand) {
+
         super(new GridBagLayout());
 
         this.actionListener = actionListener;
@@ -71,10 +65,10 @@ public class SimpleButtonsPanel extends JPanel {
 
         init();
     }
-    
+
     private void init() {
 
-        JButton okButton = createOkButton();        
+        JButton okButton = createOkButton();
         JButton cancelButton = createCancelButton();
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -95,10 +89,10 @@ public class SimpleButtonsPanel extends JPanel {
 
             button.setText(cancelButtonText);
         }
-        
+
         initialiseButton(button);
         button.setActionCommand(cancelButtonCommand);
-        
+
         return button;
     }
 
@@ -108,7 +102,7 @@ public class SimpleButtonsPanel extends JPanel {
 
             button.setText(okButtonText);
         }
-        
+
         initialiseButton(button);
         button.setActionCommand(okButtonCommand);
 
@@ -120,25 +114,13 @@ public class SimpleButtonsPanel extends JPanel {
     }
 
     private String defaultCancelText() {
-        return loadBundle().getString("SimpleButtonsPanel.cancel");
+        return Bundles.get("common.cancel.button");
     }
 
     private String defaultOkText() {
-        return loadBundle().getString("SimpleButtonsPanel.ok");
-    }
-    
-    private StringBundle loadBundle() {
-        return SystemResources.loadBundle(SimpleButtonsPanel.class);
+        return Bundles.get("common.ok.button");
     }
 
 }
-
-
-
-
-
-
-
-
 
 

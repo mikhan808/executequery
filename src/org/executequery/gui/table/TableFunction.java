@@ -1,7 +1,7 @@
 /*
  * TableFunction.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,29 +21,37 @@
 package org.executequery.gui.table;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface TableFunction extends TableModifier {
-    
-    /** Inserts a row before the selection. */
+
+    /**
+     * Inserts a row before the selection.
+     */
     public void insertBefore();
-    
-    /** Inserts a row after the selection. */
+
+    /**
+     * Inserts a row after the selection.
+     */
     public void insertAfter();
-    
-    /** Deletes the selected row. */
+
+    /**
+     * Deletes the selected row.
+     */
     public void deleteRow();
-    
-    /** Moves the selected row up. */
+
+    /**
+     * Moves the selected row up.
+     */
     public void moveColumnUp();
-    
-    /** Moves the selected row down. */
+
+    /**
+     * Moves the selected row down.
+     */
     public void moveColumnDown();
-    
+
 }
+
 
 
 

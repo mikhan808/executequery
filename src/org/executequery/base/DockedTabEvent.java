@@ -1,7 +1,7 @@
 /*
  * DockedTabEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,8 +23,8 @@ package org.executequery.base;
 import java.util.EventObject;
 
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
@@ -33,13 +33,11 @@ import java.util.EventObject;
  * Event object for docked tab event notification to
  * registered listeners.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DockedTabEvent extends EventObject {
-    
-    /** 
+
+    /**
      * Creates a new instance of DockedTabEvent with the
      * specified object as the source of this event.
      *
@@ -50,6 +48,7 @@ public class DockedTabEvent extends EventObject {
     }
 
 }
+
 
 
 

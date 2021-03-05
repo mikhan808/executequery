@@ -1,7 +1,7 @@
 /*
  * AbstractRecordDataItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,143 +26,165 @@ import org.executequery.databasemediators.SQLTypeObjectFactory;
 import org.executequery.log.Log;
 import org.underworldlabs.jdbc.DataSourceException;
 
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.sql.Time;
+import java.sql.Timestamp;
+import java.sql.Types;
+
 
 /**
- *
  * @author Takis Diakoumis
- * @version $Revision: 1689 $
- * @date $Date: 2017-02-14 11:05:59 +1100 (Tue, 14 Feb 2017) $
  */
 public abstract class AbstractRecordDataItem implements RecordDataItem {
 
-	private Object value;
+    private Object value;
+
+    private Object newValue;
+
+    private boolean newRecord = false;
+
+    private boolean deleted = false;
 
     private String name;
 
     private int dataType;
 
-	private String dataTypeName;
+    private String dataTypeName;
 
-	private boolean changed;
+    protected boolean changed;
 
-	private static final SQLTypeObjectFactory TYPE_OBJECT_FACTORY = new SQLTypeObjectFactory();
+    private boolean generated = false;
 
-	public AbstractRecordDataItem(String name, int dataType, String dataTypeName) {
+    private static final SQLTypeObjectFactory TYPE_OBJECT_FACTORY = new SQLTypeObjectFactory();
 
-		super();
+    public AbstractRecordDataItem(String name, int dataType, String dataTypeName) {
+
+        super();
         this.name = name;
         this.dataType = dataType;
-		this.dataTypeName = dataTypeName;
-	}
+        this.dataTypeName = dataTypeName;
+    }
 
-	@Override
+    @Override
     public int length() {
 
-	    if (!isValueNull()) {
+        if (!isValueNull()) {
 
-	        return toString().length();
+            return toString().length();
 
-	    } else {
+        } else {
 
-	        return 0;
-	    }
-	}
+            return 0;
+        }
+    }
 
-	public String getDataTypeName() {
-		return dataTypeName;
-	}
+    public String getDataTypeName() {
+        return dataTypeName;
+    }
 
-	@Override
+    @Override
     public int getDataType() {
-		return dataType;
-	}
+        return dataType;
+    }
 
-	@Override
+    @Override
     public Object getDisplayValue() {
-		return getValue();
-	}
+        return getNewValue();
+    }
 
-	@Override
+    @Override
     public Object getValue() {
-		return value;
-	}
+        return value;
+    }
 
-	@Override
+    @Override
+    public Object getNewValue() {
+        return newValue;
+    }
+
+    @Override
     public void setValue(Object value) {
-		this.value = value;
-	}
+        this.value = value;
+        this.newValue = value;
+    }
 
-	@Override
+    @Override
     public boolean valueContains(String pattern) {
 
-	    if (isLob() || isValueNull()) {
+        if (isLob() || isValueNull()) {
 
-	        return false;
-	    }
-	    return StringUtils.containsIgnoreCase(getValue().toString(), pattern);
-	}
+            return false;
+        }
+        return StringUtils.containsIgnoreCase(getValue().toString(), pattern);
+    }
 
-	@Override
+    @Override
     public void valueChanged(Object newValue) {
 
-		if (valuesEqual(this.value, newValue)) {
+        if (valuesEqual(this.value, newValue)) {
 
-			return;
-		}
+            changed = false;
+            return;
+        }
 
-	    if (newValue != null && isStringLiteralNull(newValue)) {
+        if (newValue != null && isStringLiteralNull(newValue)) {
 
-	        setValue(null);
+            this.newValue = null;
 
-	    } else {
+        } else {
 
-	        setValue(newValue);
-	    }
-	    changed = true;
-	}
+            this.newValue = newValue;
+        }
+        changed = true;
+    }
 
-	private boolean valuesEqual(Object firstValue, Object secondValue) {
+    protected boolean valuesEqual(Object firstValue, Object secondValue) {
 
-		if (ObjectUtils.equals(firstValue, secondValue)) {
+        if (ObjectUtils.equals(firstValue, secondValue)) {
 
-			return true;
-		}
+            return true;
+        }
 
-		if (firstValue != null && secondValue != null) {
+        if (firstValue != null && secondValue != null) {
 
-			return firstValue.toString().equals(secondValue.toString());
-		}
+            return firstValue.toString().equals(secondValue.toString());
+        }
 
-		return false;
-	}
+        return false;
+    }
 
-	private boolean isStringLiteralNull(Object newValue) {
+    private boolean isStringLiteralNull(Object newValue) {
 
-	    return newValue.toString().equalsIgnoreCase("NULL");
+        return newValue.toString().equalsIgnoreCase("NULL");
     }
 
     @Override
     public boolean isValueNull() {
-		return (value == null);
-	}
+        return (value == null);
+    }
 
-	@Override
+    public boolean isDisplayValueNull() {
+        return isNewValueNull();
+    }
+
+    @Override
     public String toString() {
 
-		if (getValue() != null) {
+        if (getValue() != null) {
 
-			return getValue().toString();
-		}
+            return getValue().toString();
+        }
 
-		return null;
-	}
+        return null;
+    }
 
-	@Override
+    @Override
     public void setNull() {
-		value = null;
-	}
+        value = null;
+    }
 
-	@Override
+    @Override
     public boolean isChanged() {
         return changed;
     }
@@ -175,6 +197,11 @@ public abstract class AbstractRecordDataItem implements RecordDataItem {
     @Override
     public boolean isSQLValueNull() {
         return isValueNull();// && StringUtils.isBlank(toString());
+    }
+
+    @Override
+    public boolean isNewValueNull() {
+        return newValue == null;
     }
 
     @Override
@@ -213,6 +240,100 @@ public abstract class AbstractRecordDataItem implements RecordDataItem {
         return false;
     }
 
+    @Override
+    public boolean isGenerated() {
+        return generated;
+    }
+
+    @Override
+    public void setGenerated(boolean generated) {
+        this.generated = generated;
+    }
+
+    @Override
+    public boolean isNew() {
+        return newRecord;
+    }
+
+    public void setNew(boolean newRecord) {
+        this.newRecord = newRecord;
+    }
+
+    @Override
+    public boolean isDeleted() {
+        return deleted;
+    }
+
+    @Override
+    public void setDeleted(boolean deleted) {
+        this.deleted = deleted;
+    }
+
+    @Override
+    public int compareTo(Object o) {
+        RecordDataItem compar_object = (RecordDataItem) o;
+        if (isDisplayValueNull() && isDisplayValueNull())
+            switch (getDataType()) {
+                case Types.BIGINT: {
+                    Long first = (Long) getDisplayValue();
+                    Long second = (Long) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.DOUBLE: {
+                    Double first = (Double) getDisplayValue();
+                    Double second = (Double) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.INTEGER: {
+                    Integer first = (Integer) getDisplayValue();
+                    Integer second = (Integer) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.DECIMAL: {
+                    BigDecimal first = (BigDecimal) getDisplayValue();
+                    BigDecimal second = (BigDecimal) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.DATE: {
+                    Date first = (Date) getDisplayValue();
+                    Date second = (Date) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.TIME: {
+                    Time first = (Time) getDisplayValue();
+                    Time second = (Time) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.TIMESTAMP: {
+                    Timestamp first = (Timestamp) getDisplayValue();
+                    Timestamp second = (Timestamp) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.NUMERIC: {
+                    BigDecimal first = (BigDecimal) getDisplayValue();
+                    BigDecimal second = (BigDecimal) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.FLOAT: {
+                    Double first = (Double) getDisplayValue();
+                    Double second = (Double) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                case Types.SMALLINT: {
+                    Short first = (Short) getDisplayValue();
+                    Short second = (Short) compar_object.getDisplayValue();
+                    return first.compareTo(second);
+                }
+                default:
+                    return String.valueOf(getDisplayValue()).compareTo(String.valueOf(compar_object.getDisplayValue()));
+            }
+        else if (compar_object.getDisplayValue() == null && getDisplayValue() == null)
+            return 0;
+        else if (compar_object.getDisplayValue() == null)
+            return 1;
+        else return -1;
+    }
 }
+
 
 

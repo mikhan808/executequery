@@ -1,7 +1,7 @@
 /*
  * ActionOnCancel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,21 +24,22 @@ public enum ActionOnCancel {
 
     HALT_ROLLBACK("Halt and Rollback"),
     HALT_COMMIT("Halt and Commit");
-    
+
     private final String label;
-    
+
     private ActionOnCancel(String label) {
-    
+
         this.label = label;
     }
-    
+
     @Override
     public String toString() {
-        
+
         return label;
     }
 
 }
+
 
 
 

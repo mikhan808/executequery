@@ -1,7 +1,7 @@
 /*
  * SimpleCloseTabbedPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,26 +20,23 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.List;
-
 import org.underworldlabs.swing.plaf.TabRollOverListener;
 import org.underworldlabs.swing.plaf.TabRolloverEvent;
 import org.underworldlabs.swing.plaf.TabSelectionListener;
 
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SimpleCloseTabbedPane extends AbstractTabPopupMenuContainer {
-    
+
     private List<TabRollOverListener> rollListeners;
-    
+
     private List<TabSelectionListener> selectionListeners;
-    
+
     public SimpleCloseTabbedPane() {
         this(TOP, SCROLL_TAB_LAYOUT);
     }
@@ -53,17 +50,17 @@ public class SimpleCloseTabbedPane extends AbstractTabPopupMenuContainer {
     }
 
     public void fireTabSelected(MouseEvent e) {
-        
+
         if (selectionListeners == null || selectionListeners.isEmpty()) {
             return;
         }
-        
+
         for (TabSelectionListener listener : selectionListeners) {
             listener.tabSelected(e);
         }
-        
+
     }
-    
+
     public void fireTabRollOver(TabRolloverEvent e) {
         if (rollListeners == null || rollListeners.isEmpty()) {
             return;
@@ -98,7 +95,7 @@ public class SimpleCloseTabbedPane extends AbstractTabPopupMenuContainer {
         if (rollListeners == null) {
             rollListeners = new ArrayList<TabRollOverListener>();
         }
-        rollListeners.add(listener);        
+        rollListeners.add(listener);
     }
 
     public void addTabSelectionListener(TabSelectionListener listener) {
@@ -116,4 +113,5 @@ public class SimpleCloseTabbedPane extends AbstractTabPopupMenuContainer {
     }
 
 }
+
 

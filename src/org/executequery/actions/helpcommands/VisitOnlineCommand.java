@@ -1,7 +1,7 @@
 /*
  * VisitOnlineCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,17 +22,15 @@ package org.executequery.actions.helpcommands;
 
 import org.executequery.actions.AbstractUrlLauncherCommand;
 
-/** 
+/**
  * Executes the Help | Visit executequery.org command.<br>
  * This will open a browser window with URL http://executequery.org.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class VisitOnlineCommand extends AbstractUrlLauncherCommand {
 
-    private static final String URL = "http://red-soft.biz";
+    private static final String URL = "http://red-soft.ru";
 
     @Override
     public String url() {
@@ -41,6 +39,7 @@ public class VisitOnlineCommand extends AbstractUrlLauncherCommand {
     }
 
 }
+
 
 
 

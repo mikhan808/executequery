@@ -1,7 +1,7 @@
 /*
  * ExecuteSqlScriptCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,47 +20,40 @@
 
 package org.executequery.actions.databasecommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.gui.ExecuteSqlScriptPanel;
 import org.underworldlabs.swing.actions.BaseCommand;
 
-/** 
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+import java.awt.event.ActionEvent;
+
+/**
+ * @author Takis Diakoumis
  */
 public class ExecuteSqlScriptCommand extends OpenFrameCommand
-                                implements BaseCommand {
-    
-    public void execute(ActionEvent e) {
-        
-        if (!isConnected()) {
+        implements BaseCommand {
 
-            return;
-        }
+    public void execute(ActionEvent e) {
 
         try {
 
             GUIUtilities.showWaitCursor();
 
             GUIUtilities.addCentralPane(ExecuteSqlScriptPanel.TITLE,
-                    ExecuteSqlScriptPanel.FRAME_ICON, 
+                    ExecuteSqlScriptPanel.FRAME_ICON,
                     new ExecuteSqlScriptPanel(),
                     null,
                     true);
 
         } finally {
-          
+
             GUIUtilities.showNormalCursor();
         }
 
     }
-    
+
 }
+
 
 
 

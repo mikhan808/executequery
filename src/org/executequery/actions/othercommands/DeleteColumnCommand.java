@@ -1,7 +1,7 @@
 /*
  * DeleteColumnCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,33 +20,33 @@
 
 package org.executequery.actions.othercommands;
 
-import java.awt.event.ActionEvent;
-import javax.swing.JPanel;
 import org.executequery.GUIUtilities;
 import org.executequery.gui.browser.BrowserViewPanel;
 import org.executequery.gui.table.TableFunction;
 
-/** <p>
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
+/**
  * A Class class.
- * <P>
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * <p>
+ *
+ * @author Takis Diakoumis
  */
 public class DeleteColumnCommand extends AbstractBaseCommand {
-    
+
     public void execute(ActionEvent e) {
 
         JPanel panel = GUIUtilities.getSelectedCentralPane();
-        
+
         if (panel != null) {
-        
+
             TableFunction tableFunction = null;
-            
+
             // check if the current panel is a TableFunction
             if (panel instanceof TableFunction) {
-            
-                tableFunction = (TableFunction)panel;
+
+                tableFunction = (TableFunction) panel;
             }
 
             // otherwise, check if we are on the browser
@@ -54,10 +54,10 @@ public class DeleteColumnCommand extends AbstractBaseCommand {
             // TableFunction implementation
             else if (panel instanceof BrowserViewPanel) {
 
-                BrowserViewPanel viewPanel = (BrowserViewPanel)panel;
+                BrowserViewPanel viewPanel = (BrowserViewPanel) panel;
                 if (viewPanel.getCurrentView() instanceof TableFunction) {
-                
-                    tableFunction = (TableFunction)viewPanel.getCurrentView();
+
+                    tableFunction = (TableFunction) viewPanel.getCurrentView();
                 }
 
             }
@@ -69,10 +69,11 @@ public class DeleteColumnCommand extends AbstractBaseCommand {
             }
 
         }
-        
+
     }
 
 }
+
 
 
 

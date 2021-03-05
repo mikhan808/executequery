@@ -1,7 +1,7 @@
 /*
  * HelpCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,53 +20,35 @@
 
 package org.executequery.actions.helpcommands;
 
-import java.awt.event.ActionEvent;
+import org.executequery.actions.AbstractUrlLauncherCommand;
+import org.underworldlabs.util.MiscUtils;
 
-import org.underworldlabs.swing.actions.BaseCommand;
-import org.executequery.gui.HelpWindow;
+import java.net.MalformedURLException;
+import java.net.URL;
 
-/** 
+/**
  * Executes the Help command.<br>
  * This will open the system help in a separate window.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class HelpCommand implements BaseCommand {
-    
-    /** Document help target ID */
-    private String target;
-    
-    public HelpCommand() {}
+public class HelpCommand extends AbstractUrlLauncherCommand {
 
-    public HelpCommand(String page) {
-        target = page;
-    }
-    
-    public void execute(ActionEvent e) {
-        
-        String aCommand = e.getActionCommand();
-        
-        if (aCommand != null) {
-            
-            if (aCommand.length() > 0) {
-                target = aCommand;
+    private static final String URL = "guide/RedXpert_Guide-ru.pdf";
+
+    @Override
+    public String url() {
+        java.net.URL[] urls = new URL[0];
+
+            try {
+                urls = MiscUtils.loadURLs(URL);
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
             }
-            if ("Help Topics".equals(aCommand)) {
-                target = null;
-            }
-            
-        } else {
-            target = null;
-        } 
-        
-        new HelpWindow(target);
+        String url = urls[0].toString();
+        url = url.replace("bin/guide/RedXpert_Guide-ru.pdf", "guide/RedXpert_Guide-ru.pdf");
+        return url;
     }
-    
+
 }
-
-
-
-
 

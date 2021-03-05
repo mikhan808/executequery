@@ -1,7 +1,7 @@
 /*
  * ConnectionsFolderRepositoryEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,25 +23,31 @@ package org.executequery.event;
 import org.executequery.gui.browser.ConnectionsFolder;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision$
- * @date     $Date$
+ * @author Takis Diakoumis
+ * @version $Revision$
+ * @date $Date$
  */
 public interface ConnectionsFolderRepositoryEvent extends ApplicationEvent {
 
-    /** Method name for folder added */
+    /**
+     * Method name for folder added
+     */
     String FOLDER_ADDED = "folderAdded";
-    
-    /** Method name for folder modified */
+
+    /**
+     * Method name for folder modified
+     */
     String FOLDER_MODIFIED = "folderModified";
-    
-    /** Method name for folder removed */
+
+    /**
+     * Method name for folder removed
+     */
     String FOLDER_REMOVED = "folderRemoved";
 
     ConnectionsFolder getConnectionsFolder();
-    
+
 }
+
 
 
 

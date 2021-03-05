@@ -1,7 +1,7 @@
 /*
  * ImportExportFileType.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@ enum ImportExportFileType {
     MULTIPLE_FILES;
 
     public static boolean isSingleFile(ImportExportFileType importExportFileType) {
-        
+
         return importExportFileType == SINGLE_FILE;
     }
 
@@ -34,8 +34,9 @@ enum ImportExportFileType {
 
         return importExportFileType == MULTIPLE_FILES;
     }
-    
+
 }
+
 
 
 

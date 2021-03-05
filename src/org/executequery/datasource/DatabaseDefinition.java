@@ -1,7 +1,7 @@
 /*
  * DatabaseDefinition.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,24 +26,23 @@ import java.util.List;
 /**
  * Defines a database definition with appropriate JDBC url patterns.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DatabaseDefinition implements java.io.Serializable {
 
-	private static final long serialVersionUID = -5412871239099800368L;
+    private static final long serialVersionUID = -5412871239099800368L;
 
-	public static final int INVALID_DATABASE_ID = -1;
-	
-	private int id;
+    public static final int INVALID_DATABASE_ID = -1;
+
+    private int id;
     private String name;
     private List<String> urls;
-    
+
     /**
      * Creates a new instance of DatabaseDefinition
      */
-    public DatabaseDefinition() {}
+    public DatabaseDefinition() {
+    }
 
     public DatabaseDefinition(int id, String name) {
         this.id = id;
@@ -107,7 +106,7 @@ public class DatabaseDefinition implements java.io.Serializable {
     public String getUrl(int index) {
         return urls.get(index);
     }
-    
+
     public List<String> getUrls() {
         return urls;
     }
@@ -115,17 +114,18 @@ public class DatabaseDefinition implements java.io.Serializable {
     public void setUrls(List<String> urls) {
         this.urls = urls;
     }
-    
+
     public String toString() {
         return name;
     }
-    
+
     public boolean isValid() {
-        
+
         return (getId() != INVALID_DATABASE_ID);
     }
-    
+
 }
+
 
 
 

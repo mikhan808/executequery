@@ -1,7 +1,7 @@
 /*
  * ImportExportXMLPanel_6.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,73 +20,60 @@
 
 package org.executequery.gui.importexport;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.io.File;
-import java.util.Vector;
-
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-import javax.swing.UIManager;
-
 import org.executequery.gui.DefaultList;
 import org.executequery.gui.WidgetFactory;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.File;
+import java.util.Vector;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ImportExportXMLPanel_6 extends JPanel {
-    
+
     private ImportExportXMLPanel parent;
-    
+
     private JList columnsList;
-    
+
     private JLabel tableLabel;
     private JLabel selectedLabel;
-    
+
     private JTextField typeField;
     private JTextField pathField;
     private JTextField formatField;
     private JTextField tableField;
-    
+
     public ImportExportXMLPanel_6(ImportExportXMLPanel parent) {
         super(new GridBagLayout());
         this.parent = parent;
         try {
             init();
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void init() throws Exception {
 
         typeField = WidgetFactory.createTextField();
         pathField = WidgetFactory.createTextField();
         formatField = WidgetFactory.createTextField();
         tableField = WidgetFactory.createTextField();
-        
+
         setFieldProperties(typeField);
         setFieldProperties(pathField);
         setFieldProperties(formatField);
         setFieldProperties(tableField);
-        
+
         tableLabel = new JLabel("Table Name:");
         selectedLabel = new JLabel();
-        
+
         JLabel typeLabel;
         JLabel pathLabel;
         JLabel formatLabel;
-        
+
         if (parent.getTransferType() == ImportExportXMLPanel.EXPORT) {
             typeLabel = new JLabel("Export Type:");
             pathLabel = new JLabel("Export Files:");
@@ -96,13 +83,13 @@ public class ImportExportXMLPanel_6 extends JPanel {
             pathLabel = new JLabel("Import Files:");
             formatLabel = new JLabel("Primary Nodes:");
         }
-        
+
         columnsList = new DefaultList();
         JScrollPane scroller = new JScrollPane(columnsList);
         scroller.setPreferredSize(new Dimension(475, 50));
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
-        Insets ins = new Insets(5,10,5,5);
+        Insets ins = new Insets(5, 10, 5, 5);
         gbc.insets = ins;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         this.add(typeLabel, gbc);
@@ -143,40 +130,39 @@ public class ImportExportXMLPanel_6 extends JPanel {
         this.add(formatField, gbc);
         gbc.gridy = 3;
         this.add(tableField, gbc);
-        
+
         this.setPreferredSize(parent.getChildDimension());
-        
+
     }
-    
+
     public void setValues() {
 
         String typeString = null;
         int transferType = parent.getTransferType();
 
-        if (parent.getTableTransferType() == ImportExportProcess.MULTIPLE_TABLE) {
+        if (parent.getTableTransferType() == ImportExportDataProcess.MULTIPLE_TABLE) {
             selectedLabel.setText("Selected Tables:");
             tableLabel.setEnabled(false);
-            
-            typeString = transferType == ImportExportProcess.EXPORT ?
-                        "Multiple table export - " : "Multiple table import - ";
-            
+
+            typeString = transferType == ImportExportDataProcess.EXPORT ?
+                    "Multiple table export - " : "Multiple table import - ";
+
             columnsList.setListData(parent.getSelectedTables());
-            
-        } 
-        else if (parent.getTableTransferType() == ImportExportProcess.SINGLE_TABLE) {
+
+        } else if (parent.getTableTransferType() == ImportExportDataProcess.SINGLE_TABLE) {
             tableField.setText(parent.getTableName());
             selectedLabel.setText("Selected Columns:");
             tableLabel.setEnabled(true);
-            
-            typeString = transferType == ImportExportProcess.IMPORT ?
-                        "Single table import - " : "Single table export - ";
+
+            typeString = transferType == ImportExportDataProcess.IMPORT ?
+                    "Single table import - " : "Single table export - ";
 
             columnsList.setListData(parent.getSelectedColumns());
         }
-        
-        
-        if (parent.getMutlipleTableTransferType() == 
-                ImportExportProcess.SINGLE_FILE) {
+
+
+        if (parent.getMutlipleTableTransferType() ==
+                ImportExportDataProcess.SINGLE_FILE) {
             typeString += "single file";
         } else {
             typeString += "multiple file";
@@ -190,7 +176,7 @@ public class ImportExportXMLPanel_6 extends JPanel {
         char COLON = ';';
 
         for (int i = 0, k = transfers.size(); i < k; i++) {
-            DataTransferObject obj = (DataTransferObject)transfers.get(i);
+            DataTransferObject obj = (DataTransferObject) transfers.get(i);
             File file = new File(obj.getFileName());
             sb.append(file.getName());
 
@@ -203,21 +189,22 @@ public class ImportExportXMLPanel_6 extends JPanel {
         pathField.setText(sb.toString());
 
         formatField.setText(parent.getTransferType() == ImportExportXMLPanel.EXPORT ?
-            parent.getXMLFormatString() : parent.getPrimaryImportNodes());
+                parent.getXMLFormatString() : parent.getPrimaryImportNodes());
 
 //        columnsList.setListData(parent.getSelectedColumns());
     }
-    
+
     private void setFieldProperties(JTextField field) {
         field.setEditable(false);
         field.setOpaque(false);
         field.setDisabledTextColor(Color.BLACK);
-        field.setSelectionColor((Color)UIManager.get("Panel.background"));
-        
-        field.setPreferredSize(new Dimension((int)field.getSize().getWidth(), 20));
+        field.setSelectionColor((Color) UIManager.get("Panel.background"));
+
+        field.setPreferredSize(new Dimension((int) field.getSize().getWidth(), 20));
     }
-    
+
 }
+
 
 
 

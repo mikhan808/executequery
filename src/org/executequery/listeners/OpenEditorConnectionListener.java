@@ -1,7 +1,7 @@
 /*
  * OpenEditorConnectionListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,41 +20,48 @@
 
 package org.executequery.listeners;
 
-import javax.swing.JPanel;
-
 import org.executequery.GUIUtilities;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.event.ApplicationEvent;
 import org.executequery.event.ConnectionEvent;
 import org.executequery.event.ConnectionListener;
+import org.executequery.gui.ComponentPanel;
 import org.executequery.gui.editor.QueryEditor;
+import org.executequery.gui.editor.QueryEditorHistory;
 import org.underworldlabs.util.SystemProperties;
+
+import javax.swing.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Vector;
 
 public class OpenEditorConnectionListener implements ConnectionListener {
 
     public void connected(ConnectionEvent connectionEvent) {
+        List<QueryEditorHistory.PathNumber> listEditors = QueryEditorHistory.getEditors(connectionEvent.getDatabaseConnection());
+        if (listEditors == null || listEditors.isEmpty()) {
+            if (openEditorOnConnect()) {
 
-        if (openEditorOnConnect()) {
+                QueryEditor queryEditor = null;
+                DatabaseConnection databaseConnection = connectionEvent.getDatabaseConnection();
 
-            QueryEditor queryEditor = null;
-            DatabaseConnection databaseConnection = connectionEvent.getDatabaseConnection();
+                if (isQueryEditorTheCentralPanel() && queryEditor().getSelectedConnection() == null) {
+                    queryEditor = queryEditor();
+                } else {
 
-            if (isQueryEditorTheCentralPanel()) {
+                    queryEditor = new QueryEditor();
+                    GUIUtilities.addCentralPane(QueryEditor.TITLE,
+                            QueryEditor.FRAME_ICON,
+                            queryEditor,
+                            null,
+                            true);
+                }
 
-                queryEditor = queryEditor();
-
-            } else {
-
-                queryEditor = new QueryEditor();
-                GUIUtilities.addCentralPane(QueryEditor.TITLE,
-                        QueryEditor.FRAME_ICON,
-                        queryEditor,
-                        null,
-                        true);
+                queryEditor.setSelectedConnection(databaseConnection);
+                queryEditor.focusGained();
             }
-
-            queryEditor.setSelectedConnection(databaseConnection);
-            queryEditor.focusGained();
+        } else {
+            QueryEditorHistory.restoreTabs(connectionEvent.getDatabaseConnection());
         }
     }
 
@@ -75,8 +82,21 @@ public class OpenEditorConnectionListener implements ConnectionListener {
     }
 
     public void disconnected(ConnectionEvent connectionEvent) {
-
-        // not interested
+        List<ComponentPanel> panels = GUIUtilities.getOpenPanels();
+        Vector<String> closeTabs = new Vector();
+        for (int i = 0; i < panels.size(); i++) {
+            if (panels.get(i).getComponent() instanceof QueryEditor) {
+                QueryEditor queryEditor = (QueryEditor) panels.get(i).getComponent();
+                if (queryEditor.getSelectedConnection() == connectionEvent.getDatabaseConnection())
+                    closeTabs.add(panels.get(i).getName());
+            }
+        }
+        List<QueryEditorHistory.PathNumber> copy = new ArrayList<>();
+        copy.addAll(QueryEditorHistory.getEditors(connectionEvent.getDatabaseConnection()));
+        for (String name : closeTabs)
+            GUIUtilities.closeTab(name);
+        for (QueryEditorHistory.PathNumber s : copy)
+            QueryEditorHistory.addEditor(connectionEvent.getDatabaseConnection().getId(), s);
     }
 
     public boolean canHandleEvent(ApplicationEvent event) {
@@ -85,6 +105,7 @@ public class OpenEditorConnectionListener implements ConnectionListener {
     }
 
 }
+
 
 
 

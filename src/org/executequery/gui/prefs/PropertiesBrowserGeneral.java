@@ -1,7 +1,7 @@
 /*
  * PropertiesBrowserGeneral.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,76 +20,87 @@
 
 package org.executequery.gui.prefs;
 
+import org.underworldlabs.util.SystemProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.underworldlabs.util.SystemProperties;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1512 $
- * @date     $Date: 2015-09-27 21:23:07 +1000 (Sun, 27 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertiesBrowserGeneral extends AbstractPropertiesBasePanel {
-    
+
     private SimplePreferencesPanel preferencesPanel;
-    
+
     public PropertiesBrowserGeneral() {
-        try  {
+        try {
             init();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void init() {
 
         List<UserPreference> list = new ArrayList<UserPreference>();
 
         list.add(new UserPreference(
-                    UserPreference.CATEGORY_TYPE,
-                    null,
-                    "General",
-                    null));
+                UserPreference.CATEGORY_TYPE,
+                null,
+                bundledString("General"),
+                null));
 
         String key = "browser.catalog.schema.defaults.only";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Show only default catalog or schema",
-                    SystemProperties.getBooleanProperty("user", key)));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("ShowOnlyDefaultCatalogOrSchema"),
+                SystemProperties.getBooleanProperty("user", key)));
 
         key = "browser.double-click.to.connect";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Connect on double-click",
-                    SystemProperties.getBooleanProperty("user", key)));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("ConnectOnDouble-click"),
+                SystemProperties.getBooleanProperty("user", key)));
+
+        key = "browser.show.system.objects";
+        list.add(new UserPreference(
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("ShowSystemObjects"),
+                SystemProperties.getBooleanProperty("user", key)));
+
+        key = "browser.search.in.columns";
+        list.add(new UserPreference(
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("SearchInColumns"),
+                SystemProperties.getBooleanProperty("user", key)));
 
         key = "browser.query.row.count";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Query for the data row count",
-                    SystemProperties.getBooleanProperty("user", key)));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("QueryForRowsCount"),
+                SystemProperties.getBooleanProperty("user", key)));
 
-        UserPreference[] preferences = 
-                (UserPreference[])list.toArray(new UserPreference[list.size()]);
+        UserPreference[] preferences =
+                list.toArray(new UserPreference[list.size()]);
         preferencesPanel = new SimplePreferencesPanel(preferences);
         addContent(preferencesPanel);
     }
-    
+
     public void restoreDefaults() {
         preferencesPanel.restoreDefaults();
     }
-    
+
     public void save() {
         preferencesPanel.savePreferences();
     }
-   
+
 }
+
 
 
 

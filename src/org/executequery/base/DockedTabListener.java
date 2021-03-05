@@ -1,7 +1,7 @@
 /*
  * DockedTabListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,48 +23,47 @@ package org.executequery.base;
 /**
  * Listener interface for tab events.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DockedTabListener {
-    
+
     /**
      * Indicates a tab minimised event.
      *
-     * @param the event 
+     * @param the event
      */
     public void tabMinimised(DockedTabEvent e);
 
     /**
      * Indicates a tab restored from minimised event.
      *
-     * @param the event 
+     * @param the event
      */
     public void tabRestored(DockedTabEvent e);
 
     /**
      * Indicates a tab selected event.
      *
-     * @param the event 
+     * @param the event
      */
     public void tabSelected(DockedTabEvent e);
 
     /**
      * Indicates a tab deselected event.
      *
-     * @param the event 
+     * @param the event
      */
     public void tabDeselected(DockedTabEvent e);
-    
+
     /**
      * Indicates a tab closed event.
      *
-     * @param the event 
+     * @param the event
      */
     public void tabClosed(DockedTabEvent e);
-    
+
 }
+
 
 
 

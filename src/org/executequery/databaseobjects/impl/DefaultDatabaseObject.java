@@ -1,7 +1,7 @@
 /*
  * DefaultDatabaseObject.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,36 +20,85 @@
 
 package org.executequery.databaseobjects.impl;
 
-import java.util.ArrayList;
-import java.util.List;
 import org.executequery.databaseobjects.DatabaseColumn;
 import org.executequery.databaseobjects.DatabaseHost;
+import org.executequery.databaseobjects.DatabaseObject;
 import org.executequery.databaseobjects.NamedObject;
-import org.executequery.sql.StatementGenerator;
-import org.executequery.sql.StatementGeneratorFactory;
+import org.executequery.gui.browser.tree.TreePanel;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.util.MiscUtils;
 
+import java.sql.ResultSet;
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DefaultDatabaseObject extends AbstractDatabaseObject {
 
-    /** the meta data key name for this object */
+    private int typeTree;
+
+    private DatabaseObject dependObject;
+
+    /**
+     * the meta data key name for this object
+     */
     private String metaDataKey;
 
-    /** Creates a new instance of DefaultDatabaseObject */
+    /**
+     * Creates a new instance of DefaultDatabaseObject
+     */
     public DefaultDatabaseObject(DatabaseHost host) {
-        setHost(host);
+        super(host);
     }
 
-    /** Creates a new instance of DefaultDatabaseObject */
+    /**
+     * Creates a new instance of DefaultDatabaseObject
+     */
     public DefaultDatabaseObject(DatabaseHost host, String metaDataKey) {
-        setHost(host);
+        super(host);
+        typeTree = TreePanel.DEFAULT;
+        dependObject = null;
         this.metaDataKey = metaDataKey;
+        setSystemFlag(false);
+    }
+
+    public DefaultDatabaseObject(DatabaseHost host, String metaDataKey, int typeTree, DatabaseObject dependObject) {
+        this(host, metaDataKey);
+        this.typeTree = typeTree;
+        this.dependObject = dependObject;
+    }
+
+    @Override
+    protected String queryForInfo() {
+        return null;
+    }
+
+    @Override
+    protected void setInfoFromResultSet(ResultSet rs) {
+
+    }
+
+    @Override
+    protected void getObjectInfo() {
+
+    }
+
+    public int getTypeTree() {
+        return typeTree;
+    }
+
+    public void setTypeTree(int typeTree) {
+        this.typeTree = typeTree;
+    }
+
+    public DatabaseObject getDependObject() {
+        return dependObject;
+    }
+
+    public void setDependObject(DatabaseObject dependObject) {
+        this.dependObject = dependObject;
     }
 
     /**
@@ -87,6 +136,11 @@ public class DefaultDatabaseObject extends AbstractDatabaseObject {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean allowsChildren() {
+        return getType() == NamedObject.SYSTEM_TABLE;
     }
 
     /**
@@ -155,12 +209,10 @@ public class DefaultDatabaseObject extends AbstractDatabaseObject {
         return getHost().getDatabaseProductName();
     }
 
-    protected StatementGenerator createStatementGenerator() {
 
-        return StatementGeneratorFactory.create();
-    }
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * JMenuItemFactory.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,79 +20,115 @@
 
 package org.executequery.gui.menu;
 
-import javax.swing.Action;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
-
+import org.apache.commons.lang.StringUtils;
+import org.executequery.localization.Bundles;
 import org.executequery.log.Log;
 import org.underworldlabs.swing.actions.ActionBuilder;
 import org.underworldlabs.swing.menu.MenuItemFactory;
 import org.underworldlabs.swing.plaf.UIUtils;
 import org.underworldlabs.util.MiscUtils;
 
+import javax.swing.*;
+
 public class JMenuItemFactory {
 
     public JMenuItem createJMenuItem(JMenuItem parent, MenuItem menuItem) {
-        
+
         JMenuItem jMenuItem = createMenuItemForImpl(menuItem.getImplementingClass());
 
         try {
-        if (jMenuItem instanceof JMenu) {
 
-            jMenuItem.setText(menuItem.getName());
-            jMenuItem.setMnemonic(menuItem.getMnemonicChar());
+            if (jMenuItem instanceof JMenu) {
 
-            if (parent != null) {
+                jMenuItem.setText(nameOrBundleValue(menuItem));
+                jMenuItem.setMnemonic(menuItem.getMnemonicChar());
 
-                addMenuItemToParent(parent, menuItem, jMenuItem);
-            }
+                if (parent != null) {
 
-        } else {
-
-            if (menuItem.hasId()) {
-
-                jMenuItem.setAction(actionForMenuItem(menuItem));
-            }
-
-            if (menuItem.hasName()) {
-                
-                jMenuItem.setText(menuItem.getName());
-            }
-
-            if (menuItem.hasActionCommand()) {
-
-                jMenuItem.setActionCommand(menuItem.getActionCommand());
-            }
-            
-            if (menuItem.isAcceleratorKeyNull() && menuItem.getId() == null) {
-
-                jMenuItem.setAccelerator(null);
+                    addMenuItemToParent(parent, menuItem, jMenuItem);
+                }
 
             } else {
-                
-                jMenuItem.setAccelerator(keyStrokeForMenuItem(menuItem));
-            }
-            
-            if (menuItem.hasMnemonic()) {
-                
-                jMenuItem.setMnemonic(menuItem.getMnemonicChar());
-            }
-            
-            if (menuItem.hasToolTip()) {
 
-                jMenuItem.setToolTipText(menuItem.getToolTip());
+                if (menuItem.hasId()) {
+
+                    jMenuItem.setAction(actionForMenuItem(menuItem));
+                }
+
+                if (menuItem.hasName()) {
+
+                    jMenuItem.setText(nameOrBundleValue(menuItem));
+                }
+
+                if (menuItem.hasActionCommand()) {
+
+                    jMenuItem.setActionCommand(menuItem.getActionCommand());
+                }
+
+                if (menuItem.isAcceleratorKeyNull() && menuItem.getId() == null) {
+
+                    jMenuItem.setAccelerator(null);
+
+                } else {
+
+                    jMenuItem.setAccelerator(keyStrokeForMenuItem(menuItem));
+                }
+
+                if (menuItem.hasMnemonic()) {
+
+                    jMenuItem.setMnemonic(menuItem.getMnemonicChar());
+                }
+
+                if (menuItem.hasToolTip()) {
+
+                    jMenuItem.setToolTipText(toolTipOrBundleValue(menuItem));
+                }
+
+                addMenuItemToParent(parent, menuItem, jMenuItem);
+
             }
-            
-            addMenuItemToParent(parent, menuItem, jMenuItem);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            System.out.println(menuItem.getImplementingClass());
         }
 
-        }catch (Exception e) {e.printStackTrace();
-        System.out.println(menuItem.getImplementingClass());}
-        
         jMenuItem.setIcon(null);
-        
+
         return jMenuItem;
+    }
+
+    private String nameOrBundleValue(MenuItem menuItem) {
+
+        if (menuItem.hasPropertyKey()) {
+
+            String key = menuItem.getPropertyKey();
+            String value = Bundles.get(key);
+            if (StringUtils.isNotBlank(value)) {
+
+                return value;
+            }
+
+        }
+
+        return menuItem.getName();
+    }
+
+    private String toolTipOrBundleValue(MenuItem menuItem) {
+
+        if (menuItem.hasPropertyKey()) {
+
+            String key = menuItem.getPropertyKey();
+            String value = Bundles.get(key + ".description");
+            if (StringUtils.isNotBlank(value)) {
+
+                return value;
+            }
+
+        }
+
+        return menuItem.getToolTip();
     }
 
     private void addMenuItemToParent(JMenuItem parent, MenuItem menuItem, JMenuItem jMenuItem) {
@@ -100,13 +136,13 @@ public class JMenuItemFactory {
         if (menuItem.hasIndex()) {
 
             parent.add(jMenuItem, menuItem.getIndex());
-            
+
         } else {
-            
+
             parent.add(jMenuItem);
         }
     }
-    
+
     private Action actionForMenuItem(MenuItem menuItem) {
 
         return ActionBuilder.get(menuItem.getId());
@@ -126,7 +162,7 @@ public class JMenuItemFactory {
 
             accelKey = accelKey.replaceAll("control", "meta");
         }
-        
+
         return KeyStroke.getKeyStroke(accelKey);
     }
 
@@ -134,17 +170,17 @@ public class JMenuItemFactory {
     private JMenuItem createMenuItemForImpl(String implClass) {
 
         if (MiscUtils.isNull(implClass)) {
-            
+
             return MenuItemFactory.createMenuItem();
         }
-        
+
         try {
 
-            Class<?> _class = Class.forName(implClass, true, ClassLoader.getSystemClassLoader());            
+            Class<?> _class = Class.forName(implClass, true, ClassLoader.getSystemClassLoader());
             Object object = _class.newInstance();
-            
+
             return (JMenuItem) object;
-            
+
         } catch (ClassNotFoundException e) {
 
             handleMenuCreationError(e);
@@ -167,6 +203,7 @@ public class JMenuItemFactory {
     }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * MoveConnectionToFolderDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,37 +20,18 @@
 
 package org.executequery.gui.browser;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-
-import javax.swing.AbstractAction;
-import javax.swing.Action;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-
 import org.executequery.GUIUtilities;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.gui.BaseDialog;
 import org.executequery.gui.DefaultPanelButton;
 import org.executequery.gui.browser.nodes.ConnectionsFolderNode;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.swing.LinkButton;
 import org.underworldlabs.swing.actions.ReflectiveAction;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 
 @SuppressWarnings({"rawtypes", "unchecked"})
 public class MoveConnectionToFolderDialog extends BaseDialog {
@@ -59,14 +40,14 @@ public class MoveConnectionToFolderDialog extends BaseDialog {
     private DefaultListModel listModel;
     private ConnectionsTreePanel treePanel;
     private DatabaseConnection databaseConnection;
-    
+
     public MoveConnectionToFolderDialog(DatabaseConnection databaseConnection, ConnectionsTreePanel treePanel) {
 
         super("Move to folder...", true);
         this.databaseConnection = databaseConnection;
         this.treePanel = treePanel;
         init();
-        
+
         pack();
         this.setLocation(GUIUtilities.getLocationForDialog(this.getSize()));
         setVisible(true);
@@ -76,10 +57,10 @@ public class MoveConnectionToFolderDialog extends BaseDialog {
 
         listModel = new DefaultListModel<ConnectionsFolderNode>();
         for (ConnectionsFolderNode folder : treePanel.getFolderNodes()) {
-            
+
             listModel.addElement(folder);
         }
-        
+
         list = new JList(listModel);
         list.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 
@@ -93,7 +74,7 @@ public class MoveConnectionToFolderDialog extends BaseDialog {
 
             }
         });
-        
+
         list.addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
 
@@ -103,14 +84,14 @@ public class MoveConnectionToFolderDialog extends BaseDialog {
                 }
             }
         });
-        
+
         Action newFolderAction = new AbstractAction("New Folder") {
             public void actionPerformed(ActionEvent e) {
                 newFolder(e);
             }
         };
         LinkButton newFolderButton = new LinkButton(newFolderAction);
-        
+
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEtchedBorder());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -138,28 +119,28 @@ public class MoveConnectionToFolderDialog extends BaseDialog {
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.BOTH;
         panel.add(new JScrollPane(list), gbc);
-        
+
         ReflectiveAction action = new ReflectiveAction(this);
-        
+
         JPanel base = new JPanel(new BorderLayout());
         base.setPreferredSize(new Dimension(400, 350));
 
         base.add(panel, BorderLayout.CENTER);
         base.add(buttonPanel(action), BorderLayout.SOUTH);
-        
+
         Container c = getContentPane();
         c.setLayout(new GridBagLayout());
         c.add(base, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0,
-                            GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH,
-                            new Insets(5, 5, 5, 5), 0, 0));
+                GridBagConstraints.SOUTHEAST, GridBagConstraints.BOTH,
+                new Insets(5, 5, 5, 5), 0, 0));
 
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
     }
 
     private JPanel buttonPanel(ReflectiveAction action) {
 
-        JButton okButton = new DefaultPanelButton(action, "OK", "move");
-        JButton cancelButton = new DefaultPanelButton(action, "Cancel", "cancel");
+        JButton okButton = new DefaultPanelButton(action, Bundles.get("common.ok.button"), "move");
+        JButton cancelButton = new DefaultPanelButton(action, Bundles.get("common.cancel.button"), "cancel");
 
         JPanel buttonPanel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
@@ -187,9 +168,9 @@ public class MoveConnectionToFolderDialog extends BaseDialog {
             list.requestFocus();
             list.setSelectedValue(newFolderNode, true);
         }
-        
+
     }
-    
+
     public void move(ActionEvent e) {
 
         treePanel.moveToFolder(databaseConnection, (ConnectionsFolderNode) list.getSelectedValue());
@@ -197,9 +178,10 @@ public class MoveConnectionToFolderDialog extends BaseDialog {
     }
 
     public void cancel(ActionEvent e) {
-        
+
         dispose();
     }
 
 }
+
 

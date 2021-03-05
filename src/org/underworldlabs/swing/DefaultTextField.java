@@ -1,7 +1,7 @@
 /*
  * DefaultTextField.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,13 +20,12 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Insets;
-
-import javax.swing.JTextField;
-import javax.swing.text.Document;
-
 import org.executequery.gui.GUIConstants;
 import org.underworldlabs.swing.menu.SimpleTextComponentPopUpMenu;
+
+import javax.swing.*;
+import javax.swing.text.Document;
+import java.awt.*;
 
 public class DefaultTextField extends JTextField {
 
@@ -61,21 +60,22 @@ public class DefaultTextField extends JTextField {
     }
 
     private void addPopupMenu() {
-        
-         new SimpleTextComponentPopUpMenu(this);
+
+        new SimpleTextComponentPopUpMenu(this);
     }
-    
+
     public Insets getMargin() {
 
         return GUIConstants.DEFAULT_FIELD_MARGIN;
     }
-    
+
     public int getHeight() {
 
         return Math.max(super.getHeight(), GUIConstants.DEFAULT_FIELD_HEIGHT);
     }
-    
+
 }
+
 
 
 

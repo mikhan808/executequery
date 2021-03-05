@@ -1,7 +1,7 @@
 /*
  * AbstractConnectionPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,11 @@
 
 package org.executequery.gui.browser;
 
-import java.awt.GridBagConstraints;
-import java.awt.LayoutManager;
-
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-
+import org.executequery.localization.Bundles;
 import org.underworldlabs.swing.ActionPanel;
-import org.underworldlabs.swing.DefaultFieldLabel;
+
+import javax.swing.*;
+import java.awt.*;
 
 public abstract class AbstractConnectionPanel extends ActionPanel {
 
@@ -40,11 +37,11 @@ public abstract class AbstractConnectionPanel extends ActionPanel {
 
         GridBagConstraints gbc = new GridBagConstraints();
 
-        gbc.anchor = GridBagConstraints.EAST;
+        gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.NONE;
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.insets.bottom = 10;
+        gbc.insets.bottom = 0;
 
         int count = 0;
         for (ComponentToolTipPair pair : components) {
@@ -73,37 +70,10 @@ public abstract class AbstractConnectionPanel extends ActionPanel {
 
     }
 
-    protected void addLabelFieldPair(JPanel panel, String label,
-            JComponent field, String toolTip, GridBagConstraints gbc) {
 
-        gbc.gridy++;
-        gbc.gridx = 0;
-        gbc.gridwidth = 1;
-        gbc.insets.top = 10;
-
-        if (panel.getComponentCount() > 0) {
-
-            gbc.insets.top = 0;
-        }
-
-        gbc.insets.left = 10;
-        gbc.weightx = 0;
-        panel.add(new DefaultFieldLabel(label), gbc);
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-        gbc.gridx = 1;
-        gbc.insets.left = 5;
-        gbc.weightx = 1.0;
-        panel.add(field, gbc);
-
-        if (toolTip != null) {
-
-            field.setToolTipText(toolTip);
-        }
-
-    }
 
     class ComponentToolTipPair {
-        
+
         final JComponent component;
         final String toolTip;
 
@@ -111,8 +81,14 @@ public abstract class AbstractConnectionPanel extends ActionPanel {
             this.component = component;
             this.toolTip = toolTip;
         }
-        
+
     }
-    
+
+    protected String bundleString(String key) {
+
+        return Bundles.get(getClass(), key);
+    }
+
 }
+
 

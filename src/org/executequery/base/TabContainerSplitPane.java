@@ -1,7 +1,7 @@
 /*
  * TabContainerSplitPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,47 +20,49 @@
 
 package org.executequery.base;
 
-import java.awt.Component;
-import javax.swing.SwingConstants;
 import org.underworldlabs.swing.FlatSplitPane;
 
+import javax.swing.*;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class TabContainerSplitPane extends FlatSplitPane {
-    
-    /** the left/north root pane */
+
+    /**
+     * the left/north root pane
+     */
     private BaseRootPane northRootPane;
-    
-    /** the right/south root pane */
-    private BaseRootPane southRootPane;    
-    
+
+    /**
+     * the right/south root pane
+     */
+    private BaseRootPane southRootPane;
+
     public TabContainerSplitPane() {
         super();
     }
-    
+
     public TabContainerSplitPane(int newOrientation) {
         super(newOrientation);
     }
-    
+
     public TabContainerSplitPane(int newOrientation, boolean newContinuousLayout) {
         super(newOrientation, newContinuousLayout);
     }
-    
+
     public TabContainerSplitPane(int newOrientation,
-                         Component newLeftComponent, Component newRightComponent) {
+                                 Component newLeftComponent, Component newRightComponent) {
         super(newOrientation, newLeftComponent, newRightComponent);
     }
-    
+
     public TabContainerSplitPane(int newOrientation, boolean newContinuousLayout,
-                         Component newLeftComponent, Component newRightComponent) {
-        
+                                 Component newLeftComponent, Component newRightComponent) {
+
         super(newOrientation, false, newLeftComponent, newRightComponent);
     }
-    
+
     public void setGlassPaneVisible(int position, boolean visible) {
         BaseRootPane rootPane = null;
         switch (position) {
@@ -77,7 +79,7 @@ public class TabContainerSplitPane extends FlatSplitPane {
             rootPane.setGlassPaneVisible(visible);
         }
     }
-    
+
     /**
      * Override to add the component to the root pane first.
      *
@@ -154,11 +156,12 @@ public class TabContainerSplitPane extends FlatSplitPane {
         if (getStoredDividerLocation() > 0) {
             setDividerLocation(getStoredDividerLocation());
         } else {
-            setDividerLocation(getHeight()/2);
+            setDividerLocation(getHeight() / 2);
         }
     }
 
 }
+
 
 
 

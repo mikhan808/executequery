@@ -1,7 +1,7 @@
 /*
  * TabMenuItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,29 @@
 
 package org.underworldlabs.swing.plaf;
 
-import java.awt.Component;
-import javax.swing.Icon;
-import javax.swing.JMenuItem;
+import javax.swing.*;
+import java.awt.*;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class TabMenuItem extends JMenuItem {
 
-    /** the tab component for this menu item */
+    /**
+     * the tab component for this menu item
+     */
     private Component tabComponent;
 
-    /** Creates a new instance of TabMenuItem */
+    /**
+     * Creates a new instance of TabMenuItem
+     */
     public TabMenuItem(String title, Component component) {
         this(title, null, component);
     }
 
-    /** Creates a new instance of TabMenuItem */
+    /**
+     * Creates a new instance of TabMenuItem
+     */
     public TabMenuItem(String title, Icon icon, Component component) {
         super(title, icon);
         this.tabComponent = component;
@@ -53,8 +55,9 @@ public class TabMenuItem extends JMenuItem {
     public void setTabComponent(Component component) {
         this.tabComponent = component;
     }
-    
+
 }
+
 
 
 

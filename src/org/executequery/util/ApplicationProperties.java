@@ -1,7 +1,7 @@
 /*
  * ApplicationProperties.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,16 +25,16 @@ public final class ApplicationProperties extends AbstractPropertiesBase {
     private static final String PROPERTY_BUNDLE_NAME = "system";
 
     private static final String PROPERTY_BUNDLE_PATH = "org/executequery/eq.system.properties";
-    
+
     private static final ApplicationProperties instance = new ApplicationProperties();
 
     private ApplicationProperties() {
-        
+
         if (!propertiesLoaded()) {
 
             loadPropertiesResource(propertyBundle(), PROPERTY_BUNDLE_PATH);
         }
-        
+
     }
 
     public static synchronized ApplicationProperties getInstance() {
@@ -48,6 +48,7 @@ public final class ApplicationProperties extends AbstractPropertiesBase {
     }
 
 }
+
 
 
 

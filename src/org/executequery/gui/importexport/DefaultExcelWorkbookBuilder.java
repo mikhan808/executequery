@@ -1,7 +1,7 @@
 /*
  * DefaultExcelWorkbookBuilder.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,40 +20,31 @@
 
 package org.executequery.gui.importexport;
 
+import org.apache.poi.hssf.usermodel.*;
+
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.List;
 
-import org.apache.poi.hssf.usermodel.HSSFCell;
-import org.apache.poi.hssf.usermodel.HSSFCellStyle;
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.hssf.usermodel.HSSFRow;
-import org.apache.poi.hssf.usermodel.HSSFSheet;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-
-/** 
- *
- * @author   Takis Diakoumis, Pawel Bialkowski
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+/**
+ * @author Takis Diakoumis, Pawel Bialkowski
  */
 public class DefaultExcelWorkbookBuilder implements ExcelWorkbookBuilder {
 
     private int currentRow;
-    
+
     private HSSFWorkbook workbook;
 
     private HSSFSheet currentSheet;
-    
+
     private HSSFCellStyle defaultCellStyle;
-    
+
     public DefaultExcelWorkbookBuilder() {
 
         workbook = new HSSFWorkbook();
         defaultCellStyle = createStyle();
     }
-    
+
     public void reset() {
 
         currentRow = 0;
@@ -61,15 +52,15 @@ public class DefaultExcelWorkbookBuilder implements ExcelWorkbookBuilder {
     }
 
     public void writeTo(OutputStream outputStream) throws IOException {
-        
+
         workbook.write(outputStream);
     }
-    
+
     public void createSheet(String sheetName) {
-        
+
         currentSheet = workbook.createSheet(sheetName);
     }
-    
+
     public void addRow(List<String> values) {
 
         fillRow(values, createRow(++currentRow), defaultCellStyle);
@@ -78,10 +69,10 @@ public class DefaultExcelWorkbookBuilder implements ExcelWorkbookBuilder {
     public void addRowHeader(List<String> values) {
 
         if (currentRow > 0) {
-            
+
             currentRow++;
         }
-        
+
         HSSFFont font = createFont();
         font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
 
@@ -92,10 +83,10 @@ public class DefaultExcelWorkbookBuilder implements ExcelWorkbookBuilder {
     }
 
     private HSSFRow createRow(int rowNumber) {
-        
+
         return currentSheet.createRow(rowNumber);
     }
-    
+
     private void fillRow(List<String> values, HSSFRow row, HSSFCellStyle style) {
 
         for (int i = 0, n = values.size(); i < n; i++) {
@@ -120,8 +111,9 @@ public class DefaultExcelWorkbookBuilder implements ExcelWorkbookBuilder {
 
         return workbook.createFont();
     }
-    
+
 }
+
 
 
 

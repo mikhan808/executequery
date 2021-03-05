@@ -1,7 +1,7 @@
 /*
  * BrowserObjectView.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,31 +25,42 @@ import java.awt.print.Printable;
 /**
  * Defines those components with a browser view.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface BrowserObjectView {
-    
-    /** Performs some cleanup and releases resources before being closed. */
+
+    /**
+     * Performs some cleanup and releases resources before being closed.
+     */
     public void cleanup();
-    
-    /** Refreshes the data and clears the cache */
+
+    /**
+     * Refreshes the data and clears the cache
+     */
     public void refresh();
-    
-    /** Returns the print object - if any */
+
+    /**
+     * Returns the print object - if any
+     */
     public Printable getPrintable();
-    
-    /** Returns the name of this panel */
+
+    /**
+     * Returns the name of this panel
+     */
     public String getLayoutName();
-    
-    /** Propagates the call to the relevant component. */
+
+    /**
+     * Propagates the call to the relevant component.
+     */
     public void validate();
 
-    /** Propagates the call to the relevant component. */
+    /**
+     * Propagates the call to the relevant component.
+     */
     public void repaint();
-    
+
 }
+
 
 
 

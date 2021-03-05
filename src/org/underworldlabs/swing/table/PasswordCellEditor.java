@@ -1,7 +1,7 @@
 /*
  * PasswordCellEditor.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,23 @@
 
 package org.underworldlabs.swing.table;
 
-import javax.swing.JPasswordField;
-import javax.swing.JTextField;
-
 import org.underworldlabs.Constants;
 import org.underworldlabs.util.MiscUtils;
 
+import javax.swing.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class PasswordCellEditor extends JPasswordField
-                              implements TableCellEditorValue {
-    
+        implements TableCellEditorValue {
+
     public PasswordCellEditor() {
         super();
         setBorder(null);
         setHorizontalAlignment(JTextField.LEFT);
     }
-    
+
     /**
      * Returns the current editor value from the component
      * defining this object.
@@ -57,14 +53,14 @@ public class PasswordCellEditor extends JPasswordField
     public void resetValue() {
         setText(Constants.EMPTY);
     }
-    
+
     /**
      * Returns the current editor value string.
      */
     public String getValue() {
         return getEditorValue();
     }
-    
+
     /**
      * Sets the editor's value to that specified.
      *
@@ -73,8 +69,9 @@ public class PasswordCellEditor extends JPasswordField
     public void setValue(String value) {
         setText(value);
     }
-    
+
 }
+
 
 
 

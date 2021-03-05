@@ -1,7 +1,7 @@
 /*
  * FormObjectViewContainer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,34 +20,41 @@
 
 package org.executequery.gui.forms;
 
-import java.awt.CardLayout;
+import org.executequery.localization.Bundles;
+
+import javax.swing.*;
+import java.awt.*;
 import java.util.HashMap;
 import java.util.Map;
-import javax.swing.JPanel;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class FormObjectViewContainer extends JPanel {
 
-    /** panel map */
-    private Map<String,FormObjectView> panels;
+    /**
+     * panel map
+     */
+    private Map<String, FormObjectView> panels;
 
-    /** The view panel's layout */
+    /**
+     * The view panel's layout
+     */
     private CardLayout cardLayout;
 
-    /** The current panel view */
+    /**
+     * The current panel view
+     */
     protected FormObjectView currentView;
+
+    private String nameObject;
 
     public FormObjectViewContainer() {
         super();
         // setup the panel and layout manager and apply
         cardLayout = new CardLayout();
         setLayout(cardLayout);
-        panels = new HashMap<String,FormObjectView>();
+        panels = new HashMap<String, FormObjectView>();
     }
 
     /**
@@ -70,10 +77,15 @@ public class FormObjectViewContainer extends JPanel {
 
             currentView = panel;
             cardLayout.show(this, panel.getLayoutName());
+            nameObject = panel.getObjectName();
         }
 
         panel.validate();
         panel.repaint();
+    }
+
+    public String getNameObject() {
+        return nameObject;
     }
 
     /**
@@ -81,20 +93,20 @@ public class FormObjectViewContainer extends JPanel {
      *
      * @param panel - the component to add
      * @throws <code>IllegalArgumentException</code> if the
-     *         panel specified is not an instance of <code>JPanel</code>
+     *                                               panel specified is not an instance of <code>JPanel</code>
      */
     public void addToLayout(FormObjectView panel) {
 
         if (panel instanceof JPanel) {
 
             String title = panel.getLayoutName();
-            JPanel _panel = (JPanel)panel;
+            JPanel _panel = (JPanel) panel;
             add(_panel, title);
             cardLayout.addLayoutComponent(_panel, title);
 
             // add to the cache if its not there
             if (!panels.containsKey(title)) {
-        
+
                 panels.put(title, panel);
             }
 
@@ -138,8 +150,9 @@ public class FormObjectViewContainer extends JPanel {
         return panels.containsKey(name);
     }
 
+    protected String bundleString(String key) {
+        return Bundles.get(getClass(), key);
+    }
+
 }
-
-
-
 

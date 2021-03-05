@@ -1,7 +1,7 @@
 /*
  * XYConstraints.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,93 +23,91 @@ package org.underworldlabs.swing.layouts;
 import java.io.Serializable;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class XYConstraints implements Cloneable, Serializable {
-    
+
     protected int x;
     protected int y;
     protected int width;
     protected int height;
-    
+
     public XYConstraints() {
         this(0, 0, 0, 0);
     }
-    
+
     public XYConstraints(int i, int j, int k, int l) {
         x = i;
         y = j;
         width = k;
         height = l;
     }
-    
+
     public int getX() {
         return x;
     }
-    
+
     public void setX(int i) {
         x = i;
     }
-    
+
     public int getY() {
         return y;
     }
-    
+
     public void setY(int i) {
         y = i;
     }
-    
+
     public int getWidth() {
         return width;
     }
-    
+
     public void setWidth(int i) {
         width = i;
     }
-    
+
     public int getHeight() {
         return height;
     }
-    
+
     public void setHeight(int i) {
         height = i;
     }
-    
+
     public void setConstraints(int i, int j, int k, int l) {
         x = i;
         y = j;
         width = k;
         height = l;
     }
-    
+
     public int hashCode() {
         return x ^ y * 37 ^ width * 43 ^ height * 47;
     }
-    
+
     public boolean equals(Object obj) {
-        
-        if(obj instanceof XYConstraints) {
-            XYConstraints xyconstraints = (XYConstraints)obj;
+
+        if (obj instanceof XYConstraints) {
+            XYConstraints xyconstraints = (XYConstraints) obj;
             return xyconstraints.x == x && xyconstraints.y == y &&
-            xyconstraints.width == width && xyconstraints.height == height;
+                    xyconstraints.width == width && xyconstraints.height == height;
         } else
             return false;
-        
+
     }
-    
+
     public Object clone() {
         return new XYConstraints(x, y, width, height);
     }
-    
+
     public String toString() {
         return "XYConstraints [" + x + ", " + y + ", " +
-        width + ", " + height + "]";
+                width + ", " + height + "]";
     }
-    
+
 } // class
+
 
 
 

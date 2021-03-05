@@ -1,7 +1,7 @@
 /*
  * ExecuteQueryFrame.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,6 @@
 
 package org.executequery.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.event.ComponentEvent;
-import java.awt.event.ComponentListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
-
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.WindowConstants;
-
 import org.executequery.Application;
 import org.executequery.GUIUtilities;
 import org.executequery.util.UserProperties;
@@ -38,17 +27,22 @@ import org.underworldlabs.swing.GUIUtils;
 import org.underworldlabs.swing.GlassPanePanel;
 import org.underworldlabs.util.MiscUtils;
 
-/** 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+/**
  * Main application frame.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class ExecuteQueryFrame extends JFrame 
-                               implements ComponentListener {
+public class ExecuteQueryFrame extends JFrame
+        implements ComponentListener {
 
-	public static final String TITLE = "Red Expert";
+    public static final String TITLE = "RedXpert";
 
     private static final String APPLICATION_ICON = "ApplicationIcon48.png";
 
@@ -56,7 +50,7 @@ public class ExecuteQueryFrame extends JFrame
 
     private static final long serialVersionUID = 1L;
 
-	private int lastX;
+    private int lastX;
     private int lastY;
     private int lastWidth;
     private int lastHeight;
@@ -84,14 +78,14 @@ public class ExecuteQueryFrame extends JFrame
 
         ImageIcon frameIcon = GUIUtilities.loadIcon(APPLICATION_ICON);
         setIconImage(frameIcon.getImage());
-        
+
         setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
         addWindowListener(new WindowAdapter() {
 
             public void windowClosing(WindowEvent e) {
 
-                Application.getInstance().exitProgram(); 
+                Application.getInstance().exitProgram();
             }
 
         });
@@ -117,17 +111,17 @@ public class ExecuteQueryFrame extends JFrame
         String value = getSizeAndPositionPropertyValue();
 
         String[] values = MiscUtils.splitSeparatedValues(value, ",");
-        
+
         int x = 0;
         int y = 0;
 
         int width = 0;
         int height = 0;
-        
+
         int dimValue = 0;
-        
+
         for (int i = 0; i < values.length; i++) {
-            
+
             dimValue = Integer.parseInt(values[i]);
 
             switch (i) {
@@ -154,7 +148,7 @@ public class ExecuteQueryFrame extends JFrame
 
         Dimension screenSize = GUIUtils.getDefaultDeviceScreenSize();
         Dimension frameDim = new Dimension(screenSize.width - 200,
-                                           screenSize.height - 150);
+                screenSize.height - 150);
 
         if (userProperties().getBooleanProperty("startup.window.maximized")) {
 
@@ -162,7 +156,7 @@ public class ExecuteQueryFrame extends JFrame
             setExtendedState(JFrame.MAXIMIZED_BOTH);
 
         } else if (userProperties().containsKey("window.position")) {
-          
+
             setSizeAndPosition();
 
         } else { // center the frame
@@ -180,11 +174,11 @@ public class ExecuteQueryFrame extends JFrame
             }
 
             setLocation((screenSize.width - frameDim.width) / 2,
-                              (screenSize.height - frameDim.height) / 2);
+                    (screenSize.height - frameDim.height) / 2);
         }
 
     }
-    
+
     private void savePosition() {
 
         int x = getX();
@@ -193,9 +187,9 @@ public class ExecuteQueryFrame extends JFrame
         int width = getWidth();
         int height = getHeight();
 
-        if (x == lastX && y == lastY && 
+        if (x == lastX && y == lastY &&
                 width == lastWidth && height == lastHeight) {
-            
+
             return;
         }
 
@@ -211,51 +205,54 @@ public class ExecuteQueryFrame extends JFrame
     }
 
     private String createSizeAndPositonPropertyString(int x, int y,
-            int width, int height) {
+                                                      int width, int height) {
 
         StringBuilder sb = new StringBuilder();
 
         sb.append(x).
-           append(',').
-           append(y).
-           append(',').
-           append(width).
-           append(',').
-           append(height);
+                append(',').
+                append(y).
+                append(',').
+                append(width).
+                append(',').
+                append(height);
 
         return sb.toString();
     }
 
     private void setSizeAndPositionPropertyValue(String value) {
-        
+
         userProperties().setStringProperty(WINDOW_POSITION_KEY, value);
     }
-    
+
     private String getSizeAndPositionPropertyValue() {
-        
+
         return userProperties().getStringProperty(WINDOW_POSITION_KEY);
     }
 
     private UserProperties userProperties() {
-        
+
         return UserProperties.getInstance();
     }
 
     public void componentMoved(ComponentEvent e) {
-        
+
         savePosition();
     }
 
     public void componentResized(ComponentEvent e) {
-        
+
         savePosition();
     }
 
-    public void componentHidden(ComponentEvent e) {}
- 
-    public void componentShown(ComponentEvent e) {}
+    public void componentHidden(ComponentEvent e) {
+    }
+
+    public void componentShown(ComponentEvent e) {
+    }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * RestoreDefaultsCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,53 +20,28 @@
 
 package org.executequery.actions.othercommands;
 
+import org.executequery.gui.prefs.UserPreferenceFunction;
+import org.executequery.localization.Bundles;
+
 import java.awt.event.ActionEvent;
 
-import org.executequery.gui.prefs.UserPreferenceFunction;
-
-/* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
- *           resetting of CVS revision numbers.
- * ----------------------------------------------------------
- */
-
-/** <p>Restore system defaults command for respective
- *  preferences panels.
+/**
+ * <p>Restore system defaults command for respective preferences panels.
  *
- *  @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class RestoreDefaultsCommand extends AbstractBaseCommand {
-    
+
     private UserPreferenceFunction frame;
-    
+
     public RestoreDefaultsCommand(UserPreferenceFunction frame) {
-        super("Restore Defaults");
+        super(Bundles.get(RestoreDefaultsCommand.class, "restoreDefaults"));
         this.frame = frame;
     }
-    
+
     public void execute(ActionEvent e) {
         frame.restoreDefaults();
     }
-    
+
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

@@ -1,7 +1,7 @@
 /*
  * DataSourceRuntimeException.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,14 +23,12 @@ package org.underworldlabs.jdbc;
 /**
  * Generic runtime exception thrown by data source related methods/classes.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DataSourceRuntimeException extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
-    
+
     public DataSourceRuntimeException() {
         super();
     }
@@ -46,12 +44,13 @@ public class DataSourceRuntimeException extends RuntimeException {
     public DataSourceRuntimeException(Throwable cause) {
         super(cause);
     }
-    
+
     public DataSourceRuntimeException(String message, Throwable cause) {
         super(message, cause);
     }
 
 }
+
 
 
 

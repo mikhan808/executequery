@@ -1,7 +1,7 @@
 /*
  * SortableHeaderRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,33 +20,35 @@
 
 package org.underworldlabs.swing.table;
 
-import java.awt.Component;
-
-import javax.swing.JLabel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 /**
  * Header renderer for the table sorter model.
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
 public class SortableHeaderRenderer extends DefaultTableHeaderRenderer
-                                    implements TableCellRenderer {
+        implements TableCellRenderer {
 
-    /** the up arrow icon */
+    /**
+     * the up arrow icon
+     */
     private ArrowIcon upIcon;
-    
-    /** the down arrow icon */
+
+    /**
+     * the down arrow icon
+     */
     private ArrowIcon downIcon;
-    
-    /** the table sorter for this header */
+
+    /**
+     * the table sorter for this header
+     */
     private TableSorter sorter;
-    
+
     public SortableHeaderRenderer(TableSorter sorter) {
-        
+
         super(DEFAULT_HEIGHT);
 
         this.sorter = sorter;
@@ -73,12 +75,13 @@ public class SortableHeaderRenderer extends DefaultTableHeaderRenderer
         } else {
             setIcon(iconType == ArrowIcon.UP ? upIcon : downIcon);
         }
-        
+
         return super.getTableCellRendererComponent(
-                            table, value, isSelected, hasFocus, row, column);
+                table, value, isSelected, hasFocus, row, column);
     }
 
 }
+
 
 
 

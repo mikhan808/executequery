@@ -1,7 +1,7 @@
 /*
  * ActionContainer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,9 +25,7 @@ package org.executequery.gui;
  * a component panel completing a process may indicate for this
  * container to close.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface ActionContainer {
 
@@ -37,7 +35,7 @@ public interface ActionContainer {
      * @return true | false
      */
     public boolean isDialog();
-    
+
     /**
      * Indicates that a [long-running] process has begun.
      * This triggers the glass pane on and sets the cursor appropriately.
@@ -45,20 +43,16 @@ public interface ActionContainer {
     public void block();
 
     /**
-     * Indicates that a [long-running] process has ended. 
+     * Indicates that a [long-running] process has ended.
      * This triggers the glass pane off and sets the cursor appropriately.
      */
-    public void unblock();    
-    
+    public void unblock();
+
     /**
      * Indicates the process has completed.
      */
     public void finished();
 
 }
-
-
-
-
 
 

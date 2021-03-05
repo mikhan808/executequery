@@ -1,7 +1,7 @@
 /*
  * DriversPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,9 +20,27 @@
 
 package org.executequery.gui.drivers;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.executequery.GUIUtilities;
+import org.executequery.components.FileChooserDialog;
+import org.executequery.components.TextFieldPanel;
+import org.executequery.databasemediators.DatabaseDriver;
+import org.executequery.datasource.DatabaseDefinition;
+import org.executequery.gui.DefaultPanelButton;
+import org.executequery.gui.SimpleValueSelectionDialog;
+import org.executequery.gui.WidgetFactory;
+import org.executequery.gui.forms.AbstractFormObjectViewPanel;
+import org.executequery.localization.Bundles;
+import org.executequery.repository.DatabaseDefinitionCache;
+import org.executequery.repository.DatabaseDriverRepository;
+import org.executequery.repository.RepositoryCache;
+import org.executequery.repository.RepositoryException;
+import org.underworldlabs.swing.DynamicComboBoxModel;
+import org.underworldlabs.swing.FileSelector;
+import org.underworldlabs.swing.actions.ReflectiveAction;
+import org.underworldlabs.util.MiscUtils;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
@@ -33,45 +51,14 @@ import java.net.MalformedURLException;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
-
-import org.executequery.GUIUtilities;
-import org.executequery.components.FileChooserDialog;
-import org.executequery.components.TextFieldPanel;
-import org.executequery.databasemediators.DatabaseDriver;
-import org.executequery.datasource.DatabaseDefinition;
-import org.executequery.gui.DefaultPanelButton;
-import org.executequery.gui.SimpleValueSelectionDialog;
-import org.executequery.gui.WidgetFactory;
-import org.executequery.gui.forms.AbstractFormObjectViewPanel;
-import org.executequery.repository.DatabaseDefinitionCache;
-import org.executequery.repository.DatabaseDriverRepository;
-import org.executequery.repository.RepositoryCache;
-import org.executequery.repository.RepositoryException;
-import org.underworldlabs.swing.DynamicComboBoxModel;
-import org.underworldlabs.swing.FileSelector;
-import org.underworldlabs.swing.actions.ReflectiveAction;
-import org.underworldlabs.util.MiscUtils;
-
 /**
+ * @author Takis Diakoumis
  * @deprecated
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
  */
 public class DriversPanel extends AbstractFormObjectViewPanel
-                          implements ItemListener, DriverPanel {
+        implements ItemListener, DriverPanel {
 
-    public static final String TITLE = "Drivers";
+    public static final String TITLE = Bundles.getCommon("drivers");
 
     public static final String FRAME_ICON = "DatabaseDrivers16.png";
 
@@ -81,50 +68,56 @@ public class DriversPanel extends AbstractFormObjectViewPanel
     private JTextField classField;
 
     private DefaultListModel jarPathListModel;
-    
+
     private JComboBox driverUrlCombo;
     private JComboBox databaseNameCombo;
-    
+
     private DynamicComboBoxModel urlComboModel;
-    
-    /** the currently selected driver */
+
+    /**
+     * the currently selected driver
+     */
     private DatabaseDriver databaseDriver;
-    
-    /** the parent panel containing the selection tree */
+
+    /**
+     * the parent panel containing the selection tree
+     */
     private DriverViewPanel parent;
-    
-    /** Creates a new instance of DriversPanel */
+
+    /**
+     * Creates a new instance of DriversPanel
+     */
     public DriversPanel(DriverViewPanel parent) {
         super();
         this.parent = parent;
         init();
     }
-    
+
     private void init() {
-        
+
         ReflectiveAction action = new ReflectiveAction(this);
 
         JButton browseButton = new DefaultPanelButton(
-                                        action, "Add Library", "browseDrivers");
+                action, "Add Library", "browseDrivers");
         JButton findButton = new DefaultPanelButton(
-                                        action, "Find", "findDriverClass");
+                action, "Find", "findDriverClass");
         JButton removeButton = new DefaultPanelButton(
-                                        action, "Remove", "removeDrivers");
+                action, "Remove", "removeDrivers");
 
         jarPathListModel = new DefaultListModel();
-        
+
         nameField = WidgetFactory.createTextField();
         descField = WidgetFactory.createTextField();
         jarPathList = new JList(jarPathListModel);
         classField = WidgetFactory.createTextField();
-        
+
         nameField.addFocusListener(new DriverNameFieldListener(this));
-        
+
         // retrieve the db name list
         List<DatabaseDefinition> databases = DatabaseDefinitionCache.getDatabaseDefinitions();
         int count = databases.size() + 1;
 
-        Vector<DatabaseDefinition> _databases = new Vector<DatabaseDefinition>(count);        
+        Vector<DatabaseDefinition> _databases = new Vector<DatabaseDefinition>(count);
 
         // create a new list with a dummy value
         for (int i = 1; i < count; i++) {
@@ -146,7 +139,7 @@ public class DriversPanel extends AbstractFormObjectViewPanel
         JPanel base = new TextFieldPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy++;
-        gbc.insets = new Insets(10,10,5,0);
+        gbc.insets = new Insets(10, 10, 5, 0);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         base.add(new JLabel("Driver Name:"), gbc);
         gbc.gridy++;
@@ -158,7 +151,7 @@ public class DriversPanel extends AbstractFormObjectViewPanel
         base.add(new JLabel("JDBC URL:"), gbc);
         gbc.gridy++;
         base.add(new JLabel("Path:"), gbc);
-        gbc.gridy+=4;
+        gbc.gridy += 4;
         base.add(new JLabel("Class Name:"), gbc);
         gbc.gridy = 0;
         gbc.gridx = 1;
@@ -166,7 +159,7 @@ public class DriversPanel extends AbstractFormObjectViewPanel
         gbc.insets.top = 10;
         gbc.weightx = 1.0;
         gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.gridwidth = GridBagConstraints.REMAINDER;        
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
         base.add(nameField, gbc);
         gbc.gridy++;
         gbc.insets.top = 0;
@@ -189,8 +182,8 @@ public class DriversPanel extends AbstractFormObjectViewPanel
         base.add(browseButton, gbc);
         gbc.gridy++;
         base.add(removeButton, gbc);
-        
-        gbc.gridy+=3;
+
+        gbc.gridy += 3;
         gbc.gridx = 1;
         gbc.weightx = 1.0;
         gbc.insets.right = 0;
@@ -215,7 +208,7 @@ public class DriversPanel extends AbstractFormObjectViewPanel
             populateAndSave();
         }
     }
-    
+
     public void itemStateChanged(ItemEvent e) {
         // interested in selections only
         if (e.getStateChange() == ItemEvent.DESELECTED) {
@@ -232,19 +225,19 @@ public class DriversPanel extends AbstractFormObjectViewPanel
             urlComboModel.removeAllElements();
         }
     }
-    
+
     private DatabaseDefinition getSelectedDatabase() {
 
-        return (DatabaseDefinition)databaseNameCombo.getSelectedItem();
+        return (DatabaseDefinition) databaseNameCombo.getSelectedItem();
     }
-    
+
     public boolean saveDrivers() {
 
         try {
 
             ((DatabaseDriverRepository) RepositoryCache.load(
                     DatabaseDriverRepository.REPOSITORY_ID)).save();
-            
+
             return true;
 
         } catch (RepositoryException e) {
@@ -255,18 +248,18 @@ public class DriversPanel extends AbstractFormObjectViewPanel
         }
 
     }
-    
+
     private boolean populateAndSave() {
         populateDriverObject();
         return saveDrivers();
     }
-    
+
     // --------------------------------------------
     // DockedTabView implementation
     // --------------------------------------------
 
     private boolean panelSelected = true;
-    
+
     /**
      * Indicates the panel is being removed from the pane
      */
@@ -292,22 +285,22 @@ public class DriversPanel extends AbstractFormObjectViewPanel
     }
 
     // --------------------------------------------
-    
+
     private String jarPathsFormatted() {
-        
+
         StringBuilder sb = new StringBuilder();
         for (int i = 0, n = jarPathListModel.size(); i < n; i++) {
-            
+
             sb.append(jarPathListModel.get(i));
-            if (i < (n-1)) {
+            if (i < (n - 1)) {
                 sb.append(";");
             }
-            
+
         }
 
         return sb.toString();
     }
-    
+
     public void findDriverClass(ActionEvent e) {
 
         if (databaseDriver.isDefaultSunOdbc()) {
@@ -327,29 +320,29 @@ public class DriversPanel extends AbstractFormObjectViewPanel
         try {
             GUIUtilities.showWaitCursor();
             drivers = MiscUtils.findImplementingClasses(
-                                            "java.sql.Driver", jarPathsFormatted());
+                    "java.sql.Driver", jarPathsFormatted());
         } catch (MalformedURLException urlExc) {
             GUIUtilities.displayErrorMessage(
                     "A valid path to the JDBC library is required");
         } catch (IOException ioExc) {
             GUIUtilities.displayErrorMessage(
                     "An error occured accessing the specified file:\n" +
-                    ioExc.getMessage());
+                            ioExc.getMessage());
         } finally {
             GUIUtilities.showNormalCursor();
         }
 
         if (drivers == null || drivers.length == 0) {
             GUIUtilities.displayWarningMessage(
-                    "No valid classes implementing java.sql.Driver\n"+
-                    "were found in the specified resource");
+                    "No valid classes implementing java.sql.Driver\n" +
+                            "were found in the specified resource");
             return;
         }
 
         int result = -1;
         String value = null;
         while (true) {
-            SimpleValueSelectionDialog dialog = 
+            SimpleValueSelectionDialog dialog =
                     new SimpleValueSelectionDialog("Select JDBC Driver", drivers);
             result = dialog.showDialog();
 
@@ -373,7 +366,7 @@ public class DriversPanel extends AbstractFormObjectViewPanel
     }
 
     public void removeDrivers(ActionEvent e) {
-        
+
         int selectedIndex = jarPathList.getSelectedIndex();
 
         Object[] selections = jarPathList.getSelectedValues();
@@ -382,7 +375,7 @@ public class DriversPanel extends AbstractFormObjectViewPanel
                 jarPathListModel.removeElement(path);
             }
         }
-        
+
         int newSize = jarPathListModel.size();
         if (newSize > 0) {
             if (selectedIndex > newSize - 1) {
@@ -390,46 +383,46 @@ public class DriversPanel extends AbstractFormObjectViewPanel
             }
             jarPathList.setSelectedIndex(selectedIndex);
         }
-        
+
     }
-    
+
     public void browseDrivers(ActionEvent e) {
 
         if (databaseDriver.isDefaultSunOdbc()) {
 
             return;
         }
-        
+
         FileSelector jarFiles = new FileSelector(
-                new String[] {"jar"}, "Java Archive files");
+                new String[]{"jar"}, "Java Archive files");
 
         FileSelector zipFiles = new FileSelector(
-                new String[] {"zip"}, "ZIP Archive files");
-        
+                new String[]{"zip"}, "ZIP Archive files");
+
         FileChooserDialog fileChooser = new FileChooserDialog();
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.addChoosableFileFilter(zipFiles);
         fileChooser.addChoosableFileFilter(jarFiles);
-        
+
         fileChooser.setDialogTitle("Select JDBC Drivers...");
         fileChooser.setDialogType(JFileChooser.OPEN_DIALOG);
-        
+
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fileChooser.setMultiSelectionEnabled(true);
-        
+
         int result = fileChooser.showDialog(GUIUtilities.getInFocusDialogOrWindow(), "Select");
 
         if (result == JFileChooser.CANCEL_OPTION) {
 
             return;
         }
-        
+
         File[] files = fileChooser.getSelectedFiles();
         for (int i = 0; i < files.length; i++) {
 
             jarPathListModel.addElement(files[i].getAbsolutePath());
         }
-        
+
         databaseDriver.setPath(jarPathsFormatted());
     }
 
@@ -461,21 +454,21 @@ public class DriversPanel extends AbstractFormObjectViewPanel
         databaseDriver.setClassName(classField.getText());
         databaseDriver.setURL(driverUrlCombo.getEditor().getItem().toString());
         databaseDriver.setPath(jarPathsFormatted());
-        
+
         DatabaseDefinition database = getSelectedDatabase();
         if (database.getId() > 0) {
             databaseDriver.setDatabaseType(database.getId());
         }
-        
+
         checkNameUpdate();
-        
+
         if (databaseDriver.getId() == 0) {
             databaseDriver.setId(System.currentTimeMillis());
             // need to check exisitng conns with this driver's name
         }
 
     }
-    
+
     private void driverPathsToList(String driversPath) {
         if (!MiscUtils.isNull(driversPath)) {
             String[] paths = driversPath.split(";");
@@ -484,7 +477,7 @@ public class DriversPanel extends AbstractFormObjectViewPanel
             }
         }
     }
-    
+
     public void setDriver(DatabaseDriver databaseDriver) {
 
         // store the field values of the current selection
@@ -492,13 +485,13 @@ public class DriversPanel extends AbstractFormObjectViewPanel
 
             populateDriverObject();
         }
-        
+
         try {
 
             databaseNameCombo.removeItemListener(this);
 
             this.databaseDriver = databaseDriver;
-            
+
             nameField.setText(databaseDriver.getName());
             descField.setText(formatDriverDescription(databaseDriver));
             classField.setText(databaseDriver.getClassName());
@@ -508,8 +501,8 @@ public class DriversPanel extends AbstractFormObjectViewPanel
 
             int databaseId = databaseDriver.getType();
             DatabaseDefinition database = DatabaseDefinitionCache.
-                                                getDatabaseDefinition(databaseId);
-            
+                    getDatabaseDefinition(databaseId);
+
             if (database != null && database.isValid()) {
 
                 resetUrlCombo(database);
@@ -526,17 +519,17 @@ public class DriversPanel extends AbstractFormObjectViewPanel
 
                 urlComboModel.insertElementAt(url, 0);
             }
-            
+
             if (urlComboModel.getSize() > 0) {
 
-                driverUrlCombo.setSelectedIndex(0);                
+                driverUrlCombo.setSelectedIndex(0);
             }
 
             nameField.requestFocusInWindow();
             nameField.selectAll();
 
         } finally {
-          
+
             databaseNameCombo.addItemListener(this);
         }
 
@@ -544,11 +537,11 @@ public class DriversPanel extends AbstractFormObjectViewPanel
 
     private String formatDriverDescription(DatabaseDriver databaseDriver) {
         return databaseDriver.getDescription().equals("Not Available") ?
-                                "" : databaseDriver.getDescription();
+                "" : databaseDriver.getDescription();
     }
 
     private void resetUrlCombo(DatabaseDefinition database) {
-        
+
         String firstElement = null;
         if (urlComboModel.getElementAt(0) != null) {
             firstElement = urlComboModel.getElementAt(0).toString();
@@ -564,30 +557,40 @@ public class DriversPanel extends AbstractFormObjectViewPanel
             urlComboModel.addElement(database.getUrl(i));
         }
     }
-    
+
     public DatabaseDriver getDriver() {
         return databaseDriver;
     }
- 
-    /** Performs some cleanup and releases resources before being closed. */
+
+    /**
+     * Performs some cleanup and releases resources before being closed.
+     */
     public void cleanup() {
-        
+
     }
-    
-    /** Refreshes the data and clears the cache */
-    public void refresh() {}
-    
-    /** Returns the print object - if any */
+
+    /**
+     * Refreshes the data and clears the cache
+     */
+    public void refresh() {
+    }
+
+    /**
+     * Returns the print object - if any
+     */
     public Printable getPrintable() {
         return null;
     }
-    
-    /** Returns the name of this panel */
+
+    /**
+     * Returns the name of this panel
+     */
     public String getLayoutName() {
         return TITLE;
     }
-    
+
 }
+
 
 
 

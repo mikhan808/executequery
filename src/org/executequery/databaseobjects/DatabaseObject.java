@@ -1,7 +1,7 @@
 /*
  * DatabaseObject.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,19 +20,20 @@
 
 package org.executequery.databaseobjects;
 
+import org.underworldlabs.jdbc.DataSourceException;
+
 import java.sql.ResultSet;
 import java.util.List;
-import org.underworldlabs.jdbc.DataSourceException;
 
 /**
  * Defines a real database object - ie. a table, procedure,
  * function, index, etc.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DatabaseObject extends NamedObject {
+
+    void setHost(DatabaseHost host);
 
     /**
      * Returns the parent host object.
@@ -88,7 +89,7 @@ public interface DatabaseObject extends NamedObject {
      *
      * @return the privileges
      */
-    List<TablePrivilege> getPrivileges()  throws DataSourceException;
+    List<TablePrivilege> getPrivileges() throws DataSourceException;
 
     /**
      * Returns any remarks attached to this object.
@@ -127,13 +128,18 @@ public interface DatabaseObject extends NamedObject {
 
     ResultSet getData(boolean rollbackOnError) throws DataSourceException;
 
+    void releaseResources();
+
     boolean hasSQLDefinition();
-    
+
     ResultSet getMetaData() throws DataSourceException;
-    
+
     String getCreateSQLText() throws DataSourceException;
-    
+
+    String getSource();
+
 }
+
 
 
 

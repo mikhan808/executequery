@@ -1,7 +1,7 @@
 /*
  * DatabaseDriver.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,7 +25,7 @@ import java.io.Serializable;
 public interface DatabaseDriver extends Serializable {
 
     long SUN_ODBC_ID = 9999999999999l;
-    
+
     String SUN_ODBC_DRIVER = "sun.jdbc.odbc.JdbcOdbcDriver";
 
     String getName();
@@ -63,6 +63,7 @@ public interface DatabaseDriver extends Serializable {
     boolean isDatabaseTypeValid();
 
 }
+
 
 
 

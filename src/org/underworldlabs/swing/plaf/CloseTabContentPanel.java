@@ -1,7 +1,7 @@
 /*
  * CloseTabContentPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,52 +20,56 @@
 
 package org.underworldlabs.swing.plaf;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.border.Border;
+import java.awt.*;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CloseTabContentPanel extends JPanel {
-    
-    /** the highlight border width */
+
+    /**
+     * the highlight border width
+     */
     private static final int BORDER_WIDTH = 4;
-    
-    /** The added tab panel border */
+
+    /**
+     * The added tab panel border
+     */
     private static Border border;
 
-    /** the active color for the tab border */
+    /**
+     * the active color for the tab border
+     */
     private static Color activeColor;
-    
-    /** the displayed component */
+
+    /**
+     * the displayed component
+     */
     private Component component;
-    
-    /** the associated menu item */
+
+    /**
+     * the associated menu item
+     */
     private TabMenuItem tabMenuItem;
-    
+
     public CloseTabContentPanel(int tabPlacement, Component component) {
         this(tabPlacement, component, BORDER_WIDTH);
     }
-    
-    /** Creates a new instance of CloseTabContentPanel */
+
+    /**
+     * Creates a new instance of CloseTabContentPanel
+     */
     public CloseTabContentPanel(int tabPlacement, Component component, int borderWidth) {
         super(new BorderLayout());
-        
+
         this.component = component;
-        
+
         if (activeColor == null) {
             activeColor = UIManager.getColor("InternalFrame.activeTitleBackground");
         }
-        
+
         if (border == null) {
             switch (tabPlacement) {
                 case JTabbedPane.TOP:
@@ -85,7 +89,7 @@ public class CloseTabContentPanel extends JPanel {
     public Component getDisplayComponent() {
         return component;
     }
-    
+
     public TabMenuItem getTabMenuItem() {
         return tabMenuItem;
     }
@@ -95,6 +99,7 @@ public class CloseTabContentPanel extends JPanel {
     }
 
 }
+
 
 
 

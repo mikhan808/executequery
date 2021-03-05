@@ -1,7 +1,7 @@
 /*
  * StringCellEditor.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,25 +20,24 @@
 
 package org.underworldlabs.swing.table;
 
-import javax.swing.JTextField;
 import org.underworldlabs.Constants;
+
+import javax.swing.*;
 
 /**
  * Simple string value table column cell editor.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1545 $
- * @date     $Date: 2015-12-22 10:22:44 +1100 (Tue, 22 Dec 2015) $
+ * @author Takis Diakoumis
  */
 public class StringCellEditor extends JTextField
-                              implements TableCellEditorValue {
-    
+        implements TableCellEditorValue {
+
     public StringCellEditor() {
         super();
         setBorder(null);
         setHorizontalAlignment(JTextField.LEFT);
     }
-    
+
     /**
      * Returns the current editor value from the component
      * defining this object.
@@ -55,14 +54,14 @@ public class StringCellEditor extends JTextField
     public void resetValue() {
         setText(Constants.EMPTY);
     }
-    
+
     /**
      * Returns the current editor value string.
      */
     public String getValue() {
         return getText();
     }
-    
+
     /**
      * Sets the editor's value to that specified.
      *
@@ -71,5 +70,6 @@ public class StringCellEditor extends JTextField
     public void setValue(String value) {
         setText(value);
     }
-    
+
 }
+

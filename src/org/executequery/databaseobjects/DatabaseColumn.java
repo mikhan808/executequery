@@ -1,7 +1,7 @@
 /*
  * DatabaseColumn.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,41 +20,39 @@
 
 package org.executequery.databaseobjects;
 
-import java.util.List;
-
 import org.executequery.databaseobjects.impl.ColumnConstraint;
 
+import java.util.List;
+
 /**
- * Defines a database column. This may be a column as defined by 
+ * Defines a database column. This may be a column as defined by
  * the meta data and not limited to table columns.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DatabaseColumn extends DatabaseObjectElement {
-    
+
     /**
      * Returns the name of the parent object.
      *
      * @return the parent object's name
      */
     String getParentsName();
-    
+
     /**
      * Returns the data type name of this database column.
      *
      * @return the data type name
      */
     String getTypeName();
-    
+
     /**
      * The type identfier int from java.sql.Type.
      *
      * @return the type int
      */
     int getTypeInt();
-    
+
     /**
      * Returns the size of this database column.
      *
@@ -70,13 +68,20 @@ public interface DatabaseColumn extends DatabaseObjectElement {
     int getColumnScale();
 
     /**
-     * Indicates whether this database column is required 
+     * Returns the subtype of this database column.
+     *
+     * @return the subtype
+     */
+    int getColumnSubtype();
+
+    /**
+     * Indicates whether this database column is required
      * (may the value be null).
      *
      * @return true | false
      */
     boolean isRequired();
-    
+
     /**
      * Indicates whether this column is a primary key column.
      *
@@ -90,21 +95,21 @@ public interface DatabaseColumn extends DatabaseObjectElement {
      * @return true | false
      */
     boolean isForeignKey();
-    
+
     /**
      * Indicates whether this column is unique.
      *
      * @return true | false
      */
     boolean isUnique();
-    
+
     /**
      * Indicates whether this column has any constraints.
-     * 
+     *
      * @return true | false
      */
     boolean hasConstraints();
-    
+
     /**
      * Returns the default value of this column.
      *
@@ -116,6 +121,12 @@ public interface DatabaseColumn extends DatabaseObjectElement {
 
     String getComputedSource();
 
+    String getDomain();
+
+    void setDomain(String domain);
+
+    void setComputedSource(String source);
+
     /**
      * Returns a formatted string representation of the
      * column's data type and size - eg. VARCHAR(10).
@@ -125,6 +136,15 @@ public interface DatabaseColumn extends DatabaseObjectElement {
     String getFormattedDataType();
 
     List<ColumnConstraint> getConstraints();
-    
+
+    void setColumnDescription(String description);
+
+    String getColumnDescription();
+
+    boolean isIdentity();
+
+    void setIdentity(boolean flag);
+
 }
+
 

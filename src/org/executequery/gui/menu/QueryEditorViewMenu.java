@@ -1,7 +1,7 @@
 /*
  * QueryEditorViewMenu.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,73 +20,70 @@
 
 package org.executequery.gui.menu;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.JCheckBoxMenuItem;
-
 import org.executequery.EventMediator;
 import org.executequery.actions.viewcommands.QueryEditorViewOptionsCommand;
 import org.executequery.event.UserPreferenceEvent;
 import org.executequery.event.UserPreferenceListener;
 
-/** 
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author Takis Diakoumis
  */
-public class QueryEditorViewMenu extends AbstractOptionsMenu 
-                                 implements UserPreferenceListener {
+public class QueryEditorViewMenu extends AbstractOptionsMenu
+        implements UserPreferenceListener {
 
     private QueryEditorViewOptionsCommand menuItemListener;
-    
+
     public QueryEditorViewMenu() {
-        
+
         menuItemListener = new QueryEditorViewOptionsCommand();
-        
+
         createCommandToPropertiesMap();
-        
+
         EventMediator.registerListener(this);
     }
-    
+
     protected void addActionForMenuItem(JCheckBoxMenuItem menuItem) {
-        
+
         menuItem.addActionListener(menuItemListener);
     }
-    
+
     protected void setMenuItemValue(JCheckBoxMenuItem menuItem) {
 
         String actionCommand = menuItem.getActionCommand();
-        
-        if (actionCommand != null && 
+
+        if (actionCommand != null &&
                 actionCommandsToPropertiesMap.containsKey(actionCommand)) {
-            
+
             menuItem.setSelected(booleanValueForKey(
                     actionCommandsToPropertiesMap.get(actionCommand)));
-            
+
         }
 
     }
 
     protected boolean listeningForEvent(UserPreferenceEvent event) {
-    
+
         return (event.getEventType() == UserPreferenceEvent.QUERY_EDITOR
-                    ||event.getEventType() == UserPreferenceEvent.ALL);
+                || event.getEventType() == UserPreferenceEvent.ALL);
     }
 
-    private Map<String, String> actionCommandsToPropertiesMap; 
-    
+    private Map<String, String> actionCommandsToPropertiesMap;
+
     private void createCommandToPropertiesMap() {
-        
+
         actionCommandsToPropertiesMap = new HashMap<String, String>();
 
         actionCommandsToPropertiesMap.put("viewEditorStatusBar", "editor.display.statusbar");
         actionCommandsToPropertiesMap.put("viewEditorLineNumbers", "editor.display.linenums");
 
     }
-    
+
 }
+
 
 
 

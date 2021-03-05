@@ -1,7 +1,7 @@
 /*
  * DockedTabView.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,15 +22,13 @@ package org.executequery.base;
 
 /**
  * Defines a docked tab view (non-central panel).
- * This provides methods to retrieve menu and preference 
+ * This provides methods to retrieve menu and preference
  * key names for saving application state.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DockedTabView extends TabView {
-    
+
     /**
      * Returns the name defining the property name for this docked tab view.
      *
@@ -59,8 +57,9 @@ public interface DockedTabView extends TabView {
      * @return the title displayed for this view
      */
     public String getTitle();
-    
+
 }
+
 
 
 

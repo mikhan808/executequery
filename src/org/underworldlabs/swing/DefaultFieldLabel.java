@@ -1,7 +1,7 @@
 /*
  * DefaultFieldLabel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,42 +20,40 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Insets;
-
-import javax.swing.Icon;
-import javax.swing.JLabel;
-
 import org.executequery.gui.GUIConstants;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class DefaultFieldLabel extends JLabel {
 
     public DefaultFieldLabel() {
-        
+
         super();
     }
 
     public DefaultFieldLabel(Icon image, int horizontalAlignment) {
-        
+
         super(image, horizontalAlignment);
     }
 
     public DefaultFieldLabel(Icon image) {
-        
+
         super(image);
     }
 
     public DefaultFieldLabel(String text, Icon icon, int horizontalAlignment) {
-        
+
         super(text, icon, horizontalAlignment);
     }
 
     public DefaultFieldLabel(String text, int horizontalAlignment) {
-       
+
         super(text, horizontalAlignment);
     }
 
     public DefaultFieldLabel(String text) {
-        
+
         super(text);
     }
 
@@ -63,10 +61,11 @@ public class DefaultFieldLabel extends JLabel {
 
         return GUIConstants.DEFAULT_FIELD_MARGIN;
     }
-    
+
     public int getHeight() {
 
         return Math.max(super.getHeight(), GUIConstants.DEFAULT_FIELD_HEIGHT);
     }
-    
+
 }
+

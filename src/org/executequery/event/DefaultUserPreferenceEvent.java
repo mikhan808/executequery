@@ -1,7 +1,7 @@
 /*
  * DefaultUserPreferenceEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,17 @@
 
 package org.executequery.event;
 
-public class DefaultUserPreferenceEvent extends AbstractApplicationEvent 
-                                        implements UserPreferenceEvent {
+public class DefaultUserPreferenceEvent extends AbstractApplicationEvent
+        implements UserPreferenceEvent {
 
     private final int eventType;
 
     private final String key;
 
     public DefaultUserPreferenceEvent(Object source, String key, int eventType) {
-        
+
         super(source, PREFERENCES_CHANGED);
-        
+
         this.key = key;
         this.eventType = eventType;
     }
@@ -44,8 +44,9 @@ public class DefaultUserPreferenceEvent extends AbstractApplicationEvent
 
         return key;
     }
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * SystemOutputPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,34 +20,33 @@
 
 package org.executequery.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Font;
-
-import javax.swing.BorderFactory;
-import javax.swing.Icon;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.text.JTextComponent;
-
 import org.apache.log4j.Appender;
 import org.apache.log4j.PatternLayout;
 import org.executequery.GUIUtilities;
 import org.executequery.components.BasicPopupMenuListener;
 import org.executequery.components.TextAreaLogAppender;
+import org.executequery.localization.Bundles;
 import org.executequery.log.Log;
+import org.underworldlabs.util.MiscUtils;
+import org.underworldlabs.util.SystemProperties;
+
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1496 $
- * @date     $Date: 2015-09-17 17:09:08 +1000 (Thu, 17 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class SystemOutputPanel extends AbstractDockedTabPanel implements ReadOnlyTextPane {
 
-    /** This panel's title */
-    public static final String TITLE = "Output Console";
+    /**
+     * This panel's title
+     */
+    public static final String TITLE = Bundles.get(SystemOutputPanel.class, "title");
 
-    /** the output text area */
+    /**
+     * the output text area
+     */
     private JTextArea textArea;
 
     public SystemOutputPanel() {
@@ -58,7 +57,7 @@ public class SystemOutputPanel extends AbstractDockedTabPanel implements ReadOnl
 
             init();
 
-        } catch(Exception e) {
+        } catch (Exception e) {
 
             e.printStackTrace();
         }
@@ -82,6 +81,7 @@ public class SystemOutputPanel extends AbstractDockedTabPanel implements ReadOnl
         scroller.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
 
         add(scroller, BorderLayout.CENTER);
+        reloadFont();
     }
 
     public Icon getIcon() {
@@ -155,11 +155,27 @@ public class SystemOutputPanel extends AbstractDockedTabPanel implements ReadOnl
     }
 
     public JTextComponent getTextComponent() {
-        
+
         return textArea;
     }
-    
+
+    public void setTextFont(Font font) {
+        textArea.setFont(font);
+    }
+
+    public void reloadFont() {
+        String nameFont = SystemProperties.getProperty("user", "console.font.name");
+        if (!MiscUtils.isNull(nameFont)) {
+            setTextFont(new Font(nameFont, Font.PLAIN, Integer.parseInt(SystemProperties.getProperty("user", "console.font.size"))));
+        } else {
+            Font consoleFont = UIManager.getDefaults().getFont("TextArea.font");
+            SystemProperties.setProperty("user", "console.font.name", consoleFont.getFontName());
+            reloadFont();
+        }
+    }
+
 }
+
 
 
 

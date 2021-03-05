@@ -1,7 +1,7 @@
 /*
  * ReflectiveAction.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,31 +20,30 @@
 
 package org.underworldlabs.swing.actions;
 
+import org.executequery.localization.Bundles;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.lang.reflect.Method;
 
-import javax.swing.AbstractAction;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ReflectiveAction extends AbstractAction {
-    
+
     private Object target;
 
-    public ReflectiveAction() {}
+    public ReflectiveAction() {
+    }
 
     public ReflectiveAction(Object target) {
         this.target = target;
     }
-    
+
     public final void actionPerformed(ActionEvent event) {
 
         preActionPerformed(event);
-        
+
         String command = event.getActionCommand();
 
         try {
@@ -73,11 +72,11 @@ public class ReflectiveAction extends AbstractAction {
             method.invoke(target, args);
 
         } catch (Exception e) {
-            
+
             throw new RuntimeException(e);
 
         }
-        
+
         postActionPerformed(event);
     }
 
@@ -87,26 +86,29 @@ public class ReflectiveAction extends AbstractAction {
     }
 
     public final void setTarget(Object target) {
-        
+
         this.target = target;
     }
 
     protected void postActionPerformed(ActionEvent e) {
-        
+
         // default do nothing
     }
 
     protected void preActionPerformed(ActionEvent e) {
-        
+
         // default do nothing
     }
 
+    protected String bundledString(String key) {
+
+        return Bundles.get(getClass(), key);
+    }
+
+    protected String bundledString(String key, Object... args) {
+
+        return Bundles.get(getClass(), key, args);
+    }
+
 }
-
-
-
-
-
-
-
 

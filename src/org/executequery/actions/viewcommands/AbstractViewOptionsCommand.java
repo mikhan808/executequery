@@ -1,7 +1,7 @@
 /*
  * AbstractViewOptionsCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,25 +20,25 @@
 
 package org.executequery.actions.viewcommands;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JCheckBoxMenuItem;
-
 import org.underworldlabs.swing.actions.ReflectiveAction;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 abstract class AbstractViewOptionsCommand extends ReflectiveAction {
 
     protected final boolean selectionFromEvent(ActionEvent e) {
-        
+
         return checkBoxMenuItemFromEvent(e).isSelected();
     }
 
     protected final JCheckBoxMenuItem checkBoxMenuItemFromEvent(ActionEvent e) {
 
-        return (JCheckBoxMenuItem)e.getSource();
+        return (JCheckBoxMenuItem) e.getSource();
     }
-    
+
 }
+
 
 
 

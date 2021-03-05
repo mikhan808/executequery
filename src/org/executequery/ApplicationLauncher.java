@@ -1,7 +1,7 @@
 /*
  * ApplicationLauncher.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,63 +20,50 @@
 
 package org.executequery;
 
-import java.awt.Color;
-import java.awt.KeyboardFocusManager;
-import java.awt.Toolkit;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.Properties;
-
-import javax.swing.JComponent;
-import javax.swing.JMenuBar;
-
 import org.apache.commons.lang.StringUtils;
 import org.executequery.databasemediators.ConnectionMediator;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.gui.ExecuteQueryFrame;
+import org.executequery.gui.editor.QueryEditorHistory;
 import org.executequery.gui.menu.ExecuteQueryMenu;
 import org.executequery.log.Log;
 import org.executequery.plaf.LookAndFeelType;
 import org.executequery.repository.DatabaseConnectionRepository;
 import org.executequery.repository.RepositoryCache;
-import org.executequery.util.ApplicationProperties;
-import org.executequery.util.HttpProxyConfigurator;
-import org.executequery.util.LookAndFeelLoader;
-import org.executequery.util.SystemResources;
-import org.executequery.util.ThreadUtils;
-import org.executequery.util.UserProperties;
+import org.executequery.util.*;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.swing.CustomKeyboardFocusManager;
 import org.underworldlabs.swing.PasswordDialog;
 import org.underworldlabs.swing.SplashPanel;
 import org.underworldlabs.swing.actions.ActionBuilder;
 import org.underworldlabs.swing.plaf.UIUtils;
+import org.underworldlabs.util.FileUtils;
 import org.underworldlabs.util.MiscUtils;
 import org.underworldlabs.util.SystemProperties;
 
+import javax.swing.*;
+import java.awt.*;
+import java.lang.reflect.Field;
+import java.util.List;
+import java.util.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ApplicationLauncher {
 
     // agent.jar
     // http://blog.dutchworks.nl/2011/01/09/make-intellij-idea-behave-properly-in-linux-docks/
     // asm license: http://asm.ow2.org/license.html
-    
-    public void startup() {
 
+    public void startup() {
+        SplashPanel splash = null;
         try {
 
             applySystemProperties();
             macSettings();
             x11Settings();
-            
+
             boolean dirsCreated = SystemResources.createUserHomeDirSettings();
             aaFonts();
 
@@ -88,7 +75,7 @@ public class ApplicationLauncher {
             System.setProperty("executequery.minor.version",
                     stringApplicationProperty("re.version"));
 
-            SplashPanel splash = null;
+
 
             if (displaySplash()) {
 
@@ -143,12 +130,10 @@ public class ApplicationLauncher {
 
             GUIUtilities.startLogger();
 
-            GUIUtilities.startJdbcLogger();
-
             advanceSplash(splash);
 
             // initialise the frame
-            final ExecuteQueryFrame frame =  createFrame();
+            final ExecuteQueryFrame frame = createFrame();
 
             GUIUtilities.initDesktop(frame);
 
@@ -168,7 +153,7 @@ public class ApplicationLauncher {
             advanceSplash(splash);
 
             boolean openConnection =
-                booleanUserProperty("startup.connection.connect");
+                    booleanUserProperty("startup.connection.connect");
 
             advanceSplash(splash);
 
@@ -195,46 +180,56 @@ public class ApplicationLauncher {
 
             ThreadUtils.invokeLater(new Runnable() {
 
+                @Override
                 public void run() {
 
                     frame.setVisible(true);
                 }
 
             });
+            try {
+                printSystemProperties();
 
-            printSystemProperties();
+                frame.setTitle("RedXpert - " + System.getProperty("executequery.minor.version"));
 
-            // auto-login if selected
-            if (openConnection) {
+                // auto-login if selected
+                if (openConnection) {
 
-                openStartupConnection();
+                    openStartupConnection();
+                }
+                QueryEditorHistory.restoreTabs(null);
+
+
+                doCheckForUpdate();
+                GUIUtilities.loadAuthorisationInfo();
+            } catch (Exception e) {
+                e.printStackTrace();
             }
 
-            doCheckForUpdate();
-
-        } catch(Exception e) {
-
+        } catch (Exception e) {
+            GUIUtilities.displayExceptionErrorDialog("Application launch error", e);
             e.printStackTrace();
+            System.exit(1);
         }
 
     }
 
     private void printSystemProperties() {
         if (Log.isTraceEnabled()) {
-            
+
             Log.trace(" --- System properties --- ");
 
-            List<String> keys = new ArrayList<String>();
+            List<String> keys = new ArrayList<>();
             Properties properties = System.getProperties();
-            for (Enumeration<Object> i = properties.keys(); i.hasMoreElements();) {
-                
-                keys.add((String) i.nextElement());                    
+            for (Enumeration<Object> i = properties.keys(); i.hasMoreElements(); ) {
+
+                keys.add((String) i.nextElement());
             }
-            
+
             Collections.sort(keys);
             for (String key : keys) {
 
-                Log.trace(key + ": " + properties.getProperty(key));                    
+                Log.trace(key + ": " + properties.getProperty(key));
             }
         }
     }
@@ -247,12 +242,16 @@ public class ApplicationLauncher {
     private boolean hasLocaleSettings() {
 
         String language = userProperties().getStringProperty("locale.language");
-        String country = userProperties().getStringProperty("locale.country");
-        String timezone = userProperties().getStringProperty("locale.timezone");
+//        String country = userProperties().getStringProperty("locale.country");
+//        String timezone = userProperties().getStringProperty("locale.timezone");
 
+        /*
         return !(MiscUtils.isNull(language))
                 && !(MiscUtils.isNull(country))
                 && !(MiscUtils.isNull(timezone));
+        */
+
+        return StringUtils.isNotBlank(language);
     }
 
     private void loadLookAndFeel(LookAndFeelLoader loader) {
@@ -297,14 +296,14 @@ public class ApplicationLauncher {
 
         String encoding = stringApplicationProperty("system.file.encoding");
         if (StringUtils.isNotBlank(encoding)) {
-            
+
             System.setProperty("file.encoding", encoding);
         }
 
-        String settingDirName = stringApplicationProperty("eq.user.home.dir");
+        String settingDirName = stringPropertyFromConfig("eq.user.home.dir");
+        settingDirName = settingDirName.replace("$HOME",System.getProperty("user.home"));
         System.setProperty("executequery.user.home.dir", settingDirName);
         ApplicationContext.getInstance().setUserSettingsDirectoryName(settingDirName);
-
         String build = stringApplicationProperty("eq.build");
         System.setProperty("executequery.build", build);
         ApplicationContext.getInstance().setBuild(build);
@@ -331,7 +330,8 @@ public class ApplicationLauncher {
             KeyboardFocusManager.setCurrentKeyboardFocusManager(
                     new CustomKeyboardFocusManager());
 
-        } catch (SecurityException e) {}
+        } catch (SecurityException e) {
+        }
     }
 
     private void storeSystemLocaleProperties() {
@@ -350,13 +350,16 @@ public class ApplicationLauncher {
         System.setProperty("user.country", stringUserProperty("locale.country"));
         System.setProperty("user.language", stringUserProperty("locale.language"));
         System.setProperty("user.timezone", stringUserProperty("locale.timezone"));
+
+        Locale.setDefault(new Locale(stringUserProperty("locale.language")));
+
     }
 
     private void printVersionInfo() {
 
         Log.info("Using Java version " +
                 System.getProperty("java.version"));
-        Log.info("Red Expert version: " +
+        Log.info("RedXpert version: " +
                 System.getProperty("executequery.minor.version") +
                 "-" + System.getProperty("executequery.build"));
         Log.info("Operating System: " +
@@ -378,11 +381,11 @@ public class ApplicationLauncher {
     private SplashPanel createSplashPanel() {
 
         return new SplashPanel(
-                        progressBarColour(),
-                        "/org/executequery/images/SplashImage.png",
-                        versionString(),
-                        versionTextColour(),
-                        210, 220);
+                progressBarColour(),
+                "/org/executequery/images/SplashImage.png",
+                versionString(),
+                versionTextColour(),
+                210, 220);
 //        5, 15); // top-left
     }
 
@@ -395,15 +398,13 @@ public class ApplicationLauncher {
 
         String minorVersion = System.getProperty("executequery.minor.version");
         if (minorVersion.endsWith(".0")) {
-            
+
             minorVersion = minorVersion.substring(0, minorVersion.length() - 2);
         }
         return "version " + minorVersion;
     }
 
     private Color progressBarColour() {
-
-//        return new Color(120, 120, 180);
         return new Color(255, 255, 255);
     }
 
@@ -456,6 +457,7 @@ public class ApplicationLauncher {
 
             ThreadUtils.invokeLater(new Runnable() {
 
+                @Override
                 public void run() {
 
                     openConnection(databaseConnectionRepository().findByName(name));
@@ -467,8 +469,8 @@ public class ApplicationLauncher {
 
     private DatabaseConnectionRepository databaseConnectionRepository() {
 
-        return (DatabaseConnectionRepository)RepositoryCache.load(
-                    DatabaseConnectionRepository.REPOSITORY_ID);
+        return (DatabaseConnectionRepository) RepositoryCache.load(
+                DatabaseConnectionRepository.REPOSITORY_ID);
     }
 
     private void openConnection(DatabaseConnection dc) {
@@ -488,7 +490,6 @@ public class ApplicationLauncher {
             String pwd = pd.getValue();
 
             pd.dispose();
-            pd = null;
 
             if (result <= PasswordDialog.CANCEL) {
 
@@ -514,18 +515,18 @@ public class ApplicationLauncher {
     }
 
     private void x11Settings() {
-        
+
         Toolkit toolkit = Toolkit.getDefaultToolkit();
         Class<?> xtoolkit = toolkit.getClass();
         if (xtoolkit.getName().equals("sun.awt.X11.XToolkit")) {
 
             try {
-            
+
                 Field awtAppClassName = xtoolkit.getDeclaredField("awtAppClassName");
                 awtAppClassName.setAccessible(true);
                 awtAppClassName.set(null, ExecuteQueryFrame.TITLE);
-            
-            } catch (Exception e) {
+
+            } catch (IllegalAccessException | IllegalArgumentException | NoSuchFieldException | SecurityException e) {
 
                 e.printStackTrace();
             }
@@ -543,21 +544,33 @@ public class ApplicationLauncher {
         */
 
     }
-    
+
     private void macSettings() {
 
         if (UIUtils.isMac()) {
-            
+
             // could also use: -Xdock:name="Execute Query"
-            
+
             System.setProperty("apple.laf.useScreenMenuBar", "true");
             System.setProperty("com.apple.mrj.application.apple.menu.about.name", ExecuteQueryFrame.TITLE);
         }
 
     }
+    private String stringPropertyFromConfig(String key)
+    {
+        Properties props = null;
+        try {
+            props = FileUtils.loadProperties(MiscUtils.loadURLs("./config/redexpert_config.ini;../config/redexpert_config.ini"));
+            return props.getProperty(key);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "";
+        }
 
-    
+    }
+
+
+
 }
-
 
 

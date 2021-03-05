@@ -1,7 +1,7 @@
 /*
  * ImportExportDataModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,18 +20,15 @@
 
 package org.executequery.gui.importexport;
 
-import java.util.List;
-
 import org.executequery.databaseobjects.DatabaseColumn;
 import org.executequery.databaseobjects.DatabaseHost;
 import org.executequery.databaseobjects.DatabaseSource;
 import org.executequery.databaseobjects.DatabaseTable;
 
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface ImportExportDataModel {
 
@@ -62,7 +59,7 @@ public interface ImportExportDataModel {
     String getSingleFileExport();
 
     boolean isMultipleTableImportExport();
-    
+
     boolean isHostSelectionChanged();
 
     boolean isImportExportTypeChanged();
@@ -74,8 +71,9 @@ public interface ImportExportDataModel {
     ImportExportFile getImportExportFileForTable(DatabaseTable databaseTable);
 
     OnErrorOption getOnErrorOption();
-    
+
 }
+
 
 
 

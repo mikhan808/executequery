@@ -1,7 +1,7 @@
 /*
  * ApplicationConstants.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,33 +20,34 @@
 
 package org.executequery.base;
 
-import java.awt.Insets;
+import java.awt.*;
 
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ApplicationConstants {
-   
-    /** empty insets - 0, 0, 0, 0 */
-    public static final Insets EMPTY_INSETS = new Insets(0,0,0,0);
+
+    /**
+     * empty insets - 0, 0, 0, 0
+     */
+    public static final Insets EMPTY_INSETS = new Insets(0, 0, 0, 0);
 
     public static final int SPLIT_PANE_DIVIDER_SIZE = 3;
-    
+
     public static final int TAB_COMPONENT_BORDER_THICKNESS = 2;
-    
-    private ApplicationConstants() {}
-    
+
+    private ApplicationConstants() {
+    }
+
 }
+
 
 
 

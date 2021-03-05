@@ -1,7 +1,7 @@
 /*
  * AbstractNamedObject.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,38 +20,47 @@
 
 package org.executequery.databaseobjects.impl;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Statement;
+import org.apache.commons.lang.StringUtils;
+import org.executequery.databaseobjects.NamedObject;
+import org.executequery.datasource.PooledConnection;
+import org.executequery.log.Log;
+import org.underworldlabs.jdbc.DataSourceException;
+
+import java.sql.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.StringUtils;
-import org.executequery.databaseobjects.NamedObject;
-import org.executequery.log.Log;
-import org.underworldlabs.jdbc.DataSourceException;
-
 /**
  * Abstract named database object implementation.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class AbstractNamedObject implements NamedObject,
-                                                     Cloneable {
-    
-    /** indicates whether this object has been marked for a reload */
+        Cloneable {
+
+    /**
+     * indicates whether this object has been marked for a reload
+     */
     private boolean markedForReload;
 
-    /** the name of this database object */
+    /**
+     * the name of this database object
+     */
     private String name;
-    
-    /** the parent object */
+
+    /**
+     * the parent object
+     */
     private NamedObject parent;
+
+    private boolean keepAlive;
+
+    private boolean isSystem;
+
+    public AbstractNamedObject() {
+        keepAlive = true;
+    }
 
     /**
      * Returns the parent named object of this object.
@@ -61,18 +70,18 @@ public abstract class AbstractNamedObject implements NamedObject,
     public NamedObject getParent() {
         return parent;
     }
-    
+
     /**
      * Sets the parent object to that specified.
      *
-     * @param the parent named object
+     * @param parent named object
      */
     public void setParent(NamedObject parent) {
         this.parent = parent;
     }
 
     /**
-     * Returns whether this object has been marked for a reload on the 
+     * Returns whether this object has been marked for a reload on the
      * next call to its meta data specific methods.
      *
      * @return true | false
@@ -92,7 +101,7 @@ public abstract class AbstractNamedObject implements NamedObject,
 
     /**
      * Marks this object as being 'reset', where for any loaded objectnode.
-     * these are cleared and a fresh database call would be made where 
+     * these are cleared and a fresh database call would be made where
      * appropriate.
      */
     public void reset() {
@@ -104,13 +113,29 @@ public abstract class AbstractNamedObject implements NamedObject,
      *
      * @param rs the result set to be closed
      */
-    protected void releaseResources(ResultSet rs) {
+    protected void releaseResources(ResultSet rs, Connection con) {
         try {
+            Statement st = null;
+            if (rs == null) // On RDB 2.6 is null
+            {
+                if (con == null)
+                    return;
+                else if (con instanceof PooledConnection)
+                    st = ((PooledConnection) con).getLastStatement();
+                else return;
+            } else
+                st = rs.getStatement();
             if (rs != null) {
+                if (!rs.isClosed())
 
-                rs.close();
+                    rs.close();
             }
-        } catch (SQLException sqlExc) {}
+            if (st != null) {
+                if (!st.isClosed())
+                    st.close();
+            }
+        } catch (SQLException sqlExc) {
+        }
     }
 
     /**
@@ -121,23 +146,24 @@ public abstract class AbstractNamedObject implements NamedObject,
     protected void releaseResources(Connection connection) {
         try {
             if (connection != null) {
-             
-                connection.close();
+                if (!keepAlive)
+                    connection.close();
             }
-        } catch (SQLException e) {}
+        } catch (SQLException e) {
+        }
     }
 
     /**
      * Closes the specified sql statement and result set objects.
      *
      * @param stmnt statement to be closed
-     * @param rs the result set to be closed
+     * @param rs    the result set to be closed
      */
     protected void releaseResources(Statement stmnt, ResultSet rs) {
-        releaseResources(rs);
+        releaseResources(rs, null);
         releaseResources(stmnt);
     }
-    
+
     /**
      * Closes the specified sql statement object.
      *
@@ -146,10 +172,11 @@ public abstract class AbstractNamedObject implements NamedObject,
     protected void releaseResources(Statement stmnt) {
         try {
             if (stmnt != null) {
-                
-                stmnt.close();
+                if (!stmnt.isClosed())
+                    stmnt.close();
             }
-        } catch (SQLException sqlExc) {}
+        } catch (SQLException sqlExc) {
+        }
     }
 
     /**
@@ -179,7 +206,7 @@ public abstract class AbstractNamedObject implements NamedObject,
     }
 
     Map<String, String> resultSetRowToMap(ResultSet rs) throws SQLException {
-        
+
         ResultSetMetaData rsmd = rs.getMetaData();
         int columnCount = rsmd.getColumnCount();
 
@@ -188,34 +215,38 @@ public abstract class AbstractNamedObject implements NamedObject,
             metaColumnNames[i - 1] = rsmd.getColumnName(i);
         }
 
-        Map<String,String> metaData = new HashMap<String,String>(columnCount);
+        Map<String, String> metaData = new HashMap<String, String>(columnCount);
         for (int i = 1; i < columnCount; i++) {
             metaData.put(metaColumnNames[i - 1].toUpperCase(), rs.getString(i));
         }
- 
+
         return metaData;
     }
-    
+
     public String getDescription() {
 
         if (getType() != META_TAG) {
-        
+
             String metaDataKey = getMetaDataKey();
             if (StringUtils.isNotBlank(metaDataKey)) {
 
                 return metaDataKey + ": " + getName();
             }
         }
-        return getName();
+        if (getObjects() != null)
+            return getName() + " (" + getObjects().size() + ")";
+        else return getName();
     }
-    
+
     /**
      * Sets the name of this database object as specified.
      *
      * @param name the name of this database object
      */
     public void setName(String name) {
-        this.name = name;
+        if (name != null)
+            this.name = name.trim();
+        else this.name = name;
     }
 
     /**
@@ -244,39 +275,48 @@ public abstract class AbstractNamedObject implements NamedObject,
     public Object clone() throws CloneNotSupportedException {
         throw new CloneNotSupportedException();
     }
-    
+
     protected final void logThrowable(Throwable e) {
-        
+
         if (Log.isDebugEnabled()) {
 
             if (e instanceof SQLException) {
-            
+
                 logSQLException((SQLException) e);
 
             } else if (e.getCause() != null && e.getCause() instanceof SQLException) {
-                
+
                 logSQLException((SQLException) e.getCause());
-                
+
             } else {
-                
+
                 e.printStackTrace();
             }
-            
+
         }
 
     }
-    
+
     protected final void logSQLException(SQLException e) {
 
         e.printStackTrace();
-        SQLException nextException = e; 
-        
+        SQLException nextException = e;
+
         while ((nextException = nextException.getNextException()) != null) {
-            
+
             nextException.printStackTrace();
         }
 
     }
-    
+
+    public boolean isSystem() {
+        return isSystem;
+    }
+
+    public void setSystemFlag(boolean flag) {
+        isSystem = flag;
+    }
+
 }
+
 

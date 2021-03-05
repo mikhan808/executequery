@@ -1,7 +1,7 @@
 /*
  * DatabaseConnection.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,24 +20,23 @@
 
 package org.executequery.databasemediators;
 
-import java.io.Serializable;
-import java.util.Properties;
-
 import org.executequery.gui.browser.ConnectionsFolder;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Properties;
+
 /**
- *  <p>This class maintains the necessary information for each
- *  saved database connection.<br>
- *  Each saved connection appears by name within the
- *  saved connections drop-down box displayed on respective
- *  windows.
+ * <p>This class maintains the necessary information for each
+ * saved database connection.<br>
+ * Each saved connection appears by name within the
+ * saved connections drop-down box displayed on respective
+ * windows.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DatabaseConnection extends Serializable {
-    
+
     boolean isPasswordStored();
 
     void setPasswordStored(boolean storePwd);
@@ -66,9 +65,41 @@ public interface DatabaseConnection extends Serializable {
 
     void setPort(String port);
 
-    public String getCharset();
+    String getCharset();
 
-    public void setCharset(String charset);
+    void setCharset(String charset);
+
+    String getRole();
+
+    void setRole(String role);
+
+    String getCertificate();
+
+    void setCertificate(String certificate);
+
+    boolean isContainerPasswordStored();
+
+    void setContainerPasswordStored(boolean storePwd);
+
+    boolean isVerifyServerCertCheck();
+
+    void setVerifyServerCertCheck(boolean verifyServer);
+
+    boolean useNewAPI();
+
+    void setUseNewAPI(boolean useNewAPI);
+
+    String getContainerPassword();
+
+    void setContainerPassword(String password);
+
+    String getAuthMethod();
+
+    void setAuthMethod(String method);
+
+    String getConnectionMethod();
+
+    void setConnectionMethod(String method);
 
     String getURL();
 
@@ -165,6 +196,18 @@ public interface DatabaseConnection extends Serializable {
     String getUnencryptedSshPassword();
 
     void setEncryptedSshPassword(String sshPassword);
-    
+
+    DatabaseConnection withNewId();
+
+    List<String> getListObjectsDB();
+
+    int getServerVersion();
+
+    void setServerVersion(int serverVersion);
+
+    boolean isNamesToUpperCase();
+
+    void setNamesToUpperCase(boolean flag);
 }
+
 

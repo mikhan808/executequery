@@ -1,7 +1,7 @@
 /*
  * ToCamelCaseCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,28 @@
 
 package org.executequery.actions.editcommands;
 
-import java.awt.event.ActionEvent;
 import org.executequery.GUIUtilities;
-import org.underworldlabs.swing.actions.BaseCommand;
 import org.executequery.gui.text.TextEditor;
+import org.underworldlabs.swing.actions.BaseCommand;
+
+import java.awt.event.ActionEvent;
 
 /**
  * To Camel Case command execution.
  *
- * @author   Takis Diakoumis
- * @version  $Revision$
- * @date     $Date$
+ * @author Takis Diakoumis
+ * @version $Revision$
+ * @date $Date$
  */
 public class ToCamelCaseCommand implements BaseCommand {
-    
+
     /**
      * Executes the to-camel-case command on the <code>TextEditor</code>.
-     * 
+     *
      * @param the originating event
      */
     public void execute(ActionEvent e) {
-        TextEditor textFunction = (TextEditor)GUIUtilities.getTextEditorInFocus();
+        TextEditor textFunction = (TextEditor) GUIUtilities.getTextEditorInFocus();
         if (textFunction != null) {
             textFunction.changeSelectionToCamelCase();
         }
@@ -48,4 +49,5 @@ public class ToCamelCaseCommand implements BaseCommand {
     }
 
 }
+
 

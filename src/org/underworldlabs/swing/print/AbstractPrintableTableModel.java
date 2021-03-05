@@ -1,7 +1,7 @@
 /*
  * AbstractPrintableTableModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,13 +27,11 @@ import org.underworldlabs.swing.table.PrintableTableModel;
  * Defines a table model where certain values may be modified
  * for table printing.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public abstract class AbstractPrintableTableModel extends AbstractSortableTableModel
-                                                  implements PrintableTableModel {
-  
+        implements PrintableTableModel {
+
     /**
      * Returns the printable value at the specified row and column.
      *
@@ -44,4 +42,5 @@ public abstract class AbstractPrintableTableModel extends AbstractSortableTableM
     public abstract String getPrintValueAt(int row, int col);
 
 }
+
 

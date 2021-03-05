@@ -1,7 +1,7 @@
 /*
  * AbstractSortableTableModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,23 @@
 
 package org.underworldlabs.swing.table;
 
+import org.executequery.localization.Bundles;
+
 import javax.swing.table.AbstractTableModel;
 
-public abstract class AbstractSortableTableModel extends AbstractTableModel 
-                                                 implements SortableTableModel {
+public abstract class AbstractSortableTableModel extends AbstractTableModel
+        implements SortableTableModel {
 
     public boolean canSortColumn(int column) {
 
         return true;
     }
-    
+
+    protected String bundleString(String key) {
+        return Bundles.get(getClass(), key);
+    }
 }
+
 
 
 

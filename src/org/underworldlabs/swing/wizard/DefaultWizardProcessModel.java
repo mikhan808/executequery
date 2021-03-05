@@ -1,7 +1,7 @@
 /*
  * DefaultWizardProcessModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,41 +20,53 @@
 
 package org.underworldlabs.swing.wizard;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JPanel;
 
 /**
  * The default model for a wizard process panel.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DefaultWizardProcessModel implements WizardProcessModel {
-    
-    /** the current selected index */
+
+    /**
+     * the current selected index
+     */
     private int selectedIndex;
-    
-    /** the panels collection */
+
+    /**
+     * the panels collection
+     */
     private List<JPanel> panels;
 
-    /** the steps descriptions */
+    /**
+     * the steps descriptions
+     */
     private String[] steps;
-    
-    /** the panel titles */
+
+    /**
+     * the panel titles
+     */
     private String[] titles;
-    
-    /** Creates a new instance of WizardProcessModel */
-    public DefaultWizardProcessModel() {}
-    
-    /** Creates a new instance of WizardProcessModel */
+
+    /**
+     * Creates a new instance of WizardProcessModel
+     */
+    public DefaultWizardProcessModel() {
+    }
+
+    /**
+     * Creates a new instance of WizardProcessModel
+     */
     public DefaultWizardProcessModel(List<JPanel> panels) {
         this(panels, null, null);
     }
 
-    /** Creates a new instance of WizardProcessModel */
+    /**
+     * Creates a new instance of WizardProcessModel
+     */
     public DefaultWizardProcessModel(List<JPanel> panels, String[] steps, String[] titles) {
         this.panels = panels;
         this.steps = steps;
@@ -110,7 +122,7 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
         selectedIndex++;
         return true;
     }
-    
+
     /**
      * Decrements the current index.
      */
@@ -118,9 +130,9 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
         selectedIndex--;
         return true;
     }
-    
+
     /**
-     * Returns the next panel in the wizard and increments the 
+     * Returns the next panel in the wizard and increments the
      * selected index.
      *
      * @return the next panel
@@ -134,7 +146,7 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
     }
 
     /**
-     * Returns the previous panel in the wizard and decrements the 
+     * Returns the previous panel in the wizard and decrements the
      * selected index.
      *
      * @return the previous panel
@@ -144,7 +156,7 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
             selectedIndex--;
             return panels.get(selectedIndex);
         }
-        return null;        
+        return null;
     }
 
     /**
@@ -195,7 +207,7 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
         }
         return panels.indexOf(panel);
     }
-    
+
     /**
      * Returns the panel at the specified index.
      *
@@ -207,7 +219,7 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
         }
         return panels.get(index);
     }
-    
+
     /**
      * Adds the specified panel to the end of the model.
      *
@@ -221,7 +233,7 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
             panels.add(panel);
         }
     }
-    
+
     /**
      * Returns the number of panel components in this model.
      *
@@ -259,10 +271,6 @@ public class DefaultWizardProcessModel implements WizardProcessModel {
     public void setTitles(String[] titles) {
         this.titles = titles;
     }
-    
+
 }
-
-
-
-
 

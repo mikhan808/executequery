@@ -1,7 +1,7 @@
 /*
  * FlatSplitPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,22 +20,15 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Component;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
-import javax.swing.UIManager;
-
-import javax.swing.border.Border;
-
 import org.underworldlabs.swing.plaf.FlatSplitPaneUI;
 
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
+
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
@@ -44,42 +37,40 @@ import org.underworldlabs.swing.plaf.FlatSplitPaneUI;
  * Simple JSplitPane with line borders.
  * This is achieved simply by 'nulling' all borders, including the divider itself.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class FlatSplitPane extends JSplitPane {
-    
+
     private int storedDividerLocation;
-    
+
     protected static Border lineBorder;
-    
+
     static {
         lineBorder = BorderFactory.createLineBorder(UIManager.getColor("controlShadow"));
     }
-    
+
     public FlatSplitPane() {
         this(JSplitPane.HORIZONTAL_SPLIT, false,
                 new JButton(UIManager.getString("SplitPane.leftButtonText")),
                 new JButton(UIManager.getString("SplitPane.rightButtonText")));
     }
-    
+
     public FlatSplitPane(int newOrientation) {
         this(newOrientation, false);
     }
-    
+
     public FlatSplitPane(int newOrientation, boolean newContinuousLayout) {
         this(newOrientation, newContinuousLayout, null, null);
     }
-    
+
     public FlatSplitPane(int newOrientation,
                          Component newLeftComponent, Component newRightComponent) {
         this(newOrientation, false, newLeftComponent, newRightComponent);
     }
-    
+
     public FlatSplitPane(int newOrientation, boolean newContinuousLayout,
                          Component newLeftComponent, Component newRightComponent) {
-        
+
         super(newOrientation, false, newLeftComponent, newRightComponent);
     }
 
@@ -90,14 +81,14 @@ public class FlatSplitPane extends JSplitPane {
     public void updateUI() {
         setUI(new FlatSplitPaneUI());
     }
-    
+
     public void storeDividerLocation() {
         storedDividerLocation = getDividerLocation();
-    }    
+    }
 
     public void storeDividerLocation(int location) {
         storedDividerLocation = location;
-    }    
+    }
 
     public void restoreDividerLocation() {
         if (storedDividerLocation > 0) {
@@ -106,7 +97,7 @@ public class FlatSplitPane extends JSplitPane {
             resetToPreferredSizes();
         }
     }
-    
+
     /*
     public void setTopComponent(Component comp) {
         setComponentBorder(comp);
@@ -129,35 +120,35 @@ public class FlatSplitPane extends JSplitPane {
     }
     */
     protected void setComponentBorder(Component comp) {
-        
+
         // TODO: FIX ME!!! ???
 
         // this is a little untidy
-        
+
         boolean hasScroller = false;
-        
+
         if (comp instanceof JComponent) {
-            
-            JComponent jComponent = (JComponent)comp;
+
+            JComponent jComponent = (JComponent) comp;
             Component[] components = jComponent.getComponents();
-            
+
             for (int i = 0; i < components.length; i++) {
-                
+
                 if (components[i] instanceof JScrollPane) {
                     hasScroller = true;
-                    JScrollPane scroller = (JScrollPane)components[i];
+                    JScrollPane scroller = (JScrollPane) components[i];
                     scroller.setBorder(lineBorder);
                     break;
                 }
-                
+
             }
-            
+
             if (!hasScroller) {
                 jComponent.setBorder(lineBorder);
             }
-            
+
         }
-        
+
     }
 
     public int getStoredDividerLocation() {
@@ -165,6 +156,7 @@ public class FlatSplitPane extends JSplitPane {
     }
 
 }
+
 
 
 

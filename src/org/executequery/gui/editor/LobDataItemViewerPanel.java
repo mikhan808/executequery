@@ -1,7 +1,7 @@
 /*
  * LobDataItemViewerPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,74 +20,99 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Insets;
-import java.io.IOException;
-
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFileChooser;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTextArea;
-import javax.swing.border.Border;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
-
 import org.apache.commons.lang.CharUtils;
 import org.executequery.GUIUtilities;
 import org.executequery.components.FileChooserDialog;
+import org.executequery.databaseobjects.DatabaseTableObject;
+import org.executequery.databaseobjects.TableDataChange;
 import org.executequery.gui.ActionContainer;
 import org.executequery.gui.DefaultActionButtonsPanel;
 import org.executequery.gui.resultset.BlobRecordDataItem;
+import org.executequery.gui.resultset.ClobRecordDataItem;
 import org.executequery.gui.resultset.LobRecordDataItem;
+import org.executequery.gui.resultset.RecordDataItem;
+import org.executequery.gui.table.CreateTableSQLSyntax;
 import org.executequery.io.ByteArrayFileWriter;
+import org.executequery.localization.Bundles;
 import org.executequery.log.Log;
+import org.underworldlabs.swing.hexeditor.AKDockLayout;
+import org.underworldlabs.swing.hexeditor.HexEditor;
+import org.underworldlabs.swing.hexeditor.bdoc.AnnotatedBinaryDocument;
+import org.underworldlabs.util.MiscUtils;
 
-public class LobDataItemViewerPanel extends DefaultActionButtonsPanel 
-                            implements ChangeListener {
+import javax.swing.*;
+import javax.swing.border.Border;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import java.awt.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.List;
+
+public class LobDataItemViewerPanel extends DefaultActionButtonsPanel
+        implements ChangeListener {
 
     private static final String CANNOT_DISPLAY_BINARY_DATA_AS_TEXT = "\n  Cannot display binary data as text";
 
     private JTextArea textArea;
 
-    private JTextArea binaryStringTextArea;
+    /*private JTextArea binaryStringTextArea;
+
+    private JTextArea binaryCharTextArea;*/
+
+    private HexEditor binaryStringTextArea;
 
     private JTabbedPane tabbedPane;
-    
+
+    private JButton openButton;
+
     private final LobRecordDataItem recordDataItem;
 
     private final ActionContainer parent;
 
-    public LobDataItemViewerPanel(ActionContainer parent, LobRecordDataItem recordDataItem) {
+    String charset;
+
+    JScrollPane scrollPane;
+    JScrollPane imageScroll;
+    JLabel imageLabel;
+
+    DatabaseTableObject table;
+    List<RecordDataItem> row;
+    boolean readOnly;
+
+    public LobDataItemViewerPanel(ActionContainer parent, LobRecordDataItem recordDataItem, DatabaseTableObject table, List<RecordDataItem> row) {
 
         this.parent = parent;
         this.recordDataItem = recordDataItem;
-    
+        this.table = table;
+        this.row = row;
+        readOnly = table == null;
+        charset = CreateTableSQLSyntax.NONE;
+        if (recordDataItem instanceof ClobRecordDataItem)
+            charset = ((ClobRecordDataItem) recordDataItem).getCharset();
+        if (charset == null)
+            charset = CreateTableSQLSyntax.NONE;
+        if (!charset.equals(CreateTableSQLSyntax.NONE))
+            charset = MiscUtils.getJavaCharsetFromSqlCharset(charset);
         try {
-            
+
             init();
-        
+
         } catch (Exception e) {
-            
-            e.printStackTrace();
+
+            Log.error("Error init class LobDataItemViewerPanel:", e);
         }
-        
+
     }
 
     private void init() {
 
         Border emptyBorder = BorderFactory.createEmptyBorder(2, 2, 2, 2);
-        
+
         JPanel textPanel = new JPanel(new BorderLayout());
         textPanel.setBorder(emptyBorder);
-        
+
         textArea = createTextArea();
         textArea.setLineWrap(false);
         textArea.setMargin(new Insets(2, 2, 2, 2));
@@ -98,29 +123,35 @@ public class LobDataItemViewerPanel extends DefaultActionButtonsPanel
         imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBorder(emptyBorder);
 
+
+        JPanel binaryPanel = new JPanel(new AKDockLayout());
+
+        binaryStringTextArea = new HexEditor(new AnnotatedBinaryDocument(recordDataItemByteArray(), readOnly), charset);
+        imageScroll = new JScrollPane();
+
         if (isImage()) {
-        
+
             ImageIcon image = loadImageData();
             if (image != null) {
-    
-                JLabel imageLabel = new JLabel(image);
-                imagePanel.add(new JScrollPane(imageLabel), BorderLayout.CENTER);
+
+                imageLabel = new JLabel(image);
+                imageScroll.setViewportView(imageLabel);
+                imagePanel.add(imageScroll, BorderLayout.CENTER);
             }
 
             setTextAreaText(textArea, CANNOT_DISPLAY_BINARY_DATA_AS_TEXT);
-            
-        } else {
 
-            imagePanel.add(new JLabel("Unsupported format", JLabel.CENTER));
-            
+        } else {
+            imageLabel = new JLabel("Unsupported format", JLabel.CENTER);
+            imageScroll.setViewportView(imageLabel);
+
+            imagePanel.add(imageScroll, BorderLayout.CENTER);
+
             loadTextData();
         }
 
-        JPanel binaryPanel = new JPanel(new BorderLayout());
-        binaryPanel.setBorder(emptyBorder);
-
-        binaryStringTextArea = createTextArea();
-        binaryPanel.add(new JScrollPane(binaryStringTextArea), BorderLayout.CENTER);
+        scrollPane = new JScrollPane(binaryStringTextArea);
+        binaryPanel.add(scrollPane, AKDockLayout.CENTER);
 
         tabbedPane = new JTabbedPane();
         tabbedPane.addChangeListener(this);
@@ -136,115 +167,139 @@ public class LobDataItemViewerPanel extends DefaultActionButtonsPanel
         descriptionLabel.setBorder(BorderFactory.createEmptyBorder(5, 2, 5, 0));
 
         contentPanel.add(descriptionLabel, BorderLayout.SOUTH);
-        
-        JButton closeButton = new JButton("Close");
+
+        JButton closeButton = new JButton(Bundles.get("common.close.button"));
         closeButton.setActionCommand("close");
 
-        JButton saveButton = new JButton("Save As");
+        JButton saveButton = new JButton(Bundles.get("common.save-as.button"));
         saveButton.setActionCommand("save");
-        
+
+        JButton okButton = new JButton("OK");
+        okButton.setActionCommand("ok");
+
+        openButton = new JButton("Open File");
+        openButton.setActionCommand("open");
+
+        JButton nullButton = new JButton("NULL");
+        nullButton.setActionCommand("tonull");
+
         saveButton.addActionListener(this);
         closeButton.addActionListener(this);
-        
+        okButton.addActionListener(this);
+        openButton.addActionListener(this);
+        nullButton.addActionListener(this);
+
+        addActionButton(okButton);
+        addActionButton(openButton);
         addActionButton(saveButton);
         addActionButton(closeButton);
-        
-        setPreferredSize(new Dimension(500, 420));
+        addActionButton(nullButton);
+
+        setPreferredSize(new Dimension(600, 420));
 
         addContentPanel(contentPanel);
-        
+
         textArea.requestFocus();
     }
 
     private String formatDescriptionString() {
-        
+
         StringBuilder sb = new StringBuilder();
 
         sb.append("LOB Data Type: ").append(recordDataItem.getLobRecordItemName());
         sb.append("   Total Size: ").append(recordDataItem.length()).append(" bytes");
-        
+
         return sb.toString();
     }
-    
+
     private byte[] recordDataItemByteArray() {
 
-        return recordDataItem.getData();
+        return recordDataItem.getData() != null ? recordDataItem.getData() : new byte[0];
     }
-    
+
     private void loadTextData() {
 
-    	String dataAsText = null;
-        byte[] data = recordDataItemByteArray();
+        String dataAsText = null;
+        byte[] data = binaryStringTextArea.getDocument().getData();
         boolean isValidText = true;
 
         if (data != null) {
-        	
-			dataAsText = new String(data);
-	        char[] charArray = dataAsText.toCharArray();
-	
-	        int defaultEndPoint = 256;
-            int endPoint = Math.min(charArray.length, defaultEndPoint);
-	        
-	        for (int i = 0; i < endPoint; i++) {
+            if (charset.equals(CreateTableSQLSyntax.NONE))
+                dataAsText = new String(data);
+            else try {
+                dataAsText = new String(data, charset);
+            } catch (UnsupportedEncodingException e) {
+                Log.error("Error method loadTextData in class LobDataItemViewerPanel:", e);
+                dataAsText = new String(data);
+            }
+            char[] charArray = dataAsText.toCharArray();
 
-	            if (!CharUtils.isAscii(charArray[i])) {
-	
-	                isValidText = false;
-	                break;
-	            }
-	            
-	        }
-        
+            int defaultEndPoint = 256;
+            int endPoint = Math.min(charArray.length, defaultEndPoint);
+            if (charset.equals(CreateTableSQLSyntax.NONE))
+                for (int i = 0; i < endPoint; i++) {
+
+                    if (!CharUtils.isAscii(charArray[i])) {
+
+                        isValidText = false;
+                        break;
+                    }
+
+                }
+
         } else {
-        	
-        	isValidText = false;
+
+            isValidText = false;
         }
 
         if (isValidText) {
-        
+
             setTextAreaText(textArea, dataAsText);
-        
+            textArea.setEditable(true);
+
         } else {
 
             setTextAreaText(textArea, CANNOT_DISPLAY_BINARY_DATA_AS_TEXT);
         }
-        
+
     }
 
     private void setTextAreaText(JTextArea textArea, String text) {
-        
+
         textArea.setText(text);
         textArea.setCaretPosition(0);
     }
-    
+
     private JTextArea createTextArea() {
-        
+
         JTextArea textArea = new JTextArea();
         textArea.setEditable(false);
         textArea.setLineWrap(true);
         textArea.setWrapStyleWord(true);
         textArea.setFont(new Font("monospaced", Font.PLAIN, 11));
-        
+
         return textArea;
     }
 
     private static final String SUPPORTED_IMAGES = "image/jpeg,image/gif,image/png";
-    
+
     private boolean isImage() {
 
-        return SUPPORTED_IMAGES.contains(recordDataItem.getLobRecordItemName());                
+        if (isBlob())
+            return SUPPORTED_IMAGES.contains(((BlobRecordDataItem) recordDataItem).getLobRecordItemName(binaryStringTextArea.getDocument().getData()));
+        return SUPPORTED_IMAGES.contains(recordDataItem.getLobRecordItemName());
     }
 
     private boolean isBlob() {
 
         return (recordDataItem instanceof BlobRecordDataItem);
     }
-    
+
     private ImageIcon loadImageData() {
 
         if (isBlob()) {
-        
-            byte[] data = recordDataItemByteArray();
+
+            byte[] data = binaryStringTextArea.getDocument().getData();
             return new ImageIcon(data);
         }
 
@@ -252,7 +307,7 @@ public class LobDataItemViewerPanel extends DefaultActionButtonsPanel
     }
 
     public void save() {
-        
+
         FileChooserDialog fileChooser = new FileChooserDialog();
         fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
@@ -261,58 +316,118 @@ public class LobDataItemViewerPanel extends DefaultActionButtonsPanel
 
             return;
         }
-        
+
         if (fileChooser.getSelectedFile() != null) {
-            
+
             try {
 
                 GUIUtilities.showWaitCursor();
 
                 new ByteArrayFileWriter().write(
                         fileChooser.getSelectedFile(), recordDataItemByteArray());
-                
+
             } catch (IOException e) {
-                
+
                 if (Log.isDebugEnabled()) {
-                    
+
                     Log.debug("Error writing LOB to file", e);
                 }
 
                 GUIUtilities.displayErrorMessage(
                         "Error writing LOB data to file:\n" + e.getMessage());
                 return;
-         
+
             } finally {
-                
+
                 GUIUtilities.showNormalCursor();
             }
-            
+
         }
-        
+
         close();
     }
-    
+
     public void close() {
-        
+
+        parent.finished();
+    }
+
+    public void ok() {
+        if (!readOnly) {
+            int selectedIndex = tabbedPane.getSelectedIndex();
+            if (selectedIndex == 0)
+                if (!textArea.getText().equals(CANNOT_DISPLAY_BINARY_DATA_AS_TEXT)) {
+                    if (charset.equals(CreateTableSQLSyntax.NONE))
+                        binaryStringTextArea.setData(textArea.getText().getBytes());
+                    else try {
+                        binaryStringTextArea.setData(textArea.getText().getBytes(charset));
+                    } catch (UnsupportedEncodingException e1) {
+                        e1.printStackTrace();
+                        binaryStringTextArea.setData(textArea.getText().getBytes());
+                    }
+                }
+            if (!recordDataItemByteArray().equals(binaryStringTextArea.getDocument().getData())) {
+                recordDataItem.valueChanged(binaryStringTextArea.getDocument().getData());
+                table.addTableDataChange(new TableDataChange(row));
+            }
+        }
+        parent.finished();
+    }
+
+    public void open() {
+        FileChooserDialog fileChooser = new FileChooserDialog();
+        int returnVal = fileChooser.showOpenDialog(openButton);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            try {
+                binaryStringTextArea = new HexEditor(new AnnotatedBinaryDocument(file), charset);
+                scrollPane.setViewportView(binaryStringTextArea);
+                loadTextData();
+                if (isImage()) {
+                    imageLabel = new JLabel(loadImageData());
+                    imageScroll.setViewportView(imageLabel);
+                }
+            } catch (IOException e) {
+                Log.error("Error method open in class LobDataItemViewerPanel:", e);
+            }
+
+        }
+
+
+    }
+
+    public void tonull() {
+        if (!readOnly) {
+            recordDataItem.valueChanged(null);
+            table.addTableDataChange(new TableDataChange(row));
+        }
         parent.finished();
     }
 
     public void stateChanged(ChangeEvent e) {
 
-        int selectedIndex = tabbedPane.getSelectedIndex(); 
-        
-        if (selectedIndex == tabbedPane.getTabCount() - 1) { // binary tab always last
-            
-            if (binaryStringTextArea.getText().length() == 0) {
+        int selectedIndex = tabbedPane.getSelectedIndex();
 
-                setTextAreaText(binaryStringTextArea, recordDataItem.asBinaryString());
-            }
-            
+        if (selectedIndex == 0) { // binary tab always last
+            loadTextData();
+            textArea.requestFocus();
         }
-        
+        if (selectedIndex == 2) {
+            if (!textArea.getText().equals(CANNOT_DISPLAY_BINARY_DATA_AS_TEXT)) {
+                if (charset.equals(CreateTableSQLSyntax.NONE))
+                    binaryStringTextArea.setData(textArea.getText().getBytes());
+                else try {
+                    binaryStringTextArea.setData(textArea.getText().getBytes(charset));
+                } catch (UnsupportedEncodingException e1) {
+                    e1.printStackTrace();
+                    binaryStringTextArea.setData(textArea.getText().getBytes());
+                }
+            }
+        }
     }
-    
+
 }
+
 
 
 

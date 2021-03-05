@@ -1,7 +1,7 @@
 /*
  * ImportExportFile.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,28 +20,26 @@
 
 package org.executequery.gui.importexport;
 
-import java.io.File;
-import java.util.List;
-
 import org.executequery.databaseobjects.DatabaseColumn;
 import org.executequery.databaseobjects.DatabaseTable;
 
+import java.io.File;
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ImportExportFile {
 
     private File file;
-    
+
     private DatabaseTable databaseTable;
 
     private List<DatabaseColumn> databaseTableColumns;
-    
-    public ImportExportFile() {}
-    
+
+    public ImportExportFile() {
+    }
+
     public ImportExportFile(DatabaseTable databaseTable) {
         this.databaseTable = databaseTable;
     }
@@ -60,15 +58,15 @@ public class ImportExportFile {
     }
 
     public boolean fileExists() {
-        
+
         if (file != null) {
-            
+
             return file.exists();
         }
-        
+
         return false;
     }
-    
+
     public File getFile() {
         return file;
     }
@@ -88,10 +86,11 @@ public class ImportExportFile {
     public List<DatabaseColumn> getDatabaseTableColumns() {
         return databaseTableColumns;
     }
-    
+
     public boolean hasColumnSelections() {
         return databaseTableColumns != null && !databaseTableColumns.isEmpty();
     }
-    
+
 }
+
 

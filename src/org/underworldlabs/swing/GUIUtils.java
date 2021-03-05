@@ -1,7 +1,7 @@
 /*
  * GUIUtils.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,40 +20,29 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Frame;
-import java.awt.GraphicsDevice;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Rectangle;
+import org.executequery.GUIUtilities;
+import org.executequery.localization.Bundles;
+import org.underworldlabs.swing.plaf.UIUtils;
+import org.underworldlabs.swing.util.SwingWorker;
+
+import javax.swing.*;
+import java.awt.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Vector;
 
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JOptionPane;
-import javax.swing.SwingUtilities;
-import javax.swing.UIManager;
-
-import org.underworldlabs.swing.plaf.UIUtils;
-import org.underworldlabs.swing.util.SwingWorker;
-
 /**
  * Simple of collection of GUI utility methods.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1496 $
- * @date     $Date: 2015-09-17 17:09:08 +1000 (Thu, 17 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class GUIUtils {
 
-    /** Prevent instantiation */
-    private GUIUtils() {}
+    /**
+     * Prevent instantiation
+     */
+    private GUIUtils() {
+    }
 
     /**
      * Convenience method for consistent border colour.
@@ -70,9 +59,9 @@ public class GUIUtils {
      * Displays the error dialog displaying the stack trace from a
      * throws/caught exception.
      *
-     * @param owner - the owner of the dialog
+     * @param owner   - the owner of the dialog
      * @param message - the error message to display
-     * @param e - the throwable
+     * @param e       - the throwable
      */
     public static void displayExceptionErrorDialog(Frame owner, String message, Throwable e) {
         new ExceptionErrorDialog(owner, message, e);
@@ -81,7 +70,7 @@ public class GUIUtils {
     /**
      * Returns the specified component's visible bounds within the screen.
      *
-     *  @return the component's visible bounds as a <code>Rectangle</code>
+     * @return the component's visible bounds as a <code>Rectangle</code>
      */
     public static Rectangle getVisibleBoundsOnScreen(JComponent component) {
         Rectangle visibleRect = component.getVisibleRect();
@@ -97,7 +86,7 @@ public class GUIUtils {
      *
      * @param the component to center to
      * @param the size of the componennt to be added as a
-     *        <code>Dimension</code> object
+     *            <code>Dimension</code> object
      * @return the <code>Point</code> at which to add the dialog
      */
     public static Point getPointToCenter(Component component, Dimension dimension) {
@@ -115,14 +104,14 @@ public class GUIUtils {
             }
 
             return new Point((screenSize.width - dimension.width) / 2,
-                             (screenSize.height - dimension.height) / 2);
+                    (screenSize.height - dimension.height) / 2);
         }
 
         Dimension frameDim = component.getSize();
         Rectangle dRec = new Rectangle(component.getX(),
-                                       component.getY(),
-                                       (int)frameDim.getWidth(),
-                                       (int)frameDim.getHeight());
+                component.getY(),
+                (int) frameDim.getWidth(),
+                (int) frameDim.getHeight());
 
         int dialogX = dRec.x + ((dRec.width - dimension.width) / 2);
         int dialogY = dRec.y + ((dRec.height - dimension.height) / 2);
@@ -145,11 +134,7 @@ public class GUIUtils {
     }
 
     public static Dimension getDefaultDeviceScreenSize() {
-
-        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
-        GraphicsDevice gs = ge.getScreenDevices()[0];
-        Dimension screenSize = gs.getDefaultConfiguration().getBounds().getSize();
-
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         return screenSize;
     }
 
@@ -176,8 +161,7 @@ public class GUIUtils {
 
             if (dotIndex == -1) {
                 fontNames.add(fontName);
-            }
-            else {
+            } else {
                 fontNameChars = fontName.substring(0, dotIndex).toCharArray();
                 fontNameChars[0] = Character.toUpperCase(fontNameChars[0]);
 
@@ -236,28 +220,28 @@ public class GUIUtils {
      *
      * @param runnable - the runnable to be executed
      */
-     public static void startWorker(final Runnable runnable) {
-         SwingWorker worker = new SwingWorker() {
-             public Object construct() {
-                 try {
+    public static void startWorker(final Runnable runnable) {
+        SwingWorker worker = new SwingWorker() {
+            public Object construct() {
+                try {
 
-                     runnable.run();
+                    runnable.run();
 
-                 } catch (final Exception e) {
+                } catch (final Exception e) {
 
-                     invokeAndWait(new Runnable() {
-                         public void run() {
+                    invokeAndWait(new Runnable() {
+                        public void run() {
                             displayExceptionErrorDialog(null,
                                     "Error in EDT thread execution: " + e.getMessage(), e);
-                         }
-                     });
+                        }
+                    });
 
-                 }
-                 return null;
-             }
-         };
-         worker.start();
-     }
+                }
+                return null;
+            }
+        };
+        worker.start();
+    }
 
     /**
      * Runs the specified runnable in the EDT using
@@ -287,9 +271,9 @@ public class GUIUtils {
             try {
 //                System.err.println("Not EDT");
                 SwingUtilities.invokeAndWait(runnable);
+            } catch (InterruptedException e) {
+            } catch (InvocationTargetException e) {
             }
-            catch (InterruptedException e) {}
-            catch (InvocationTargetException e) {}
         } else {
             runnable.run();
         }
@@ -315,35 +299,37 @@ public class GUIUtils {
 
     public static final void displayInformationMessage(Component parent, Object message) {
         displayDialog(parent,
-                      JOptionPane.DEFAULT_OPTION,
-                      JOptionPane.INFORMATION_MESSAGE,
-                      false,
-                      "OptionPane.informationIcon",
-                      "Message",
-                      message);
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.INFORMATION_MESSAGE,
+                false,
+                "OptionPane.informationIcon",
+                "Message",
+                message, null);
     }
 
     public static final String displayInputMessage(Component parent, String title, Object message) {
         return displayDialog(parent,
-                             JOptionPane.OK_CANCEL_OPTION,
-                             JOptionPane.QUESTION_MESSAGE,
-                             true,
-                             "OptionPane.questionIcon",
-                             title,
-                             message).toString();
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                true,
+                "OptionPane.questionIcon",
+                title,
+                message, new Object[]{Bundles.getCommon("ok.button"), Bundles.getCommon("cancel.button")}).toString();
     }
 
     public static final void displayWarningMessage(Component parent, Object message) {
         displayDialog(parent,
-                      JOptionPane.DEFAULT_OPTION,
-                      JOptionPane.WARNING_MESSAGE,
-                      false,
-                      "OptionPane.warningIcon",
-                      "Warning",
-                      message);
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                false,
+                "OptionPane.warningIcon",
+                "Warning",
+                message, null);
     }
 
-    /** The dialog return value - where applicable */
+    /**
+     * The dialog return value - where applicable
+     */
     private static Object dialogReturnValue;
 
     private static Object displayDialog(final Component parent,
@@ -352,27 +338,42 @@ public class GUIUtils {
                                         final boolean wantsInput,
                                         final String icon,
                                         final String title,
-                                        final Object message) {
+                                        final Object message,
+                                        final Object[] buttons) {
 
         dialogReturnValue = null;
 
         Runnable runnable = new Runnable() {
             public void run() {
                 showNormalCursor(parent);
+                Object okOption = null;
+                if (buttons != null)
+                    okOption = buttons[0];
                 JOptionPane pane = new JOptionPane(message, messageType,
-                                            optionType, UIManager.getIcon(icon));
+                        optionType, UIManager.getIcon(icon), buttons, okOption);
                 pane.setWantsInput(wantsInput);
 
-                JDialog dialog = pane.createDialog(parent, title);
+                JDialog dialog = null;
+                JFrame frame = null;
+                if (parent == null) {
+                    frame = new JFrame("My dialog asks....");
+                    frame.setUndecorated(true);
+                    frame.setIconImage(GUIUtilities.loadIcon("ApplicationIcon48.png", true).getImage());
+                    frame.setVisible( true );
+                    frame.setLocationRelativeTo( null );
+                    dialog = pane.createDialog(frame, title);
+                } else
+                    dialog = pane.createDialog(parent, title);
 
                 if (message instanceof DialogMessageContent) {
 
                     ((DialogMessageContent) message).setDialog(dialog);
                 }
-
                 dialog.setLocation(getPointToCenter(parent, dialog.getSize()));
                 dialog.setVisible(true);
                 dialog.dispose();
+                if (frame != null)
+                    frame.dispose();
 
                 if (wantsInput) {
                     dialogReturnValue = pane.getInputValue();
@@ -389,53 +390,53 @@ public class GUIUtils {
 
     public static final void displayErrorMessage(Component parent, Object message) {
         displayDialog(parent,
-                      JOptionPane.DEFAULT_OPTION,
-                      JOptionPane.ERROR_MESSAGE,
-                      false,
-                      "OptionPane.errorIcon",
-                      "Error Message",
-                      message);
+                JOptionPane.DEFAULT_OPTION,
+                JOptionPane.ERROR_MESSAGE,
+                false,
+                "OptionPane.errorIcon",
+                Bundles.getCommon("error-message"),
+                message, null);
     }
 
     public static final int displayConfirmCancelErrorMessage(Component parent, Object message) {
         return formatDialogReturnValue(displayDialog(
-                                parent,
-                                JOptionPane.OK_CANCEL_OPTION,
-                                JOptionPane.ERROR_MESSAGE,
-                                false,
-                                "OptionPane.errorIcon",
-                                "Error Message",
-                                message));
+                parent,
+                JOptionPane.OK_CANCEL_OPTION,
+                JOptionPane.ERROR_MESSAGE,
+                false,
+                "OptionPane.errorIcon",
+                Bundles.getCommon("error-message"),
+                message, new Object[]{Bundles.getCommon("ok.button"), Bundles.getCommon("cancel.button")}));
     }
 
     public static final int displayYesNoDialog(Component parent, Object message, String title) {
         return formatDialogReturnValue(displayDialog(parent,
-                                JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE,
-                                false,
-                                "OptionPane.questionIcon",
-                                title,
-                                message));
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                false,
+                "OptionPane.questionIcon",
+                title,
+                message, new Object[]{Bundles.getCommon("yes.button"), Bundles.getCommon("no.button")}));
     }
 
     public static final int displayConfirmCancelDialog(Component parent, Object message) {
         return formatDialogReturnValue(displayDialog(parent,
-                                JOptionPane.YES_NO_CANCEL_OPTION,
-                                JOptionPane.QUESTION_MESSAGE,
-                                false,
-                                "OptionPane.questionIcon",
-                                "Confirmation",
-                                message));
+                JOptionPane.YES_NO_CANCEL_OPTION,
+                JOptionPane.QUESTION_MESSAGE,
+                false,
+                "OptionPane.questionIcon",
+                Bundles.getCommon("confirmation"),
+                message, new Object[]{Bundles.getCommon("yes.button"), Bundles.getCommon("no.button"), Bundles.getCommon("cancel.button")}));
     }
 
     public static final int displayConfirmDialog(Component parent, Object message) {
         return formatDialogReturnValue(displayDialog(parent,
-                                JOptionPane.YES_NO_OPTION,
-                                JOptionPane.WARNING_MESSAGE,
-                                false,
-                                "OptionPane.questionIcon",
-                                "Confirmation",
-                                message));
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.WARNING_MESSAGE,
+                false,
+                "OptionPane.questionIcon",
+                Bundles.getCommon("confirmation"),
+                message, new Object[]{Bundles.getCommon("yes.button"), Bundles.getCommon("no.button")}));
     }
 
     private static int formatDialogReturnValue(Object returnValue) {
@@ -443,6 +444,17 @@ public class GUIUtils {
         if (returnValue instanceof Integer) {
 
             return ((Integer) returnValue).intValue();
+        }
+        if (returnValue instanceof String) {
+            String stringValue = (String) returnValue;
+            if (stringValue.contentEquals(Bundles.getCommon("yes.button")))
+                return JOptionPane.YES_OPTION;
+            if (stringValue.contentEquals(Bundles.getCommon("ok.button")))
+                return JOptionPane.OK_OPTION;
+            if (stringValue.contentEquals(Bundles.getCommon("no.button")))
+                return JOptionPane.NO_OPTION;
+            if (stringValue.contentEquals(Bundles.getCommon("cancel.button")))
+                return JOptionPane.CANCEL_OPTION;
         }
 
         return -1;
@@ -490,10 +502,10 @@ public class GUIUtils {
     public static Color getSlightlyBrighter(Color color, float factor) {
         float[] hsbValues = new float[3];
         Color.RGBtoHSB(
-            color.getRed(),
-            color.getGreen(),
-            color.getBlue(),
-            hsbValues);
+                color.getRed(),
+                color.getGreen(),
+                color.getBlue(),
+                hsbValues);
         float hue = hsbValues[0];
         float saturation = hsbValues[1];
         float brightness = hsbValues[2];
@@ -502,6 +514,7 @@ public class GUIUtils {
     }
 
 }
+
 
 
 

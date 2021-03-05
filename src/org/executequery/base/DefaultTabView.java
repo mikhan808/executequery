@@ -1,7 +1,7 @@
 /*
  * DefaultTabView.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,38 +20,37 @@
 
 package org.executequery.base;
 
-import java.awt.LayoutManager;
-import javax.swing.JPanel;
 import org.executequery.GUIUtilities;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Default implementation for a tab panel view.
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
-public class DefaultTabView extends JPanel 
-                            implements TabView {
-    
+public class DefaultTabView extends JPanel
+        implements TabView {
+
     public DefaultTabView() {
         super();
     }
-    
+
     public DefaultTabView(boolean isDoubleBuffered) {
         super(isDoubleBuffered);
     }
-    
+
     public DefaultTabView(LayoutManager layout) {
         super(layout);
     }
-    
+
     public DefaultTabView(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
     }
 
     /**
-     * Toggles the visibility of the glass pane on the 
+     * Toggles the visibility of the glass pane on the
      * enclosing frame as specified.
      *
      * @param visible - true | false
@@ -59,7 +58,7 @@ public class DefaultTabView extends JPanel
     public void setGlassPaneVisible(boolean visible) {
         GUIUtilities.setGlassPaneVisible(visible);
     }
-    
+
     /**
      * Returns whether the glass pane is currently visible.
      */
@@ -88,13 +87,14 @@ public class DefaultTabView extends JPanel
     /**
      * Indicates the panel is being selected in the pane
      *
-     *  @return true if all ok to proceed, false otherwise
+     * @return true if all ok to proceed, false otherwise
      */
     public boolean tabViewDeselected() {
         return true;
     }
 
 }
+
 
 
 

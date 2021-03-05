@@ -1,7 +1,7 @@
 /*
  * RootDatabaseObjectNode.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,36 +20,34 @@
 
 package org.executequery.gui.browser.nodes;
 
+import org.executequery.databaseobjects.NamedObject;
+import org.executequery.localization.Bundles;
+
+import javax.swing.tree.MutableTreeNode;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.tree.MutableTreeNode;
-
-import org.executequery.databaseobjects.NamedObject;
-
-/** 
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+/**
+ * @author Takis Diakoumis
  */
 public class RootDatabaseObjectNode extends DatabaseObjectNode {
-    
-    private static final String NAME = "Database Connections";
-    
+
+    private static final String NAME = Bundles.getCommon("database-connections");
+
     private List<DatabaseHostNode> hostNodes = new ArrayList<DatabaseHostNode>();
 
     /**
-     * Propagates the call to the underlying database object 
+     * Propagates the call to the underlying database object
      * and removes all children from this node.
      */
-    public void reset() {}
-    
+    public void reset() {
+    }
+
     /**
      * Propagates the call to the underlying database object.
      */
     public int getType() {
-        
+
         return NamedObject.ROOT;
     }
 
@@ -57,33 +55,39 @@ public class RootDatabaseObjectNode extends DatabaseObjectNode {
      * Returns the name of the root node.
      */
     public String getName() {
-        
+
         return NAME;
     }
 
     /**
      * Does nothing. Name of the root node may not be changed.
      */
-    public void setName(String name) {}
-    
+    public void setName(String name) {
+    }
+
     /**
      * Propagates the call to the underlying database object.
      */
     public String getDisplayName() {
-        
+
         return getName();
     }
-    
+
+    public String getShortName() {
+
+        return getName().trim();
+    }
+
     /**
      * Propagates the call to the underlying database object.
      */
     public String getMetaDataKey() {
-        
+
         return null;
     }
 
     public List<DatabaseHostNode> getHostNodes() {
-        
+
         return hostNodes;
     }
 
@@ -95,14 +99,15 @@ public class RootDatabaseObjectNode extends DatabaseObjectNode {
         }
 
         if (newChild instanceof DatabaseHostNode) {
-        
-            hostNodes.add((DatabaseHostNode)newChild);
+
+            hostNodes.add((DatabaseHostNode) newChild);
         }
 
         super.add(newChild);
     }
-    
+
 }
+
 
 
 

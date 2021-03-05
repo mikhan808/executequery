@@ -1,7 +1,7 @@
 /*
  * ResultSetTable.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,9 +20,21 @@
 
 package org.executequery.gui.resultset;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Point;
+import org.apache.commons.lang.StringUtils;
+import org.executequery.GUIUtilities;
+import org.executequery.gui.StandardTable;
+import org.underworldlabs.swing.DateCellEditor;
+import org.underworldlabs.swing.DateTimeCellEditor;
+import org.underworldlabs.swing.TimeCellEditor;
+import org.underworldlabs.swing.table.MultiLineStringCellEditor;
+import org.underworldlabs.swing.table.StringCellEditor;
+import org.underworldlabs.swing.table.TableSorter;
+import org.underworldlabs.util.MiscUtils;
+import org.underworldlabs.util.SystemProperties;
+
+import javax.swing.*;
+import javax.swing.table.*;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.sql.Types;
 import java.util.ArrayList;
@@ -30,39 +42,25 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.BorderFactory;
-import javax.swing.DefaultCellEditor;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableColumnModel;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableCellEditor;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.table.TableModel;
-
-import org.apache.commons.lang.StringUtils;
-import org.executequery.GUIUtilities;
-import org.executequery.gui.StandardTable;
-import org.underworldlabs.swing.table.MultiLineStringCellEditor;
-import org.underworldlabs.swing.table.StringCellEditor;
-import org.underworldlabs.swing.table.TableSorter;
-import org.underworldlabs.util.SystemProperties;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1546 $
- * @date     $Date: 2015-12-22 15:54:37 +1100 (Tue, 22 Dec 2015) $
+ * @author Takis Diakoumis
  */
-@SuppressWarnings({"unchecked","rawtypes"})
+@SuppressWarnings({"unchecked", "rawtypes"})
 public class ResultSetTable extends JTable implements StandardTable {
 
     private DefaultCellEditor defaultCellEditor;
 
     private DefaultCellEditor multiLineCellEditor;
-    
+
+    private DateCellEditor dateEditor;
+
+    private DateTimeCellEditor dateTimeCellEditor;
+
+    private TimeCellEditor timeCellEditor;
+
+    List<Integer> comboboxColumns;
+
+
     private ResultsTableColumnModel columnModel;
 
     private ResultSetTableCellRenderer cellRenderer;
@@ -78,16 +76,21 @@ public class ResultSetTable extends JTable implements StandardTable {
         stringCellEditor.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
         defaultCellEditor = new DefaultCellEditor(stringCellEditor) {
             public Object getCellEditorValue() {
-                return stringCellEditor.getValue(); }
+                return stringCellEditor.getValue();
+            }
         };
 
         final MultiLineStringCellEditor multiLineStringCellEditor = new MultiLineStringCellEditor();
         multiLineStringCellEditor.setBorder(BorderFactory.createLineBorder(Color.DARK_GRAY, 1));
         multiLineCellEditor = new DefaultCellEditor(multiLineStringCellEditor) {
             public Object getCellEditorValue() {
-                return multiLineStringCellEditor.getValue(); }
+                return multiLineStringCellEditor.getValue();
+            }
         };
-        
+        dateEditor = new DateCellEditor();
+        dateTimeCellEditor = new DateTimeCellEditor();
+        timeCellEditor = new TimeCellEditor();
+
     }
 
     public ResultSetTable(TableModel model) {
@@ -96,11 +99,19 @@ public class ResultSetTable extends JTable implements StandardTable {
         setDefaultOptions();
     }
 
+    public void setModel(TableModel model) {
+        super.setModel(model);
+        setDefaultColumnOptions();
+
+    }
+
     private void setDefaultOptions() {
+
 
         setColumnSelectionAllowed(true);
         columnModel = new ResultsTableColumnModel();
         setColumnModel(columnModel);
+        setDefaultColumnOptions();
 
         cellRenderer = new ResultSetTableCellRenderer();
         cellRenderer.setFont(getFont());
@@ -108,23 +119,37 @@ public class ResultSetTable extends JTable implements StandardTable {
         applyUserPreferences();
     }
 
+    private void setDefaultColumnOptions() {
+
+        comboboxColumns = new ArrayList<>();
+        int cols = dataModel.getColumnCount();
+        if (columnModel != null) {
+            columnModel.init_tcs(cols);
+        }
+
+        /*cellRenderer = new ResultSetTableCellRenderer();
+        cellRenderer.setFont(getFont());*/
+
+
+    }
+
     protected JTableHeader createDefaultTableHeader() {
 
         return new JTableHeader(columnModel) {
-        
+
             public String getToolTipText(MouseEvent e) {
 
                 if (getModel() instanceof TableSorter) {
-                
+
                     TableSorter model = (TableSorter) getModel();
                     if (model.getTableModel() instanceof ResultSetTableModel) {
-                    
+
                         ResultSetTableModel resultSetTableModel = (ResultSetTableModel) model.getTableModel();
-                        
+
                         Point point = e.getPoint();
                         int index = columnModel.getColumnIndexAtX(point.x);
                         int realIndex = columnModel.getColumn(index).getModelIndex();
-                        
+
                         return resultSetTableModel.getColumnNameHint(realIndex);
                     }
                 }
@@ -134,7 +159,7 @@ public class ResultSetTable extends JTable implements StandardTable {
 
         };
     }
-    
+
     public void selectCellAtPoint(Point point) {
 
         int row = rowAtPoint(point);
@@ -162,7 +187,7 @@ public class ResultSetTable extends JTable implements StandardTable {
             int selectedRowCount = getSelectedRowCount();
             if (selectedRowCount > 1) {
 
-                int[] selectedRows = getSelectedRows();                
+                int[] selectedRows = getSelectedRows();
                 setRowSelectionInterval(selectedRows[0], selectedRows[selectedRows.length - 1]);
 
             } else {
@@ -245,55 +270,55 @@ public class ResultSetTable extends JTable implements StandardTable {
     }
 
     public void copySelectedCellsAsCSV() {
-        
+
         copySelectedCells(',', false, false);
     }
-    
+
     public void copySelectedCellsAsCSVWithNames() {
-        
+
         copySelectedCells(',', false, true);
     }
-    
+
     public void copySelectedCellsAsCSVQuoted() {
-        
+
         copySelectedCells(',', true, false);
     }
-    
+
     public void copySelectedCellsAsCSVQuotedWithNames() {
-        
+
         copySelectedCells(',', true, true);
     }
-    
+
     private void copySelectedCells(char delimiter, boolean quoted, boolean withNames) {
-        
+
         StringBuilder sb = new StringBuilder();
-        
+
         int cols = getSelectedColumnCount();
         int rows = getSelectedRowCount();
-        
+
         if (cols == 0 && rows == 0) {
-            
+
             return;
         }
-        
+
         int[] selectedRows = getSelectedRows();
         int[] selectedCols = getSelectedColumns();
 
         if (withNames) {
-            
+
             sb.append("#");
             List<String> list = new ArrayList<String>();
             for (int j = 0; j < cols; j++) {
-    
+
                 list.add(getColumnName(selectedCols[j]));
             }
-    
+
             sb.append(StringUtils.join(list, delimiter)).append('\n');
         }
 
         String quote = quoted ? "'" : "";
         for (int i = 0; i < rows; i++) {
-            
+
             for (int j = 0; j < cols; j++) {
 
                 sb.append(quote);
@@ -301,14 +326,14 @@ public class ResultSetTable extends JTable implements StandardTable {
                 sb.append(quote);
                 sb.append(delimiter);
             }
-            
+
             if (cols > 1) {
-             
+
                 sb.deleteCharAt(sb.length() - 1);
             }
 
             if (i < rows - 1) {
-                
+
                 sb.append('\n');
             }
 
@@ -316,12 +341,12 @@ public class ResultSetTable extends JTable implements StandardTable {
 
         if (cols == 1) {
 
-            sb.deleteCharAt(sb.length() - 1);            
+            sb.deleteCharAt(sb.length() - 1);
         }
 
         GUIUtilities.copyToClipBoard(sb.toString());
     }
-    
+
     public Object valueAtPoint(Point point) {
 
         int row = rowAtPoint(point);
@@ -361,7 +386,7 @@ public class ResultSetTable extends JTable implements StandardTable {
             }
 
             data.add(rowVector);
-         }
+        }
 
         return new DefaultTableModel(data, columns);
     }
@@ -409,13 +434,28 @@ public class ResultSetTable extends JTable implements StandardTable {
         }
     }
 
+    public Boolean isComboColumn(int index) {
+        return comboboxColumns.contains(index);
+    }
+
     public TableCellRenderer getCellRenderer(int row, int column) {
         return cellRenderer;
     }
 
     public TableCellEditor getCellEditor(int row, int column) {
-        
+
         RecordDataItem value = (RecordDataItem) getValueAt(row, column);
+        if (isComboColumn(column)) {
+            JComboBox comboBox = new JComboBox(((JComboBox) ((DefaultCellEditor) columnModel.getComboColumn(column).getCellEditor()).getComponent()).getModel());
+            comboBox.setEditable(true);
+            if (value.getValue() == null)
+                comboBox.setSelectedIndex(0);
+            else
+                comboBox.setSelectedItem(value.getValue());
+            TableCellEditor editor = new DefaultCellEditor(comboBox);
+            return editor;
+        }
+
         int sqlType = value.getDataType();
         switch (sqlType) {
 
@@ -425,10 +465,28 @@ public class ResultSetTable extends JTable implements StandardTable {
             case Types.NCHAR:
             case Types.VARCHAR:
             case Types.NVARCHAR:
-            case Types.CLOB:
                 return multiLineCellEditor;
+            case Types.DATE:
+                return dateEditor;
+            case Types.TIMESTAMP:
+                return dateTimeCellEditor;
+            case Types.TIME:
+                return timeCellEditor;
+            case Types.BOOLEAN:
+                JComboBox comboBox = new JComboBox(new String[]{"true", "false", "null"});
+                String booleanValue = String.valueOf(value.getValue());
+                if (MiscUtils.isNull(booleanValue))
+                    comboBox.setSelectedItem(2);
+                else if (booleanValue.equalsIgnoreCase("true"))
+                    comboBox.setSelectedIndex(0);
+                else if (booleanValue.equalsIgnoreCase("false"))
+                    comboBox.setSelectedIndex(1);
+                else
+                    comboBox.setSelectedItem(2);
+                return new DefaultCellEditor(comboBox);
+
         }
-        
+
         return defaultCellEditor;
     }
 
@@ -442,7 +500,7 @@ public class ResultSetTable extends JTable implements StandardTable {
         if (columnWidth != 75) {
 
             TableColumn col = null;
-            for (Enumeration<TableColumn> i = tcm.getColumns(); i.hasMoreElements();) {
+            for (Enumeration<TableColumn> i = tcm.getColumns(); i.hasMoreElements(); ) {
                 col = i.nextElement();
                 col.setWidth(columnWidth);
                 col.setPreferredWidth(columnWidth);
@@ -451,9 +509,26 @@ public class ResultSetTable extends JTable implements StandardTable {
         }
     }
 
+    public void setComboboxColumn(int ind, Vector<Object> items) {
+        comboboxColumns.add(ind);
+        TableColumn column = new TableColumn();
+        JComboBox comboBox = new JComboBox();
+        comboBox.setModel(new DefaultComboBoxModel(items));
+        column.setCellEditor(new DefaultCellEditor(comboBox));
+        columnModel.setColumn(column, ind);
+    }
+
     class ResultsTableColumnModel extends DefaultTableColumnModel {
+        Vector<TableColumn> tcs;
 
         // dumb work-around for update issue noted
+        public void init_tcs(int cols) {
+            tcs = new Vector<TableColumn>();
+            for (int i = 0; i < cols; i++) {
+                tcs.add(new TableColumn());
+            }
+        }
+
         public TableColumn getColumn(int columnIndex) {
             try {
                 return super.getColumn(columnIndex);
@@ -462,18 +537,29 @@ public class ResultSetTable extends JTable implements StandardTable {
             }
         }
 
+        public TableColumn getComboColumn(int columnIndex) {
+            try {
+                return tcs.elementAt(columnIndex);
+            } catch (Exception e) {
+                return dummyColumn;
+            }
+        }
+
+        public void setColumn(TableColumn column, int index) {
+            tcs.set(index, column);
+        }
+
     } // class ResultsTableColumnModel
 
-    
-    
+
     class ResultSetTableHeader extends JTableHeader {
-        
+
         @Override
         public String getToolTipText(MouseEvent event) {
 
             return super.getToolTipText(event);
         }
-        
+
     }
 
     public void columnVisibilityChanged() {
@@ -482,5 +568,11 @@ public class ResultSetTable extends JTable implements StandardTable {
         model.fireTableStructureChanged();
         applyUserPreferences();
     }
-    
+
+    public void stopEditing() {
+        if (isEditing())
+            getCellEditor().stopCellEditing();
+    }
+
 }
+

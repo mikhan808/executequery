@@ -1,7 +1,7 @@
 /*
  * FeedbackPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,101 +20,105 @@
 
 package org.executequery.gui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
-import javax.swing.SwingUtilities;
-
 import org.executequery.Constants;
 import org.executequery.GUIUtilities;
+import org.executequery.localization.Bundles;
 import org.executequery.repository.RepositoryException;
 import org.executequery.repository.UserFeedback;
 import org.executequery.repository.UserFeedbackRepository;
 import org.executequery.repository.spi.UserFeedbackRepositoryImpl;
-import org.underworldlabs.swing.DefaultButton;
 import org.underworldlabs.swing.InterruptibleProgressDialog;
 import org.underworldlabs.swing.util.Interruptible;
 import org.underworldlabs.swing.util.SwingWorker;
 import org.underworldlabs.util.MiscUtils;
 import org.underworldlabs.util.SystemProperties;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 /**
  * Base feedback panel for comments, requests and bugs.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class FeedbackPanel extends DefaultActionButtonsPanel
-                           implements ActionListener,
-                                      FocusComponentPanel,
-                                      Interruptible {
+        implements ActionListener,
+        FocusComponentPanel,
+        Interruptible {
 
-    /** user comments feedback indicator */
-    public static final int USER_COMMENTS = 2;
+    /**
+     * user comments feedback indicator
+     */
+    public static final int USER_COMMENTS = 0;
 
-    /** feature request feedback indicator */
-    public static final int FEATURE_REQUEST = 1;
+    /**
+     * feature request feedback indicator
+     */
+    public static final int FEATURE_REQUEST = 2;
 
-    /** bug report feedback indicator */
-    public static final int BUG_REPORT = 0;
+    /**
+     * bug report feedback indicator
+     */
+    public static final int BUG_REPORT = 1;
 
-    /** the feedback type for the instance */
+    /**
+     * the feedback type for the instance
+     */
     private int feedbackType;
 
-    /** user's name field */
+    /**
+     * user's name field
+     */
     private JTextField nameField;
 
-    /** user's comments field */
-    private JTextArea commentsField;
-
-    /** user's email field */
+    /**
+     * user's email field
+     */
     private JTextField emailField;
 
-    /** the parent container */
+    /**
+     * user's comments field
+     */
+
+    private JTextArea commentsField;
+
+    /**
+     * the parent container
+     */
     private ActionContainer parent;
 
-    /** Thread worker object */
+    /**
+     * Thread worker object
+     */
     private SwingWorker worker;
 
-    /** The progress dialog */
+    /**
+     * The progress dialog
+     */
     private InterruptibleProgressDialog progressDialog;
 
-    /** Creates a new instance of FeedbackPanel */
+    /**
+     * Creates a new instance of FeedbackPanel
+     */
     public FeedbackPanel(ActionContainer parent, int feedbackType) {
 
-        try {
+        this.parent = parent;
+        this.feedbackType = feedbackType;
 
-            this.parent = parent;
-            this.feedbackType = feedbackType;
-
-            init();
-
-        } catch (Exception e) {
-
-            e.printStackTrace();
-        }
+        init();
     }
 
-    private void init() throws Exception {
+    private void init() {
 
         String labelText = generateLabelText();
 
         commentsField = new JTextArea(createHeader());
-        commentsField.setMargin(new Insets(2,2,2,2));
+        commentsField.setFont(UIManager.getDefaults().getFont("Label.font"));
+        commentsField.setMargin(new Insets(2, 2, 2, 2));
+        commentsField.setLineWrap(true);
+        commentsField.setWrapStyleWord(true);
 
         nameField = WidgetFactory.createTextField();
         emailField = WidgetFactory.createTextField();
@@ -137,7 +141,7 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         gbc.insets.top = 7;
         gbc.insets.right = 10;
         gbc.fill = GridBagConstraints.NONE;
-        basePanel.add(new JLabel("Name:"), gbc);
+        basePanel.add(new JLabel(Bundles.getCommon("name")), gbc);
         gbc.gridx++;
         gbc.insets.left = 0;
         gbc.weightx = 1.0;
@@ -152,7 +156,7 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         gbc.insets.left = 5;
         gbc.fill = GridBagConstraints.NONE;
         gbc.insets.right = 10;
-        basePanel.add(new JLabel("Email:"), gbc);
+        basePanel.add(new JLabel("Email"), gbc);
         gbc.gridx++;
         gbc.insets.left = 0;
         gbc.weightx = 1.0;
@@ -160,6 +164,7 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         gbc.insets.right = 5;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         basePanel.add(emailField, gbc);
+
 
         gbc.gridy++;
         gbc.gridx = 0;
@@ -171,8 +176,10 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         basePanel.add(new JScrollPane(commentsField), gbc);
 
-        JButton cancelButton = new DefaultButton("Cancel");
-        JButton sendButton = new DefaultButton("Send");
+        JButton cancelButton = WidgetFactory.createButton(Bundles.get("common.cancel.button"));
+        cancelButton.setActionCommand("cancel");
+        JButton sendButton = WidgetFactory.createButton(Bundles.get("common.send.button"));
+        sendButton.setActionCommand("Send");
 
         sendButton.addActionListener(this);
         cancelButton.addActionListener(this);
@@ -180,7 +187,7 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         addActionButton(sendButton);
         addActionButton(cancelButton);
 
-        setPreferredSize(new Dimension(700, 450));
+        setPreferredSize(new Dimension(700, 480));
 
         addContentPanel(basePanel);
     }
@@ -194,7 +201,6 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
 
             nameField.setText(System.getProperty("user.name"));
         }
-
         if (hasUserEmail()) {
 
             emailField.setText(getUserEmail());
@@ -254,24 +260,20 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
 
         switch (feedbackType) {
             case BUG_REPORT:
-                sb.append("Please provide as much information on what ");
-                sb.append("you were doing when the error occurred as well ");
-                sb.append("as what database you are connected to and any ");
-                sb.append("exception stack traces that may be available.");
+                sb.append(bundledString("bugReport"));
                 break;
             case FEATURE_REQUEST:
             case USER_COMMENTS:
             default:
-                sb.append("Please complete the fields below.");
+                sb.append(bundledString("completeFields"));
                 break;
         }
 
         sb.append("</td></tr><tr><td>");
-        sb.append("If you wish to send feedback with ");
-        sb.append("attachments, please send an email to ");
-        sb.append("rdb.support@red-soft.biz instead of completing this form.");
-        sb.append("</td></tr><tr><td>This feature requires an active ");
-        sb.append("internet connection.</td></tr>");
+        sb.append(bundledString("infoAttachments"));
+        sb.append("</td></tr><tr><td>");
+        sb.append(bundledString("warningInternetConnection"));
+        sb.append("</td></tr>");
         sb.append(Constants.TABLE_TAG_END);
         sb.append("</html>");
 
@@ -301,7 +303,7 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
 
                     parent.unblock();
 
-                    JDialog dialog = (JDialog)parent;
+                    JDialog dialog = (JDialog) parent;
                     dialog.setVisible(true);
                     return;
                 }
@@ -317,8 +319,7 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
                     closeProgressDialog();
 
                     GUIUtilities.displayInformationMessage(
-                            "Your remarks were successfully posted to " +
-                            "rdb.support@red-soft.biz.\nThank you for your feedback.");
+                            bundledString("messageSuccess"));
 
                 } else if (cancelled || result == Constants.WORKER_FAIL ||
                         result == Constants.WORKER_CANCEL) {
@@ -327,8 +328,9 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
 
                         parent.unblock();
 
-                        JDialog dialog = (JDialog)parent;
+                        JDialog dialog = (JDialog) parent;
                         dialog.setVisible(true);
+                        closeProgressDialog();
                         return;
                     }
 
@@ -340,32 +342,26 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         };
 
         progressDialog = new InterruptibleProgressDialog(
-                            GUIUtilities.getParentFrame(),
-                            "Posting Feedback",
-                            "Posting feedback report to rdb.support@red-soft.biz",
-                            this);
+                GUIUtilities.getParentFrame(),
+                bundledString("postingFeedback"),
+                bundledString("postingFeedbackMessage"),
+                this);
 
         worker.start();
         progressDialog.run();
     }
 
     private boolean fieldsValid() {
-
         String email = emailField.getText();
 
         if (MiscUtils.isNull(email)) {
 
-            int result = GUIUtilities.displayYesNoDialog(
-                    noEmailAddressWarningMessage(), "Feedback");
+            GUIUtilities.displayErrorMessage(
+                    noEmailErrorMessage());
+            return false;
 
-            if (result == JOptionPane.NO_OPTION ||
-                    result == JOptionPane.CANCEL_OPTION) {
-
-                return false;
-            }
 
         }
-
         String comments = commentsField.getText();
 
         if (MiscUtils.isNull(comments)) {
@@ -374,20 +370,28 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
 
             return false;
         }
+        String name = nameField.getText();
+
+        if (MiscUtils.isNull(name)) {
+
+            GUIUtilities.displayErrorMessage(noNameErrorMessage());
+
+            return false;
+        }
 
         return true;
     }
 
     private String noRemarksErrorMessage() {
-        return "Please enter your remarks in the text area provided.";
+        return bundledString("noRemarksErrorMessage");
     }
 
-    private String noEmailAddressWarningMessage() {
-        return "You have not entered your email address.\n" +
-            "An email address is required in order for the " +
-            "developers to reply to your feedback.\n" +
-            "Are you sure you want to submit this report " +
-            "without an email address?";
+    private String noNameErrorMessage() {
+        return bundledString("noNameErrorMessage");
+    }
+
+    private String noEmailErrorMessage() {
+        return bundledString("noEmailErrorMessage");
     }
 
     private Object doWork() {
@@ -397,10 +401,7 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         try {
 
             UserFeedback userFeedback = createUserFeedback();
-            repository.postFeedback(userFeedback);
-
-            return Constants.WORKER_SUCCESS;
-
+            return resultWork(repository.postFeedback(userFeedback));
         } catch (RepositoryException e) {
 
             if (cancelled) {
@@ -415,6 +416,20 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
 
     }
 
+    private Object resultWork(int res) {
+        if (res == 1)
+            return Constants.WORKER_SUCCESS;
+        else {
+            if (res == 401) {
+                SystemProperties.setStringProperty("user", "reddatabase.token", "");
+                GUIUtilities.loadAuthorisationInfo();
+                UserFeedback userFeedback = createUserFeedback();
+                return resultWork(repository.postFeedback(userFeedback));
+            }
+            return Constants.WORKER_FAIL;
+        }
+    }
+
     private UserFeedbackRepository createFeedbackRepository() {
 
         return new UserFeedbackRepositoryImpl();
@@ -422,23 +437,10 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
 
     private UserFeedback createUserFeedback() {
 
-        String typeString = null;
+        String typeString = "" + feedbackType;
 
-        switch (feedbackType) {
-            case BUG_REPORT:
-                typeString = "Red Expert: BUG_REPORT";
-                break;
-            case FEATURE_REQUEST:
-                typeString = "Red Expert: FEATURE_REQUEST";
-                break;
-            case USER_COMMENTS:
-            default:
-                typeString = "Red Expert: USER_COMMENTS";
-                break;
-        }
 
-        return new UserFeedback(nameField.getText(),
-                emailField.getText(),
+        return new UserFeedback(nameField.getText(), emailField.getText(),
                 commentsField.getText(),
                 typeString);
     }
@@ -478,7 +480,9 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         });
     }
 
-    /** process cancelled flag */
+    /**
+     * process cancelled flag
+     */
     private boolean cancelled;
 
     private UserFeedbackRepository repository;
@@ -511,8 +515,13 @@ public class FeedbackPanel extends DefaultActionButtonsPanel
         return nameField;
     }
 
+    protected String bundledString(String key) {
+        return Bundles.get(this.getClass(), key);
+    }
+
 
 }
+
 
 
 

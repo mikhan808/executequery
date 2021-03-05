@@ -1,7 +1,7 @@
 /*
  * DriverViewPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,23 +23,25 @@ package org.executequery.gui.drivers;
 import org.executequery.base.TabView;
 import org.executequery.databasemediators.DatabaseDriver;
 import org.executequery.gui.forms.FormObjectViewContainer;
+import org.executequery.localization.Bundles;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class DriverViewPanel extends FormObjectViewContainer 
-                             implements TabView {
-    
-    public static final String TITLE = "Drivers";
+public class DriverViewPanel extends FormObjectViewContainer
+        implements TabView {
+
+    public static final String TITLE = Bundles.getCommon("drivers");
     public static final String FRAME_ICON = "DatabaseDrivers16.png";
 
-    /** the parent panel containing the selection tree */
+    /**
+     * the parent panel containing the selection tree
+     */
     private DriversTreePanel parent;
-    
-    /** Creates a new instance of DriverViewPanel */
+
+    /**
+     * Creates a new instance of DriverViewPanel
+     */
     public DriverViewPanel(DriversTreePanel parent) {
         super();
         this.parent = parent;
@@ -50,22 +52,21 @@ public class DriverViewPanel extends FormObjectViewContainer
         if (!containsPanel(DriverListPanel.NAME)) {
             panel = new DriverListPanel(this);
             addToLayout(panel);
-        } 
-        else {
-            panel = (DriverListPanel)getFormObjectView(DriverListPanel.NAME);
+        } else {
+            panel = (DriverListPanel) getFormObjectView(DriverListPanel.NAME);
         }
 
         setView(panel);
     }
-    
-    /** 
+
+    /**
      * Adds a new driver.
      */
     protected void addNewDriver() {
         parent.newDriver();
     }
 
-    /** 
+    /**
      * Sets the selected driver tree node to the specified driver.
      *
      * @param driver - the driver to select
@@ -84,33 +85,33 @@ public class DriverViewPanel extends FormObjectViewContainer
 
     public void valueChanged(DatabaseDriverNode node) {
         //DriversPanel panel = null;
-        
+
         TabViewDriverPanel panel = null;
-        
+
         if (!containsPanel(DriverPanel.TITLE)) {
 
             panel = new TabViewDriverPanel(this);
             addToLayout(panel);
 
-        }  else {
-           
-            panel = (TabViewDriverPanel)getFormObjectView(DriverPanel.TITLE);
+        } else {
+
+            panel = (TabViewDriverPanel) getFormObjectView(DriverPanel.TITLE);
         }
 
         panel.setDriver(node.getDriver());
         setView(panel);
     }
-    
+
     protected boolean saveDrivers() {
 
         if (containsPanel(DriverPanel.TITLE)) {
 
             return tabViewDriverPanel().saveDrivers();
-        } 
-        
+        }
+
         return true;
     }
-    
+
     // --------------------------------------------
     // DockedTabView implementation
     // --------------------------------------------
@@ -123,7 +124,7 @@ public class DriverViewPanel extends FormObjectViewContainer
         if (containsPanel(DriverPanel.TITLE)) {
 
             return tabViewDriverPanel().tabViewClosing();
-        } 
+        }
 
         return true;
     }
@@ -136,8 +137,8 @@ public class DriverViewPanel extends FormObjectViewContainer
         if (containsPanel(DriverPanel.TITLE)) {
 
             return tabViewDriverPanel().tabViewSelected();
-        } 
-        
+        }
+
         return true;
     }
 
@@ -147,21 +148,22 @@ public class DriverViewPanel extends FormObjectViewContainer
     public boolean tabViewDeselected() {
 
         if (containsPanel(DriverPanel.TITLE)) {
-            
+
             return tabViewDriverPanel().tabViewDeselected();
-        } 
+        }
 
         return true;
     }
 
     private TabViewDriverPanel tabViewDriverPanel() {
 
-        return (TabViewDriverPanel)getFormObjectView(DriverPanel.TITLE);
+        return (TabViewDriverPanel) getFormObjectView(DriverPanel.TITLE);
     }
 
     // --------------------------------------------
 
 }
+
 
 
 

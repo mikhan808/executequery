@@ -1,7 +1,7 @@
 /*
  * CreateTableToolBar.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,59 +20,66 @@
 
 package org.executequery.gui.table;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
 import org.executequery.GUIUtilities;
 import org.underworldlabs.swing.actions.ActionUtilities;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CreateTableToolBar extends JPanel
-                                implements ActionListener {
-    
-    /** The parent panel where this tool bar will be attached */
+        implements ActionListener {
+
+    /**
+     * The parent panel where this tool bar will be attached
+     */
     private TableFunction parent;
-    
-    /** The insert row (column) after button */
+
+    /**
+     * The insert row (column) after button
+     */
     private JButton insertAfterButton;
-    
-    /** The insert row (column) before button */
+
+    /**
+     * The insert row (column) before button
+     */
     private JButton insertBeforeButton;
-    
-    /** The delete row (column) button */
+
+    /**
+     * The delete row (column) button
+     */
     private JButton deleteRowButton;
-    
-    /** The move row (column) up button */
+
+    /**
+     * The move row (column) up button
+     */
     private JButton moveUpButton;
-    
-    /** The move row (column) down button */
+
+    /**
+     * The move row (column) down button
+     */
     private JButton moveDownButton;
-    
-    /** Whether the move buttons are available */
+
+    /**
+     * Whether the move buttons are available
+     */
     private boolean canMove;
-    
+
     public CreateTableToolBar(TableFunction parent) {
         this(parent, true);
     }
-    
+
     public CreateTableToolBar(TableFunction parent, boolean canMove) {
         super();
         setLayout(new GridBagLayout());
@@ -80,27 +87,29 @@ public class CreateTableToolBar extends JPanel
         this.canMove = canMove;
         initialiseButtons();
     }
-    
-    /** <p>Creates the tool bar buttons and associates
-     *  these with the relevant listener. */
+
+    /**
+     * <p>Creates the tool bar buttons and associates
+     * these with the relevant listener.
+     */
     private void initialiseButtons() {
 
-        insertAfterButton = ActionUtilities.createButton(
+        insertAfterButton = ActionUtilities.createToolbarButton(
                 this,
                 GUIUtilities.getAbsoluteIconPath("ColumnInsertAfter16.png"),
-                "Insert a value after the current selection", 
+                "Insert a value after the current selection",
                 null);
 
-        insertBeforeButton = ActionUtilities.createButton(
+        insertBeforeButton = ActionUtilities.createToolbarButton(
                 this,
                 GUIUtilities.getAbsoluteIconPath("ColumnInsertBefore16.png"),
-                "Insert a value before the current selection", 
+                "Insert a value before the current selection",
                 null);
 
-        deleteRowButton = ActionUtilities.createButton(
+        deleteRowButton = ActionUtilities.createToolbarButton(
                 this,
                 GUIUtilities.getAbsoluteIconPath("ColumnDelete16.png"),
-                "Delete the selected value", 
+                "Delete the selected value",
                 null);
 
         GridBagConstraints gbc = new GridBagConstraints();
@@ -115,16 +124,16 @@ public class CreateTableToolBar extends JPanel
         add(deleteRowButton, gbc);
 
         if (canMove) {
-            moveUpButton = ActionUtilities.createButton(
+            moveUpButton = ActionUtilities.createToolbarButton(
                     this,
                     "Up16.png",
-                    "Move the selection up", 
+                    "Move the selection up",
                     null);
 
-            moveDownButton = ActionUtilities.createButton(
+            moveDownButton = ActionUtilities.createToolbarButton(
                     this,
                     "Down16.png",
-                    "Move the selection down", 
+                    "Move the selection down",
                     null);
 
             gbc.gridy++;
@@ -132,50 +141,53 @@ public class CreateTableToolBar extends JPanel
             gbc.gridy++;
             add(moveDownButton, gbc);
         }
-        
+
     }
-    
-    /** <p>Enables/disables as specified the buttons
-     *  insert before, move up and move down.
+
+    /**
+     * <p>Enables/disables as specified the buttons
+     * insert before, move up and move down.
      *
-     *  @param <code>true</code> to enable these buttons
-     *         <code>false</code> to disable these buttons
+     * @param <code>true</code> to enable these buttons
+     *                          <code>false</code> to disable these buttons
      */
     public void enableButtons(boolean enable) {
         insertBeforeButton.setEnabled(enable);
-        
+
         if (canMove) {
             moveUpButton.setEnabled(enable);
             moveDownButton.setEnabled(enable);
         }
     }
-    
-    /** <p>Determines which button was selected and
-     *  calls the relevant method to execute that action.
+
+    /**
+     * <p>Determines which button was selected and
+     * calls the relevant method to execute that action.
      *
-     *  @param the event initiating this action
+     * @param the event initiating this action
      */
     public void actionPerformed(ActionEvent e) {
         Object button = e.getSource();
-        
+
         if (button == insertAfterButton)
             parent.insertAfter();
-        
+
         else if (button == insertBeforeButton)
             parent.insertBefore();
-        
+
         else if (button == deleteRowButton)
             parent.deleteRow();
-        
+
         else if (button == moveUpButton)
             parent.moveColumnUp();
-        
+
         else if (button == moveDownButton)
             parent.moveColumnDown();
-        
+
     }
-    
+
 }
+
 
 
 

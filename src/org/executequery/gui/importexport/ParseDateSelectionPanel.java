@@ -1,7 +1,7 @@
 /*
  * ParseDateSelectionPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,6 @@
 
 package org.executequery.gui.importexport;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.io.IOException;
-
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JEditorPane;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-
 import org.executequery.GUIUtilities;
 import org.executequery.gui.WidgetFactory;
 import org.executequery.gui.help.HelpPopupBase;
@@ -49,60 +28,74 @@ import org.underworldlabs.swing.ComponentTitledPanel;
 import org.underworldlabs.swing.RolloverButton;
 import org.underworldlabs.util.FileUtils;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.IOException;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class ParseDateSelectionPanel extends ComponentTitledPanel 
-                                     implements ItemListener,
-                                                ActionListener {
-    
-    /** the parse check box */
+public class ParseDateSelectionPanel extends ComponentTitledPanel
+        implements ItemListener,
+        ActionListener {
+
+    /**
+     * the parse check box
+     */
     private JCheckBox parseDatesCheck;
-    
-    /** the formats editable combo */
+
+    /**
+     * the formats editable combo
+     */
     private JComboBox dateFormats;
-    
-    /** the help popup button */
+
+    /**
+     * the help popup button
+     */
     private JButton helpButton;
-    
-    /** the date format label */
+
+    /**
+     * the date format label
+     */
     private JLabel dateFormatLabel;
-    
-    /** the parent process */
-    private ImportExportProcess importExportProcess;
-    
-    /** Creates a new instance of ParseDateSelectionPanel */
-    public ParseDateSelectionPanel(ImportExportProcess importExportProcess) {
-        
+
+    /**
+     * the parent process
+     */
+    private ImportExportDataProcess importExportProcess;
+
+    /**
+     * Creates a new instance of ParseDateSelectionPanel
+     */
+    public ParseDateSelectionPanel(ImportExportDataProcess importExportProcess) {
+
         String checkBoxLabel = "Parse Date/Time Values";
-        
+
         if (importExportProcess.isExport()) {
-            
+
             checkBoxLabel = "Date/Time Value Pattern";
         }
 
         parseDatesCheck = new JCheckBox(checkBoxLabel);
         setTitleComponent(parseDatesCheck);
         parseDatesCheck.addItemListener(this);
-        
+
         this.importExportProcess = importExportProcess;
 
         dateFormats = WidgetFactory.createComboBox(loadDatePatterns());
         dateFormats.setEditable(true);
-        
+
         JPanel panel = getContentPane();
         panel.setLayout(new GridBagLayout());
 
         dateFormatLabel = new JLabel("Date format:");
-        
+
         // disable all on startup
         dateFormats.setEnabled(false);
         dateFormats.setOpaque(false);
         dateFormatLabel.setEnabled(false);
-        
+
         helpButton = new RolloverButton(
                 "/org/executequery/icons/TipOfTheDay16.png", "Date/time format masks");
         helpButton.addActionListener(this);
@@ -110,7 +103,7 @@ public class ParseDateSelectionPanel extends ComponentTitledPanel
         helpButton.addMouseListener(new HelpPopupAdapter());
 
         GridBagConstraints gbc = new GridBagConstraints();
-        Insets ins = new Insets(10,5,10,5);
+        Insets ins = new Insets(10, 5, 10, 5);
         gbc.insets = ins;
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.gridy = 0;
@@ -139,14 +132,14 @@ public class ParseDateSelectionPanel extends ComponentTitledPanel
                     "org/executequery/gui/importexport/date.formats");
 
             return datePatterns.split("\n|\r");
-            
+
         } catch (IOException e) {
 
             Log.error("Error loading predefined date format masks.", e);
         }
         return new String[0];
     }
-    
+
     /**
      * Override to enable/disable the check box and associated fields.
      */
@@ -164,7 +157,7 @@ public class ParseDateSelectionPanel extends ComponentTitledPanel
 
         super.setEnabled(enabled);
     }
-    
+
     /**
      * Returns whether to parse date values using the format
      * selected/specified.
@@ -191,15 +184,15 @@ public class ParseDateSelectionPanel extends ComponentTitledPanel
 
         return null;
     }
-    
-    public void actionPerformed(ActionEvent e) {        
+
+    public void actionPerformed(ActionEvent e) {
         //new DateFormatDialog();
     }
-    
+
     /**
      * Invoked when the parse dates checkbox has been selected/deselected
      * to enable/disable the date format combo box.
-     */    
+     */
     public void itemStateChanged(ItemEvent e) {
         boolean selected = e.getStateChange() == ItemEvent.SELECTED;
         dateFormats.setEnabled(selected);
@@ -213,27 +206,27 @@ public class ParseDateSelectionPanel extends ComponentTitledPanel
         public void mouseReleased(MouseEvent e) {
 
             new HelpPopupBase(
-                    "Date Format Masks", 
+                    "Date Format Masks",
                     new DateFormatDialog(),
                     importExportProcess.getDialog(),
                     e);
 
         }
     }
-    
-    
+
+
     class DateFormatDialog extends JPanel {
-        
+
         public DateFormatDialog() {
-            
+
             super(new BorderLayout());
 
             try {
-                
+
                 String path = "/org/executequery/gui/importexport/date-masks.html";
                 JEditorPane textPane = new JEditorPane(getClass().getResource(path));
                 textPane.setEditable(false);
-                setPreferredSize(new Dimension(480,300));
+                setPreferredSize(new Dimension(480, 300));
                 add(new JScrollPane(textPane), BorderLayout.CENTER);
 
             } catch (IOException e) {
@@ -244,10 +237,11 @@ public class ParseDateSelectionPanel extends ComponentTitledPanel
                         message + "\n" + e.getMessage(), e);
             }
         }
-        
+
     }
-    
+
 }
+
 
 
 

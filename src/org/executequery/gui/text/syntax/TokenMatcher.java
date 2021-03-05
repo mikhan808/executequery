@@ -1,7 +1,7 @@
 /*
  * TokenMatcher.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,22 +20,23 @@
 
 package org.executequery.gui.text.syntax;
 
-import java.util.regex.Matcher;
 import javax.swing.text.Style;
+import java.util.regex.Matcher;
 
 /**
  * Represents a matcher and style combo
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
 public class TokenMatcher {
-    
+
     private int type;
     private Style style;
     private Matcher matcher;
 
-    /** Creates a new instance of TokenMatcher */
+    /**
+     * Creates a new instance of TokenMatcher
+     */
     public TokenMatcher(int type, Style style, Matcher matcher) {
         this.type = type;
         this.style = style;
@@ -65,8 +66,9 @@ public class TokenMatcher {
     public void setType(int type) {
         this.type = type;
     }
-    
+
 }
+
 
 
 

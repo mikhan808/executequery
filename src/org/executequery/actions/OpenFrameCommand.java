@@ -1,7 +1,7 @@
 /*
  * OpenFrameCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,25 +21,23 @@
 package org.executequery.actions;
 
 import org.executequery.GUIUtilities;
+import org.executequery.actions.othercommands.AbstractBaseCommand;
 import org.executequery.datasource.ConnectionManager;
 import org.executequery.gui.BaseDialog;
+import org.executequery.localization.Bundles;
 
 /**
  * Base command for those opening a new frame
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public abstract class OpenFrameCommand {
-    
+public abstract class OpenFrameCommand extends AbstractBaseCommand {
+
     protected final boolean isConnected() {
 
         if (!ConnectionManager.hasConnections()) {
 
-            GUIUtilities.displayErrorMessage(
-                            "Not Connected.\nPlease connect to continue.");
-
+            GUIUtilities.displayErrorMessage(Bundles.get(OpenFrameCommand.class, "error.notConnected"));
             return false;
         }
 
@@ -50,25 +48,23 @@ public abstract class OpenFrameCommand {
 
         return GUIUtilities.isActionableDialogOpen();
     }
-    
+
     protected final boolean isDialogOpen(String title) {
 
         if (GUIUtilities.isDialogOpen(title)) {
 
             GUIUtilities.setSelectedDialog(title);
-
             return true;
         }
-
         return false;
     }
-    
+
     /**
      * Creates a dialog component with the specified name
      * and modality.
      *
-     * @param the dialog name
-     * @param whether the dialog is to be modal
+     * @param name  dialog name
+     * @param modal the dialog is to be modal
      */
     protected final BaseDialog createDialog(String name, boolean modal) {
         return new BaseDialog(name, modal);
@@ -78,22 +74,13 @@ public abstract class OpenFrameCommand {
      * Creates a dialog component with the specified name
      * and modality.
      *
-     * @param the dialog name
-     * @param whether the dialog is to be modal
-     * @param wether the dialog is resizeable
+     * @param name       dialog name
+     * @param modal      the dialog is to be modal
+     * @param resizeable the dialog is resizeable
      */
     protected final BaseDialog createDialog(String name, boolean modal, boolean resizeable) {
         return new BaseDialog(name, modal, resizeable);
     }
 
 }
-
-
-
-
-
-
-
-
-
 

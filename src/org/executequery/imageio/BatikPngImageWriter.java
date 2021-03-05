@@ -1,7 +1,7 @@
 /*
  * BatikPngImageWriter.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,10 +20,9 @@
 
 package org.executequery.imageio;
 
+import javax.imageio.ImageIO;
 import java.io.File;
-
-import org.apache.batik.svggen.ImageHandlerPNGEncoder;
-import org.apache.batik.svggen.SVGGraphics2DIOException;
+import java.io.IOException;
 
 public class BatikPngImageWriter extends AbstractImageWriter {
 
@@ -32,19 +31,16 @@ public class BatikPngImageWriter extends AbstractImageWriter {
         try {
 
             File file = imageWriterInfo.getWriteToFile();
+            ImageIO.write(imageWriterInfo.getBufferedImage(), "png", file);
 
-            ImageHandlerPNGEncoder handler = 
-                new ImageHandlerPNGEncoder(file.getParent(), null);
-            handler.encodeImage(imageWriterInfo.getBufferedImage(), file);
-            
-        } catch (SVGGraphics2DIOException e) {
-
-            handleException(e);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
     }
-    
+
 }
+
 
 
 

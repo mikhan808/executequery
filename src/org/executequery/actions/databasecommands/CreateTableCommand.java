@@ -1,7 +1,7 @@
 /*
  * CreateTableCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,59 +20,57 @@
 
 package org.executequery.actions.databasecommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
-import org.underworldlabs.swing.actions.BaseCommand;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.gui.BaseDialog;
-import org.executequery.gui.CreateTablePanel;
+import org.executequery.gui.databaseobjects.CreateTablePanel;
+import org.underworldlabs.swing.actions.BaseCommand;
 
-/** 
+import java.awt.event.ActionEvent;
+
+/**
  * Executes the create table action creating an
  * instance of CreateTablePanel and adding this within
  * an internal frame to the desktop.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CreateTableCommand extends OpenFrameCommand
-                                implements BaseCommand {
-    
-    /** 
+        implements BaseCommand {
+
+    /**
      * Performs the execution of this action.
      *
-     * @param the originating <code>ActionEvent</code>
+     * @param e originating <code>ActionEvent</code>
      */
     public void execute(ActionEvent e) {
 
         if (!isConnected()) {
             return;
-        }        
+        }
 
-        
+
         if (isActionableDialogOpen()) {
             GUIUtilities.acionableDialogToFront();
             return;
         }
-        
+
         if (!isDialogOpen(CreateTablePanel.TITLE)) {
             try {
                 GUIUtilities.showWaitCursor();
-                BaseDialog dialog = 
+                BaseDialog dialog =
                         createDialog(CreateTablePanel.TITLE, false);
-                CreateTablePanel panel = new CreateTablePanel(dialog);
+                CreateTablePanel panel = new CreateTablePanel(dialog, false);
                 dialog.addDisplayComponentWithEmptyBorder(panel);
                 dialog.display();
-            }
-            finally {
+            } finally {
                 GUIUtilities.showNormalCursor();
             }
         }
     }
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * OutputLogger.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,48 +25,45 @@ import org.executequery.log.ApplicationLog;
 import org.executequery.util.UserProperties;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public final class OutputLogger {
 
     private static final String LOGGER_NAME = "query-editor-logger";
-    
+
     private static final String PATTERN = "[%d{dd-MM-yy HH:mm:ss}] %m%n";
-    
+
     private static final int MAX_BACKUP_INDEX = 5;
 
     private static final String MAX_FILE_SIZE = "1MB";
-    
+
     private static final String LEVEL = "INFO";
 
-    private static final String LOG_FILE_PATH = 
-        UserProperties.getInstance().getStringProperty("editor.logging.path");
-    
-    private static final ApplicationLog log = 
-        new ApplicationLog(LOG_FILE_PATH, LOGGER_NAME, PATTERN, LEVEL, 
-                MAX_BACKUP_INDEX, MAX_FILE_SIZE);
+    private static final String LOG_FILE_PATH =
+            UserProperties.getInstance().getStringProperty("editor.logging.path");
+
+    private static final ApplicationLog log =
+            new ApplicationLog(LOG_FILE_PATH, LOGGER_NAME, PATTERN, LEVEL,
+                    MAX_BACKUP_INDEX, MAX_FILE_SIZE);
 
     private static boolean loggingToFile;
-    
+
     static {
 
         loggingToFile = UserProperties.getInstance().
-            getBooleanProperty("editor.logging.enabled");        
+                getBooleanProperty("editor.logging.enabled");
     }
 
     public static boolean isLogEnabled() {
-        
+
         return loggingToFile;
     }
-    
+
     public static void setLoggingToFile(boolean logging) {
 
         loggingToFile = logging;
     }
-    
+
     /**
      * Adds the specified appender to the logger.
      *
@@ -76,7 +73,7 @@ public final class OutputLogger {
 
         log.addAppender(appender);
     }
-    
+
     /**
      * Returns whether the log level is set to DEBUG.
      */
@@ -84,12 +81,12 @@ public final class OutputLogger {
 
         return log.isDebugEnabled();
     }
-    
+
     /**
      * Sets the logger level to that specified.
      *
      * @param level - the logger level to be set.<br>
-     *        Valid values are: ERROR, DEBUG, INFO, WARN, ALL, FATAL, TRACE
+     *              Valid values are: ERROR, DEBUG, INFO, WARN, ALL, FATAL, TRACE
      */
     public static void setLevel(String level) {
 
@@ -99,7 +96,7 @@ public final class OutputLogger {
     /**
      * Logs a message at log level INFO.
      *
-     * @param message  the log message.
+     * @param message   the log message.
      * @param throwable the throwable.
      */
     public static void info(Object message, Throwable throwable) {
@@ -113,7 +110,7 @@ public final class OutputLogger {
     /**
      * Logs a message at log level WARN.
      *
-     * @param message  the log message.
+     * @param message   the log message.
      * @param throwable the throwable.
      */
     public static void warning(Object message, Throwable throwable) {
@@ -127,7 +124,7 @@ public final class OutputLogger {
     /**
      * Logs a message at log level DEBUG.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void debug(Object message) {
 
@@ -140,11 +137,11 @@ public final class OutputLogger {
     /**
      * Logs a message at log level DEBUG.
      *
-     * @param message  the log message.
+     * @param message   the log message.
      * @param throwable the throwable.
      */
     public static void debug(Object message, Throwable throwable) {
-        
+
         if (loggingToFile) {
 
             log.debug(message, throwable);
@@ -154,11 +151,11 @@ public final class OutputLogger {
     /**
      * Logs a message at log level ERROR.
      *
-     * @param message  the log message.
-     * @param e the throwable.
+     * @param message the log message.
+     * @param e       the throwable.
      */
     public static void error(Object message, Throwable e) {
-        
+
         if (loggingToFile) {
 
             log.error(message, e);
@@ -168,10 +165,10 @@ public final class OutputLogger {
     /**
      * Logs a message at log level INFO.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void info(Object message) {
-        
+
         if (loggingToFile) {
 
             log.info(message);
@@ -181,7 +178,7 @@ public final class OutputLogger {
     /**
      * Logs a message at log level WARN.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void warning(Object message) {
 
@@ -194,7 +191,7 @@ public final class OutputLogger {
     /**
      * Logs a message at log level ERROR.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void error(Object message) {
 
@@ -204,9 +201,11 @@ public final class OutputLogger {
         }
     }
 
-    private OutputLogger() {}
+    private OutputLogger() {
+    }
 
 }
+
 
 
 

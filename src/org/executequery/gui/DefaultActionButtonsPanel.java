@@ -1,7 +1,7 @@
 /*
  * DefaultActionButtonsPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,24 @@
 
 package org.executequery.gui;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import org.executequery.components.BaseActionPanel;
+import org.executequery.localization.Bundles;
+import org.underworldlabs.swing.actions.ActionBuilder;
+
+import javax.swing.*;
+import javax.swing.border.Border;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.border.Border;
-
-import org.executequery.components.BaseActionPanel;
-import org.underworldlabs.swing.actions.ActionBuilder;
 
 public abstract class DefaultActionButtonsPanel extends BaseActionPanel {
 
     private JPanel buttonPanel;
-    
+
     private JButton helpButton;
-    
+
     private List<JButton> buttons;
-    
+
     private boolean expandButtonsToFill;
 
     public DefaultActionButtonsPanel() {
@@ -64,27 +61,27 @@ public abstract class DefaultActionButtonsPanel extends BaseActionPanel {
     }
 
     protected final void addHelpButton(JButton helpButton) {
-        
+
         this.helpButton = helpButton;
         resetButtonPanel();
     }
 
     protected final void addHelpButton(String command) {
-        
+
         JButton helpButton = new DefaultPanelButton();
 
         helpButton.setAction(ActionBuilder.get("help-command"));
-        helpButton.setText("Help");
+        helpButton.setText(Bundles.get("common.help.button"));
         helpButton.setActionCommand(command);
         helpButton.setIcon(null);
 
         addHelpButton(helpButton);
     }
-    
+
     protected final void addContentPanel(JPanel contentPanel) {
-        
+
         contentPanel.setBorder(createContentBorder());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.gridx = 0;
@@ -93,7 +90,7 @@ public abstract class DefaultActionButtonsPanel extends BaseActionPanel {
         gbc.weighty = 1.0;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.anchor = GridBagConstraints.NORTHWEST;
-        add(contentPanel, gbc);        
+        add(contentPanel, gbc);
     }
 
     private void resetButtonPanel() {
@@ -107,16 +104,16 @@ public abstract class DefaultActionButtonsPanel extends BaseActionPanel {
 
             gbc.fill = GridBagConstraints.HORIZONTAL;
         }
-        
+
         for (int i = 0, n = buttons.size(); i < n; i++) {
 
             gbc.gridx++;
             gbc.weightx = 0;
 
-            gbc.insets.top = 5;
+            gbc.insets.top = 7;
             gbc.insets.bottom = 5;
             gbc.insets.left = 5;
-            
+
             gbc.anchor = GridBagConstraints.EAST;
 
             if (i == 0 || expandButtonsToFill) {
@@ -124,7 +121,6 @@ public abstract class DefaultActionButtonsPanel extends BaseActionPanel {
                 gbc.weightx = 1.0;
             }
 
-            buttons.get(i).getPreferredSize();
             buttonPanel.add(buttons.get(i), gbc);
         }
 
@@ -134,21 +130,21 @@ public abstract class DefaultActionButtonsPanel extends BaseActionPanel {
             gbc.weightx = 0;
             gbc.insets.left = 0;
             gbc.insets.right = 5;
-            gbc.anchor = GridBagConstraints.WEST;            
+            gbc.anchor = GridBagConstraints.WEST;
 
             buttonPanel.add(helpButton, gbc);
         }
 
         buttonPanel.revalidate();
     }
-    
+
     private Border createContentBorder() {
 
         return BorderFactory.createEtchedBorder();
     }
 
     private void addActionButtonsPanel(JPanel actionButtonsPanel) {
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
 
         gbc.gridx = 0;
@@ -162,27 +158,24 @@ public abstract class DefaultActionButtonsPanel extends BaseActionPanel {
     private void init() {
 
         expandButtonsToFill = false;
-        
-        buttons = new ArrayList<JButton>();
-        
+
+        buttons = new ArrayList<>();
+
         buttonPanel = new JPanel(new GridBagLayout());
         addActionButtonsPanel(buttonPanel);
-        
+
         setBorder(BorderFactory.createEmptyBorder(
-                EMPTY_BORDER_WIDTH, EMPTY_BORDER_WIDTH, 
+                EMPTY_BORDER_WIDTH, EMPTY_BORDER_WIDTH,
                 EMPTY_BORDER_WIDTH, EMPTY_BORDER_WIDTH));
     }
 
     private static final int EMPTY_BORDER_WIDTH = 4;
-    
+
+    protected String bundleString(String key) {
+
+        return Bundles.get(getClass(), key);
+    }
+
+
 }
-
-
-
-
-
-
-
-
-
 

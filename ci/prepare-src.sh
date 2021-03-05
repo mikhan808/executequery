@@ -24,11 +24,13 @@ mkdir -p $RESULT_DIR
 
 echo Preparing $VERSION sources
 cd $SOURCES
-sed -e "s/^\(re.version\).*/\1=$VERSION/" -i $SOURCES/src/org/executequery/eq.system.properties 
-sed -e "s/\(<exe\.version>\)[^<>]*\(<\/exe.version>\)/\1$VERSION\2/" -i $SOURCES/pom.xml
+
+ARCHIVE_PREFIX=RedXpert-$VERSION
+git log > Changelog
+git add Changelog
+mvn versions:set -DnewVersion=$VERSION
 
 echo Archiving sources
-ARCHIVE_PREFIX=RedExpert-$VERSION
 hash=`git stash create`
 [ "$hash" = "" ] && hash=HEAD
 git archive --format=tar --prefix=$ARCHIVE_PREFIX/ $hash | gzip > $RESULT_DIR/$ARCHIVE_PREFIX-src.tar.gz

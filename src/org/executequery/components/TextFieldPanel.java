@@ -1,7 +1,7 @@
 /*
  * TextFieldPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,21 +20,18 @@
 
 package org.executequery.components;
 
-import java.awt.LayoutManager;
-
-import javax.swing.JPanel;
 import org.underworldlabs.swing.TextFieldFocusController;
+
+import javax.swing.*;
+import java.awt.*;
 
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1496 $
- * @date     $Date: 2015-09-17 17:09:08 +1000 (Thu, 17 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class TextFieldPanel extends JPanel
-                            implements TextFieldFocusController {
-    
+        implements TextFieldFocusController {
+
     public TextFieldPanel() {
         super();
     }
@@ -42,13 +39,14 @@ public class TextFieldPanel extends JPanel
     public TextFieldPanel(boolean isDoubleBuffered) {
         super(isDoubleBuffered);
     }
-    
+
     public TextFieldPanel(LayoutManager layout) {
         super(layout);
     }
-    
+
     public TextFieldPanel(LayoutManager layout, boolean isDoubleBuffered) {
         super(layout, isDoubleBuffered);
     }
-    
+
 }
+

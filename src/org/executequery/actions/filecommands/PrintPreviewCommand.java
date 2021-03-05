@@ -1,7 +1,7 @@
 /*
  * PrintPreviewCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,58 +20,56 @@
 
 package org.executequery.actions.filecommands;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JPanel;
-
 import org.executequery.GUIUtilities;
+import org.executequery.actions.othercommands.AbstractBaseCommand;
 import org.executequery.gui.BaseDialog;
-import org.executequery.gui.editor.QueryEditor;
-import org.executequery.print.*;
 import org.executequery.gui.editor.PrintSelectDialog;
+import org.executequery.gui.editor.QueryEditor;
+import org.executequery.print.PrintFunction;
+import org.executequery.print.PrintPreviewer;
 import org.underworldlabs.swing.GUIUtils;
-import org.underworldlabs.swing.actions.BaseCommand;
 import org.underworldlabs.swing.util.SwingWorker;
 
+import javax.swing.*;
+import java.awt.event.ActionEvent;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class PrintPreviewCommand implements BaseCommand {
-    
+public class PrintPreviewCommand extends AbstractBaseCommand {
+
     public void execute(ActionEvent e) {
-        
+
         PrintFunction printFunction = null;
 
         try {
 
             printFunction = GUIUtilities.getPrintableInFocus();
-        
+
             if (printFunction == null) {
-            
+
                 return;
             }
-        
-             // if the frame in focus is a Query Editor
+
+            // if the frame in focus is a Query Editor
             // display the print selection dialog (text or table)
             if (printFunction instanceof QueryEditor) {
 
-                BaseDialog dialog = 
-                    new BaseDialog(PrintSelectDialog.PRINT_PREVIEW_TITLE, true, false);
+                BaseDialog dialog =
+                        new BaseDialog(PrintSelectDialog.PRINT_PREVIEW_TITLE, true, false);
 
                 dialog.addDisplayComponent(createPanel(dialog, printFunction));
                 dialog.display();
 
                 return;
-            } 
-        
+            }
+
             SwingWorker worker = new SwingWorker() {
                 public Object construct() {
 
                     return showPreview();
                 }
+
                 public void finished() {
 
                     GUIUtils.scheduleGC();
@@ -79,49 +77,40 @@ public class PrintPreviewCommand implements BaseCommand {
             };
 
             worker.start();
-        }
-        finally {
-            
+        } finally {
+
             printFunction = null;
         }
 
     }
-    
+
     private JPanel createPanel(BaseDialog dialog, PrintFunction printFunction) {
         return new PrintSelectDialog(
                 dialog, (QueryEditor) printFunction, PrintSelectDialog.PRINT_PREVIEW);
     }
 
     private String showPreview() {
-        
+
         PrintFunction printFunction = null;
-        
+
         try {
             printFunction = GUIUtilities.getPrintableInFocus();
-            
+
             if (printFunction.getPrintable() != null) {
 
                 new PrintPreviewer(
                         printFunction.getPrintable(), printFunction.getPrintJobName());
-            } 
-            
-            return "Done";
-        
+            }
+
+            return bundledString("done");
+
         } finally {
 
             printFunction = null;
-        } 
+        }
 
     }
-    
+
 }
-
-
-
-
-
-
-
-
 
 

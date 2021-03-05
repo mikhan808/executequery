@@ -1,7 +1,7 @@
 /*
  * HttpProxyConfigurator.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,10 +20,10 @@
 
 package org.executequery.util;
 
-import java.util.Properties;
-
 import org.executequery.Constants;
 import org.underworldlabs.util.SystemProperties;
+
+import java.util.Properties;
 
 public class HttpProxyConfigurator {
 
@@ -34,18 +34,18 @@ public class HttpProxyConfigurator {
     private static final String HTTP_PROXY_PORT = "http.proxyPort";
 
     private static final String HTTP_PROXY_HOST = "http.proxyHost";
-    
+
     private static final String INTERNET_PROXY_SET_KEY = "internet.proxy.set";
 
     public void configureHttpProxy() {
-        
+
         if (SystemProperties.getBooleanProperty(
                 Constants.USER_PROPERTIES_KEY, INTERNET_PROXY_SET_KEY)) {
-            
-            systemProperties().put(HTTP_PROXY_HOST, 
+
+            systemProperties().put(HTTP_PROXY_HOST,
                     systemUserProperty(INTERNET_PROXY_HOST_KEY));
-            
-            systemProperties().put(HTTP_PROXY_PORT, 
+
+            systemProperties().put(HTTP_PROXY_PORT,
                     systemUserProperty(INTERNET_PROXY_PORT_KEY));
 
         } else {
@@ -65,6 +65,7 @@ public class HttpProxyConfigurator {
     }
 
 }
+
 
 
 

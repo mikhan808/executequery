@@ -1,7 +1,7 @@
 /*
  * AbstractQueryEditorCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,27 +20,28 @@
 
 package org.executequery.actions.queryeditor;
 
-import javax.swing.JPanel;
-
 import org.executequery.GUIUtilities;
 import org.executequery.actions.othercommands.AbstractBaseCommand;
 import org.executequery.gui.editor.QueryEditor;
 
+import javax.swing.*;
+
 abstract class AbstractQueryEditorCommand extends AbstractBaseCommand {
 
     protected final boolean isQueryEditorTheCentralPanel() {
-        
+
         JPanel panel = GUIUtilities.getSelectedCentralPane();
-        
+
         return (panel instanceof QueryEditor);
     }
 
     protected final QueryEditor queryEditor() {
-        
+
         return (QueryEditor) GUIUtilities.getSelectedCentralPane();
     }
-    
+
 }
+
 
 
 

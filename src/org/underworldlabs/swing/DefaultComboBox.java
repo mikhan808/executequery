@@ -1,7 +1,7 @@
 /*
  * DefaultComboBox.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,15 @@
 
 package org.underworldlabs.swing;
 
-import java.util.Vector;
-
-import javax.swing.ComboBoxModel;
-import javax.swing.JComboBox;
-
 import org.executequery.gui.GUIConstants;
+
+import javax.swing.*;
+import java.util.Vector;
 
 public class DefaultComboBox extends JComboBox {
 
     public DefaultComboBox() {
-        
+
         super();
     }
 
@@ -51,10 +49,11 @@ public class DefaultComboBox extends JComboBox {
 
     public int getHeight() {
 
-        return Math.max(super.getHeight(), GUIConstants.DEFAULT_FIELD_HEIGHT); 
+        return Math.max(super.getHeight(), GUIConstants.DEFAULT_FIELD_HEIGHT);
     }
-    
+
 }
+
 
 
 

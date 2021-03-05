@@ -1,7 +1,7 @@
 /*
  * FileSelectionTableCell.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,31 +20,31 @@
 
 package org.executequery.components.table;
 
-import java.awt.event.ActionEvent;
-
-import javax.swing.JFileChooser;
-
 import org.executequery.GUIUtilities;
 import org.executequery.components.FileChooserDialog;
+
+import javax.swing.*;
+import java.awt.event.ActionEvent;
 
 /**
  * Table cell with file selection button.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class FileSelectionTableCell extends BrowsingCellEditor {
-    
-    /** Creates a new instance of ComboBoxCellRenderer */
-    public FileSelectionTableCell() {}
-    
+
+    /**
+     * Creates a new instance of ComboBoxCellRenderer
+     */
+    public FileSelectionTableCell() {
+    }
+
     public void actionPerformed(ActionEvent e) {
         FileChooserDialog dialog = new FileChooserDialog();
         dialog.setFileSelectionMode(JFileChooser.FILES_ONLY);
 
         int result = dialog.showOpenDialog(GUIUtilities.getInFocusDialogOrWindow());
-        
+
         if (result == JFileChooser.CANCEL_OPTION) {
             fireEditingStopped();
             return;
@@ -59,6 +59,7 @@ public class FileSelectionTableCell extends BrowsingCellEditor {
     }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * DefaultDatabaseProcedure.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,26 +22,24 @@ package org.executequery.databaseobjects.impl;
 
 import org.executequery.databaseobjects.DatabaseMetaTag;
 import org.executequery.databaseobjects.DatabaseProcedure;
-import org.executequery.databaseobjects.ProcedureParameter;
+import org.underworldlabs.util.SQLUtils;
 
-import java.sql.DatabaseMetaData;
-import java.sql.Types;
-import java.util.List;
+import java.sql.ResultSet;
 
 /**
  * Default database procedure implementation.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class DefaultDatabaseProcedure extends DefaultDatabaseExecutable 
-                                      implements DatabaseProcedure {
-    
+public class DefaultDatabaseProcedure extends DefaultDatabaseExecutable
+        implements DatabaseProcedure {
+
     /**
      * Creates a new instance of DefaultDatabaseProcedure.
      */
-    public DefaultDatabaseProcedure() {}
+    public DefaultDatabaseProcedure() {
+    }
+
 
     /**
      * Creates a new instance of DefaultDatabaseProcedure
@@ -58,7 +56,7 @@ public class DefaultDatabaseProcedure extends DefaultDatabaseExecutable
         setName(name);
         setSchemaName(schema);
     }
-    
+
     /**
      * Returns the database object type.
      *
@@ -71,93 +69,34 @@ public class DefaultDatabaseProcedure extends DefaultDatabaseExecutable
     /**
      * Returns the meta data key name of this object.
      *
-     * @return the meta data key name.
+     * @return the meta data key name
      */
+
+
     public String getMetaDataKey() {
         return META_TYPES[PROCEDURE];
     }
 
     public String getCreateSQLText() {
 
-        StringBuilder sbSQL = new StringBuilder();
-        StringBuilder sbInput = new StringBuilder();
-        StringBuilder sbOutput = new StringBuilder();
+        return SQLUtils.generateCreateProcedure(getName(), getParameters(), getProcedureSourceCode(), getRemarks(), getHost().getDatabaseConnection());
+    }
 
-        sbSQL.append("CREATE OR ALTER PROCEDURE \n");
-        sbSQL.append(getName());
-        sbSQL.append("\n");
+    @Override
+    protected String queryForInfo() {
+        return "select rdb$description\n" +
+                "from rdb$procedures \n" +
+                "where rdb$procedure_name = '" + getName().trim() + "'";
+    }
 
-        sbInput.append("( \n");
-
-        sbOutput.append("( \n");
-
-        List<ProcedureParameter> parameters = getParameters();
-
-        for (ProcedureParameter parameter : parameters) {
-            if (parameter.getType() == DatabaseMetaData.procedureColumnIn) {
-                sbInput.append("\t");
-                sbInput.append(parameter.getName());
-                sbInput.append(" ");
-                sbInput.append(parameter.getSqlType());
-                if (parameter.getDataType() == Types.CHAR
-                        || parameter.getDataType() == Types.VARCHAR
-                        || parameter.getDataType() == Types.NVARCHAR
-                        || parameter.getDataType() == Types.VARBINARY) {
-                    sbInput.append("(");
-                    sbInput.append(parameter.getSize());
-                    sbInput.append("),\n");
-                } else {
-                    sbInput.append(",\n");
-                }
-            } else if (parameter.getType() == DatabaseMetaData.procedureColumnOut) {
-                sbOutput.append("\t");
-                sbOutput.append(parameter.getName());
-                sbOutput.append(" ");
-                sbOutput.append(parameter.getSqlType());
-                if (parameter.getDataType() == Types.CHAR
-                        || parameter.getDataType() == Types.VARCHAR
-                        || parameter.getDataType() == Types.NVARCHAR
-                        || parameter.getDataType() == Types.VARBINARY) {
-                    sbOutput.append("(");
-                    sbOutput.append(parameter.getSize());
-                    sbOutput.append("),\n");
-                } else {
-                    sbOutput.append(",\n");
-                }
+    @Override
+    protected void setInfoFromResultSet(ResultSet rs) {
+        try {
+            if (rs != null && rs.next()) {
+                setRemarks(rs.getString(1));
             }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-
-        String input = null;
-        if (sbInput.length() > 3) {
-            input = sbInput.substring(0, sbInput.length() - 2);
-            input += "\n) \n";
-        }
-
-        if (input != null) {
-            sbSQL.append(input);
-            sbSQL.append("\n");
-        }
-
-        String output = null;
-        if (sbOutput.length() > 3) {
-            output = sbOutput.substring(0, sbOutput.length() - 2);
-            output += "\n) \n";
-        }
-
-        if (output != null) {
-            sbSQL.append("RETURNS \n");
-            sbSQL.append(output);
-            sbSQL.append("\n");
-        }
-
-
-        sbSQL.append("AS");
-        sbSQL.append("\n");
-
-        sbSQL.append(getProcedureSourceCode());
-
-        sbSQL.append(";\n");
-
-        return sbSQL.toString();
     }
 }

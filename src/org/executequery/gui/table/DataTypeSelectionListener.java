@@ -1,7 +1,7 @@
 /*
  * DataTypeSelectionListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,8 +21,8 @@
 package org.executequery.gui.table;
 
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
@@ -31,9 +31,7 @@ package org.executequery.gui.table;
  * Defines those panel's that respond to data type
  * selections.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DataTypeSelectionListener {
 
@@ -42,7 +40,7 @@ public interface DataTypeSelectionListener {
      *
      * @param the data type value string
      */
-    public void dataTypeSelected(String dataType);
+    public void dataTypeSelected(int item);
 
     /**
      * Called when the selction is cancelled.
@@ -50,6 +48,7 @@ public interface DataTypeSelectionListener {
     public void dataTypeSelectionCancelled();
 
 }
+
 
 
 

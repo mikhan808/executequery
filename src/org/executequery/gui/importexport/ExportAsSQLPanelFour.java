@@ -1,7 +1,7 @@
 /*
  * ExportAsSQLPanelFour.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,36 +20,27 @@
 
 package org.executequery.gui.importexport;
 
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-
 import org.executequery.gui.WidgetFactory;
 
+import javax.swing.*;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 class ExportAsSQLPanelFour extends AbstractImportExportPanel {
 
     private JComboBox errorCombo;
-    
+
     private JCheckBox createTableStatementsCheck;
     private JCheckBox includePrimaryConstraintsCheck;
     private JCheckBox includeForeignConstraintsCheck;
     private JCheckBox includeUniqueConstraintsCheck;
-    
+
     public ExportAsSQLPanelFour(ImportExportWizard importExportWizard) {
 
         super(new GridBagLayout(), importExportWizard);
-        
+
         init();
     }
 
@@ -61,19 +52,19 @@ class ExportAsSQLPanelFour extends AbstractImportExportPanel {
         includePrimaryConstraintsCheck = createIncludePrimaryConstraintsCheck();
         includeForeignConstraintsCheck = createIncludeForeignConstraintsCheck();
         includeUniqueConstraintsCheck = createIncludeUniqueConstraintsCheck();
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,10,15,10);
+        gbc.insets = new Insets(5, 10, 15, 10);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.gridwidth = 2;
         gbc.gridy = 0;
         gbc.gridx = 0;
-        add(new JLabel(getString("ImportExportPanelFour.headerLabel")), gbc);
+        add(new JLabel(bundledString("ImportExportPanelFour.headerLabel")), gbc);
         gbc.gridwidth = 1;
         gbc.gridy++;
         gbc.insets.bottom = 10;
         gbc.insets.left = 20;
-        add(new JLabel(getString("ImportExportPanelFour.onErrorLabel")), gbc);
+        add(new JLabel(bundledString("ImportExportPanelFour.onErrorLabel")), gbc);
         gbc.gridx = 1;
         gbc.insets.left = 0;
         gbc.insets.top = 3;
@@ -96,39 +87,39 @@ class ExportAsSQLPanelFour extends AbstractImportExportPanel {
         gbc.gridy++;
         gbc.insets.top = 40;
         gbc.insets.left = 10;
-        add(new JLabel(getString("ImportExportPanelFour.selectNextToBegin")), gbc);
+        add(new JLabel(bundledString("ImportExportPanelFour.selectNextToBegin")), gbc);
 
     }
 
     private JCheckBox createIncludeUniqueConstraintsCheck() {
 
         return new JCheckBox(
-                getString("ImportExportPanelFour.includeUniqueConstraintsCheck"), false);
+                bundledString("ImportExportPanelFour.includeUniqueConstraintsCheck"), false);
     }
 
     private JCheckBox createIncludePrimaryConstraintsCheck() {
 
         return new JCheckBox(
-                getString("ImportExportPanelFour.includePrimaryConstraintsCheck"), false);
+                bundledString("ImportExportPanelFour.includePrimaryConstraintsCheck"), false);
     }
 
     private JCheckBox createIncludeForeignConstraintsCheck() {
 
         return new JCheckBox(
-                getString("ImportExportPanelFour.includeForeignConstraintsCheck"), false);
+                bundledString("ImportExportPanelFour.includeForeignConstraintsCheck"), false);
     }
 
     private JCheckBox createCreateTableStatementsCheck() {
 
         return new JCheckBox(
-                getString("ImportExportPanelFour.createTableStatementsCheck"), false);
+                bundledString("ImportExportPanelFour.createTableStatementsCheck"), false);
     }
 
     private JComboBox createErrorCombo() {
 
         String[] options = {
-                getString("ImportExportPanelFour.onErrorOptionOne"),
-                getString("ImportExportPanelFour.onErrorOptionTwo")
+                bundledString("ImportExportPanelFour.onErrorOptionOne"),
+                bundledString("ImportExportPanelFour.onErrorOptionTwo")
         };
 
         JComboBox comboBox = WidgetFactory.createComboBox(options);
@@ -138,17 +129,17 @@ class ExportAsSQLPanelFour extends AbstractImportExportPanel {
     }
 
     public void panelSelected() {
-        
+
     }
 
     public boolean getIncludePrimaryKeyConstraints() {
-        
-        return includePrimaryConstraintsCheck.isSelected(); 
+
+        return includePrimaryConstraintsCheck.isSelected();
     }
-    
+
     public boolean getIncludeForeignKeyConstraints() {
-        
-        return includeForeignConstraintsCheck.isSelected(); 
+
+        return includeForeignConstraintsCheck.isSelected();
     }
 
     public boolean getIncludeCreateTableStatement() {
@@ -166,8 +157,9 @@ class ExportAsSQLPanelFour extends AbstractImportExportPanel {
         return errorCombo.getSelectedIndex() == 0 ?
                 OnErrorOption.LOG_AND_CONTINUE : OnErrorOption.STOP_TRANSFER;
     }
-    
+
 }
+
 
 
 

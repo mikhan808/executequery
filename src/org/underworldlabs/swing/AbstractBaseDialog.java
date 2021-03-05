@@ -1,7 +1,7 @@
 /*
  * AbstractBaseDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,18 +20,11 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Dialog;
-import java.awt.Frame;
-import java.awt.GraphicsConfiguration;
-import java.awt.HeadlessException;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JRootPane;
-import javax.swing.KeyStroke;
 
 public abstract class AbstractBaseDialog extends JDialog {
 
@@ -45,7 +38,7 @@ public abstract class AbstractBaseDialog extends JDialog {
     }
 
     public AbstractBaseDialog(Dialog owner, String title, boolean modal,
-            GraphicsConfiguration gc) throws HeadlessException {
+                              GraphicsConfiguration gc) throws HeadlessException {
         super(owner, title, modal, gc);
     }
 
@@ -69,7 +62,7 @@ public abstract class AbstractBaseDialog extends JDialog {
     }
 
     public AbstractBaseDialog(Frame owner, String title, boolean modal,
-            GraphicsConfiguration gc) {
+                              GraphicsConfiguration gc) {
         super(owner, title, modal, gc);
     }
 
@@ -93,7 +86,7 @@ public abstract class AbstractBaseDialog extends JDialog {
 
         JRootPane rootPane = super.createRootPane();
         rootPane.registerKeyboardAction(
-                closeDialogActionListener(), keyStroke, 
+                closeDialogActionListener(), keyStroke,
                 JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         return rootPane;
@@ -106,15 +99,7 @@ public abstract class AbstractBaseDialog extends JDialog {
             }
         };
     }
-    
+
 }
-
-
-
-
-
-
-
-
 
 

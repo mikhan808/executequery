@@ -1,7 +1,7 @@
 /*
  * TableFKeyModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,38 +21,34 @@
 package org.executequery.gui.browser;
 
 import javax.swing.table.AbstractTableModel;
-
 import java.util.Vector;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class TableFKeyModel extends AbstractTableModel {
-    
+
     private String[] header = {"Name", "Column", "Reference Schema",
-                               "Reference Table", "Reference Column"};
-    
+            "Reference Table", "Reference Column"};
+
     private Vector keys;
-    
+
     public TableFKeyModel(Vector v) {
         keys = v;
     }
-    
+
     public int getColumnCount() {
         return 5;
     }
-    
+
     public int getRowCount() {
         return keys.size();
     }
-    
+
     public Object getValueAt(int row, int col) {
-        ColumnConstraint cc = (ColumnConstraint)keys.elementAt(row);
-        
-        switch(col) {
+        ColumnConstraint cc = (ColumnConstraint) keys.elementAt(row);
+
+        switch (col) {
             case 0:
                 return cc.getName();
             case 1:
@@ -67,43 +63,44 @@ public class TableFKeyModel extends AbstractTableModel {
                 return null;
         }
     }
-    
+
     public void setValueAt(Object value, int row, int col) {
-        ColumnConstraint cc = (ColumnConstraint)keys.elementAt(row);
-        
+        ColumnConstraint cc = (ColumnConstraint) keys.elementAt(row);
+
         switch (col) {
             case 0:
-                cc.setName((String)value);
+                cc.setName((String) value);
                 break;
             case 1:
-                cc.setColumn((String)value);
+                cc.setColumn((String) value);
                 break;
             case 2:
-                cc.setRefSchema((String)value);
+                cc.setRefSchema((String) value);
                 break;
             case 3:
-                cc.setRefTable((String)value);
+                cc.setRefTable((String) value);
                 break;
             case 4:
-                cc.setRefColumn((String)value);
+                cc.setRefColumn((String) value);
                 break;
         }
-        
+
         fireTableRowsUpdated(row, row);
     }
-    
+
     public boolean isCellEditable(int row, int col) {
         if (col == 0)
             return true;
         else
             return false;
     }
-    
+
     public String getColumnName(int col) {
         return header[col];
     }
-    
+
 }
+
 
 
 

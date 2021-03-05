@@ -1,7 +1,7 @@
 /*
  * ErdSQLViewer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,75 +20,70 @@
 
 package org.executequery.gui.erd;
 
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import org.executequery.localization.Bundles;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ErdSQLViewer extends ErdPrintableDialog {
-    
-    /** The controller for the ERD viewer */
+
+    /**
+     * The controller for the ERD viewer
+     */
     private ErdViewerPanel parent;
-    
+
     public ErdSQLViewer(ErdViewerPanel parent) {
         super("SQL Text");
         this.parent = parent;
-        
+
         try {
             jbInit();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         display();
-        
+
     }
-    
+
     private void jbInit() throws Exception {
         sqlText.setSQLText(parent.getAllSQLText());
-        sqlText.setPreferredSize(new Dimension(530,175));
+        sqlText.setPreferredSize(new Dimension(530, 175));
         sqlText.setBorder(BorderFactory.createEtchedBorder());
-        
-        JButton cancelButton = new JButton("Close");
+
+        JButton cancelButton = new JButton(Bundles.get("common.close.button"));
         JButton okButton = new JButton("Execute");
-        
+
         Dimension btnDim = new Dimension(80, 30);
         cancelButton.setPreferredSize(btnDim);
         okButton.setPreferredSize(btnDim);
-        
+
         ActionListener btnListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                buttons_actionPerformed(e); }
+                buttons_actionPerformed(e);
+            }
         };
-        
+
         cancelButton.addActionListener(btnListener);
         okButton.addActionListener(btnListener);
-        
+
         Container c = getContentPane();
         c.setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.gridwidth = 2;
@@ -106,31 +101,32 @@ public class ErdSQLViewer extends ErdPrintableDialog {
         gbc.gridx = 1;
         gbc.weightx = 0;
         c.add(cancelButton, gbc);
-        
+
         this.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
+
     }
-    
+
     private void execute() {
         setVisible(false);
         new ErdExecuteSQL(parent);
         //    new ErdExecuteSQL(parent, sqlText.getSQLText());
         dispose();
     }
-    
+
     private void buttons_actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
-        
+
         if (command.equals("Close"))
             dispose();
-        
+
         else if (command.equals("Execute"))
             execute();
-        
+
     }
-    
-    
+
+
 }
+
 
 
 

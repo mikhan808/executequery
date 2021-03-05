@@ -1,7 +1,7 @@
 /*
  * SelectNextTabAction.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,16 @@
 
 package org.executequery.actions.windowcommands;
 
-import java.awt.event.ActionEvent;
 import org.executequery.GUIUtilities;
 import org.executequery.actions.othercommands.AbstractBaseCommand;
+
+import java.awt.event.ActionEvent;
 
 /**
  * Executes the action to select the next tab in the focused
  * docked or scrolling tab pane.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SelectNextTabAction extends AbstractBaseCommand {
 
@@ -38,8 +37,9 @@ public class SelectNextTabAction extends AbstractBaseCommand {
 
         GUIUtilities.selectNextTab();
     }
-    
+
 }
+
 
 
 

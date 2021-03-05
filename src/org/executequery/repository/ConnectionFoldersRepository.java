@@ -1,7 +1,7 @@
 /*
  * ConnectionFoldersRepository.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,9 +20,9 @@
 
 package org.executequery.repository;
 
-import java.util.List;
-
 import org.executequery.gui.browser.ConnectionsFolder;
+
+import java.util.List;
 
 public interface ConnectionFoldersRepository extends Repository {
 
@@ -34,13 +34,20 @@ public interface ConnectionFoldersRepository extends Repository {
 
     List<ConnectionsFolder> findAll();
 
+    ConnectionsFolder add(ConnectionsFolder connectionsFolder);
+
     ConnectionsFolder findByName(String name);
-    
+
     ConnectionsFolder findById(String id);
 
     boolean nameExists(ConnectionsFolder exclude, String name);
 
+    void save(String path, List<ConnectionsFolder> connectionFolders);
+
+    List<ConnectionsFolder> open(String filePath);
+
 }
+
 
 
 

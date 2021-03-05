@@ -1,7 +1,7 @@
 /*
  * UserFeedbackRepositoryImpl.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,6 +20,8 @@
 
 package org.executequery.repository.spi;
 
+
+import org.executequery.http.JSONAPI;
 import org.executequery.http.RemoteHttpClient;
 import org.executequery.http.RemoteHttpClientException;
 import org.executequery.http.spi.DefaultRemoteHttpClient;
@@ -31,76 +33,44 @@ import org.executequery.util.SystemResources;
 import org.underworldlabs.util.MiscUtils;
 import org.underworldlabs.util.SystemProperties;
 
-import javax.mail.Message;
-import javax.mail.MessagingException;
-import javax.mail.Session;
-import javax.mail.Transport;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
-import java.util.Properties;
+import java.io.IOException;
+import java.util.Map;
+
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1488 $
- * @date     $Date: 2015-08-23 22:25:06 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class UserFeedbackRepositoryImpl implements UserFeedbackRepository {
 
-    private static final String FEEDBACK_POST_ADDRESS = "rdb.support@red-soft.biz";
-    
-    private static final String ADDRESS = "red-soft.biz";
+    private static final String ADDRESS = "reddatabase.ru";
 
-    private static final String MAIL_SERVER = "mail.red-soft.biz";
-    
-    public void postFeedback(UserFeedback userFeedback) throws RepositoryException {
+
+    public int postFeedback(UserFeedback userFeedback) throws RepositoryException {
 
         try {
-        
-            Log.info("Sending feedback to rdb.support@red-soft.biz");
+
+            Log.info("Sending feedback to rdb.support@red-soft.ru");
 
             saveEntriesToPreferences(userFeedback);
-            
+
             if (siteAvailable()) {
-
-                try{
-                    // Get system properties
-                    Properties properties = System.getProperties();
-
-                    // Setup mail server
-                    properties.setProperty("mail.smtp.host", MAIL_SERVER);
-
-                    // Get the default Session object.
-                    Session session = Session.getDefaultInstance(properties);
-
-                    // Create a default MimeMessage object.
-                    MimeMessage message = new MimeMessage(session);
-
-                    // Set From: header field of the header.
-                    message.setFrom(new InternetAddress(userFeedback.getEmail()));
-
-                    // Set To: header field of the header.
-                    message.addRecipient(Message.RecipientType.TO, new InternetAddress(FEEDBACK_POST_ADDRESS));
-
-                    // Set Subject: header field
-                    message.setSubject(userFeedback.getType());
-
-                    // Now set the actual message
-                    message.setText("From: " + userFeedback.getName() + "\n\n" + userFeedback.getRemarks());
-
-                    // Send message
-                    Transport.send(message);
-                    System.out.println("Sent message successfully....");
-                }catch (MessagingException mex) {
-                    mex.printStackTrace();
-                }
-
+                Map<String, String> params = userFeedback.asMap();
+                String res = JSONAPI.postJsonObject("https://reddatabase.ru/api/website/feedbacks/", params, null);
+                if (res.startsWith("Server return error"))
+                    return Integer.parseInt(res.split("\n")[1]);
+                Log.info(res);
+                return 1;
             }
-            
+            return -1;
+
         } catch (RemoteHttpClientException e) {
-            
-            handleException(e);            
+            handleException(e);
+            return 0;
+        } catch (IOException e) {
+            handleException(e);
+            return 0;
         }
+
 
     }
 
@@ -129,23 +99,23 @@ public class UserFeedbackRepositoryImpl implements UserFeedbackRepository {
     public void cancel() {
 //        cancelled = true;
     }
-    
+
     private String ioExceptionMessage() {
 
         return "An error occured posting the feedback report.\n" +
-            "This feature requires an active internet connection.\n" +
-            "If using a proxy server, please configure this through " +
-            "the user preferences > general selection.";
+                "This feature requires an active internet connection.\n" +
+                "If using a proxy server, please configure this through " +
+                "the user preferences > general selection.";
     }
 
     private String genericExceptionMessage() {
 
         return "An error occured posting the feedback report to\n" +
-            "http://red-soft.biz. Please try again later.";
+                "http://red-soft.biz. Please try again later.";
     }
 
     private RemoteHttpClient remoteHttpClient() {
-        
+
         return new DefaultRemoteHttpClient();
     }
 
@@ -166,8 +136,9 @@ public class UserFeedbackRepositoryImpl implements UserFeedbackRepository {
 
         if (savePrefs) {
             SystemResources.setUserPreferences(
-                                SystemProperties.getProperties("user"));
+                    SystemProperties.getProperties("user"));
         }
     }
 
 }
+

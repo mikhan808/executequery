@@ -1,7 +1,7 @@
 /*
  * DefaultConnectionRepositoryEvent.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,37 +22,38 @@ package org.executequery.event;
 
 import org.executequery.databasemediators.DatabaseConnection;
 
-/**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
- */
-public class DefaultConnectionRepositoryEvent extends AbstractApplicationEvent 
-                                              implements ConnectionRepositoryEvent {
+import java.util.ArrayList;
+import java.util.List;
 
-    private final DatabaseConnection databaseConnection;
+/**
+ * @author Takis Diakoumis
+ */
+public class DefaultConnectionRepositoryEvent extends AbstractApplicationEvent
+        implements ConnectionRepositoryEvent {
+
+    private final List<DatabaseConnection> databaseConnections;
 
     public DefaultConnectionRepositoryEvent(
             Object source, String method, DatabaseConnection databaseConnection) {
 
         super(source, method);
-        this.databaseConnection = databaseConnection;
+        databaseConnections = new ArrayList<DatabaseConnection>();
+        databaseConnections.add(databaseConnection);
     }
 
-    public DatabaseConnection getDatabaseConnection() {
+    public DefaultConnectionRepositoryEvent(
+            Object source, String method, List<DatabaseConnection> databaseConnections) {
 
-        return databaseConnection;
+        super(source, method);
+        this.databaseConnections = databaseConnections;
     }
-    
+
+    public List<DatabaseConnection> getDatabaseConnections() {
+
+        return databaseConnections;
+    }
+
+    static final long serialVersionUID = -589504120102249710L;
+
 }
-
-
-
-
-
-
-
-
-
 

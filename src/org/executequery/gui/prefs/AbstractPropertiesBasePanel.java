@@ -1,7 +1,7 @@
 /*
  * AbstractPropertiesBasePanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,39 +20,36 @@
 
 package org.executequery.gui.prefs;
 
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-
 import org.executequery.Constants;
 import org.executequery.GUIUtilities;
 import org.executequery.actions.othercommands.RestoreDefaultsCommand;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.swing.DefaultButton;
 import org.underworldlabs.util.SystemProperties;
+
+import javax.swing.*;
+import java.awt.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * User preferences base panel.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1512 $
- * @date     $Date: 2015-09-27 21:23:07 +1000 (Sun, 27 Sep 2015) $
+ * @author Takis Diakoumis
  */
 abstract class AbstractPropertiesBasePanel extends JPanel
-                                     implements UserPreferenceFunction, 
-                                     PreferenceChangeListener,
-                                     PreferenceTableModelListener {
+        implements UserPreferenceFunction,
+        PreferenceChangeListener,
+        PreferenceTableModelListener {
 
+    public static final int TABLE_ROW_HEIGHT = 26;
+    
     /** common font used across props panels */
     protected static Font panelFont;
-    
-    /** common layout constraints acroos props panels */
+
+    /**
+     * common layout constraints acroos props panels
+     */
     protected static GridBagConstraints contentPanelConstraints;
 
     private List<PreferenceChangeListener> listeners;
@@ -60,12 +57,12 @@ abstract class AbstractPropertiesBasePanel extends JPanel
     static {
         panelFont = new Font("dialog", Font.PLAIN, 12);
         contentPanelConstraints = new GridBagConstraints(
-                                            1, 1, 1, 1, 1.0, 1.0,
-                                            GridBagConstraints.NORTHWEST, 
-                                            GridBagConstraints.BOTH,
-                                            new Insets(5, 5, 0, 5), 0, 0);
+                1, 1, 1, 1, 1.0, 1.0,
+                GridBagConstraints.NORTHWEST,
+                GridBagConstraints.BOTH,
+                new Insets(5, 5, 0, 5), 0, 0);
     }
-    
+
     public AbstractPropertiesBasePanel() {
 
         super(new GridBagLayout());
@@ -75,13 +72,14 @@ abstract class AbstractPropertiesBasePanel extends JPanel
     }
 
     public void addPreferenceChangeListener(PreferenceChangeListener listener) {
-        
+
         listeners.add(listener);
     }
-    
+
     @Override
-    public void preferenceChange(PreferenceChangeEvent e) {}
-    
+    public void preferenceChange(PreferenceChangeEvent e) {
+    }
+
     @Override
     public void preferenceTableModelChange(PreferenceTableModelChangeEvent e) {
 
@@ -89,35 +87,40 @@ abstract class AbstractPropertiesBasePanel extends JPanel
 
             listener.preferenceChange(new PreferenceChangeEvent(this, e.getKey(), e.getValue()));
         }
-        
+
     }
-    
+
     protected void addContent(JPanel panel) {
-        
+
         add(panel, contentPanelConstraints);
         if (panel instanceof SimplePreferencesPanel) {
-            
+
             ((SimplePreferencesPanel) panel).addPreferenceTableModelListener(this);
         }
-        
+
     }
-    
+
     private void init() {
 
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panel.add(new DefaultButton(new RestoreDefaultsCommand(this)));
         add(panel, new GridBagConstraints(
-                            1, 2, 1, 1, 0, 0,
-                            GridBagConstraints.SOUTHEAST, 
-                            GridBagConstraints.NONE,
-                            new Insets(0, 0, 5, 0), 0, 0));
-        
+                1, 2, 1, 1, 0, 0,
+                GridBagConstraints.SOUTHEAST,
+                GridBagConstraints.NONE,
+                new Insets(0, 0, 5, 0), 0, 0));
+
     }
 
     protected String stringUserProperty(String key) {
-    
+
         return SystemProperties.getProperty(Constants.USER_PROPERTIES_KEY, key);
     }
 
+    protected String bundledString(String key) {
+        return Bundles.get("preferences." + key);
+    }
+
 }
+
 

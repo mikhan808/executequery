@@ -1,7 +1,7 @@
 /*
  * GenerateScriptsPanelOne.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,38 +20,37 @@
 
 package org.executequery.gui.scriptgenerators;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.gui.WidgetFactory;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Step one panel in the generate scripts wizard.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class GenerateScriptsPanelOne extends JPanel implements GenerateScriptsPanel {
 
-    /** create table script radio button */
+    /**
+     * create table script radio button
+     */
     private JRadioButton createTableButton;
 
-    /** drop table script radio button */
+    /**
+     * drop table script radio button
+     */
     private JRadioButton dropTableButton;
 
-    /** The connection combo selection */
+    /**
+     * The connection combo selection
+     */
     private JComboBox connectionsCombo;
 
-    /** Creates a new instance of GenerateScriptsPanelOne */
+    /**
+     * Creates a new instance of GenerateScriptsPanelOne
+     */
     public GenerateScriptsPanelOne(GenerateScriptsWizard parent) {
 
         super(new GridBagLayout());
@@ -81,7 +80,7 @@ public class GenerateScriptsPanelOne extends JPanel implements GenerateScriptsPa
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;
         gbc.gridx = 0;
-        gbc.insets = new Insets(7,5,5,5);
+        gbc.insets = new Insets(7, 5, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         add(new JLabel("Connection:"), gbc);
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -106,7 +105,8 @@ public class GenerateScriptsPanelOne extends JPanel implements GenerateScriptsPa
         setPreferredSize(GenerateScriptsWizard.CHILD_DIMENSION);
     }
 
-    public void panelSelected() {}
+    public void panelSelected() {
+    }
 
     protected JComboBox getConnectionsCombo() {
 
@@ -120,7 +120,7 @@ public class GenerateScriptsPanelOne extends JPanel implements GenerateScriptsPa
      */
     public DatabaseConnection getDatabaseConnection() {
 
-        return (DatabaseConnection)connectionsCombo.getSelectedItem();
+        return (DatabaseConnection) connectionsCombo.getSelectedItem();
     }
 
     /**
@@ -142,6 +142,7 @@ public class GenerateScriptsPanelOne extends JPanel implements GenerateScriptsPa
     }
 
 }
+
 
 
 

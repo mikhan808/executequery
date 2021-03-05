@@ -1,7 +1,7 @@
 /*
  * EncodingDetector.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,23 +20,23 @@
 
 package org.underworldlabs.util;
 
+import org.executequery.log.Log;
+import org.mozilla.universalchardet.UniversalDetector;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-
-import org.executequery.log.Log;
-import org.mozilla.universalchardet.UniversalDetector;
 
 public class EncodingDetector {
 
     public String detectCharset(File file) throws IOException {
 
         byte[] buf = new byte[4096];
-        FileInputStream fis = new FileInputStream(file);        
+        FileInputStream fis = new FileInputStream(file);
         UniversalDetector detector = new UniversalDetector(null);
 
         try {
-            
+
             int read = 0;
             while ((read = fis.read(buf)) > 0 && !detector.isDone()) {
 
@@ -55,7 +55,7 @@ public class EncodingDetector {
             }
 
             return encoding;
-            
+
         } finally {
 
             detector.reset();
@@ -63,9 +63,10 @@ public class EncodingDetector {
 
                 fis.close();
             }
-            
+
         }
     }
 
 }
+
 

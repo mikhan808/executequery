@@ -1,7 +1,7 @@
 /*
  * BrowserViewPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -19,39 +19,49 @@
  */
 
 package org.executequery.gui.browser;
-import java.awt.print.Printable;
 
+import org.executequery.Application;
 import org.executequery.EventMediator;
 import org.executequery.base.TabView;
-import org.executequery.print.PrintFunction;
+import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.event.ConnectionRepositoryEvent;
 import org.executequery.event.DefaultConnectionRepositoryEvent;
 import org.executequery.gui.forms.FormObjectViewContainer;
 import org.executequery.gui.text.TextEditor;
 import org.executequery.gui.text.TextEditorContainer;
+import org.executequery.localization.Bundles;
+import org.executequery.print.PrintFunction;
+
+import java.awt.print.Printable;
 
 /**
  * Base panel for browser tree selection views.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class BrowserViewPanel extends FormObjectViewContainer 
-                              implements TabView,
-                                         PrintFunction,
-                                         TextEditorContainer {
-    
-    /** The title to be applied to the <code>JInternalFrame</code> */
-    public static final String TITLE = "Database Browser";
+public class BrowserViewPanel extends FormObjectViewContainer
+        implements TabView,
+        PrintFunction,
+        TextEditorContainer {
 
-    /** The icon to be applied to the <code>JInternalFrame</code> */
+    /**
+     * The title to be applied to the <code>JInternalFrame</code>
+     */
+    public static final String TITLE = Bundles.getCommon("database-browser");
+
+    /**
+     * The icon to be applied to the <code>JInternalFrame</code>
+     */
     public static final String FRAME_ICON = "DBmag16.png";
-    
-    /** the browser's control object */
+
+    /**
+     * the browser's control object
+     */
     private BrowserController controller;
 
-    /** Creates a new instance of DatabaseViewPanel */
+    /**
+     * Creates a new instance of DatabaseViewPanel
+     */
     public BrowserViewPanel(BrowserController controller) {
         this.controller = controller;
     }
@@ -64,18 +74,18 @@ public class BrowserViewPanel extends FormObjectViewContainer
             return;
         }
         if (containsPanel(HostPanel.NAME)) {
-            HostPanel hostPanel = (HostPanel)getFormObjectView(HostPanel.NAME);
+            HostPanel hostPanel = (HostPanel) getFormObjectView(HostPanel.NAME);
             hostPanel.selectionChanging();
-        }        
+        }
     }
-    
+
     /**
      * Performs the drop database object action.
      */
     public void dropSelectedObject() {
         controller.dropSelectedObject();
     }
-    
+
     // --------------------------------------------
     // DockedTabView implementation
     // --------------------------------------------
@@ -84,11 +94,11 @@ public class BrowserViewPanel extends FormObjectViewContainer
      * Indicates the panel is being removed from the pane
      */
     public boolean tabViewClosing() {
-        
+
         EventMediator.fireEvent(
                 new DefaultConnectionRepositoryEvent(
-                        this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, null));
-
+                        this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, (DatabaseConnection) null));
+        ConnectionHistory.remove(currentView);
         return true;
     }
 
@@ -98,7 +108,7 @@ public class BrowserViewPanel extends FormObjectViewContainer
     public boolean tabViewSelected() {
         // update the driver list on the host panel
         if (containsPanel(HostPanel.NAME)) {
-            HostPanel hostPanel = (HostPanel)getFormObjectView(HostPanel.NAME);
+            HostPanel hostPanel = (HostPanel) getFormObjectView(HostPanel.NAME);
             hostPanel.tabViewSelected();
         }
         return true;
@@ -113,23 +123,22 @@ public class BrowserViewPanel extends FormObjectViewContainer
         }
 
         if (currentView instanceof HostPanel) {
-            HostPanel hostPanel = (HostPanel)getFormObjectView(HostPanel.NAME);
+            HostPanel hostPanel = (HostPanel) getFormObjectView(HostPanel.NAME);
             return hostPanel.tabViewDeselected();
         }
         return true;
     }
 
     // --------------------------------------------
-    
+
     protected BrowserTableEditingPanel getEditingPanel() {
         BrowserTableEditingPanel panel = null;
         if (!containsPanel(BrowserTableEditingPanel.NAME)) {
             panel = new BrowserTableEditingPanel(controller);
             addToLayout(panel);
-        } 
-        else {
+        } else {
             panel = (BrowserTableEditingPanel)
-                getFormObjectView(BrowserTableEditingPanel.NAME);
+                    getFormObjectView(BrowserTableEditingPanel.NAME);
         }
         return panel;
     }
@@ -143,25 +152,24 @@ public class BrowserViewPanel extends FormObjectViewContainer
         if (!containsPanel(ConnectionsListPanel.NAME)) {
             panel = new ConnectionsListPanel(controller);
             addToLayout(panel);
-        } 
-        else {
-            panel = (ConnectionsListPanel)getFormObjectView(ConnectionsListPanel.NAME);
+        } else {
+            panel = (ConnectionsListPanel) getFormObjectView(ConnectionsListPanel.NAME);
         }
         panel.selected(folder);
         setView(panel);
     }
-    
+
     // ------------------------------------------------
     // ----- TextEditorContainer implementations ------
     // ------------------------------------------------
-    
+
     /**
-     * Returns the SQL text pane as the TextEditor component 
+     * Returns the SQL text pane as the TextEditor component
      * that this container holds.
      */
     public TextEditor getTextEditor() {
         if (currentView instanceof BrowserTableEditingPanel) {
-            return ((BrowserTableEditingPanel)currentView).getFocusedTextEditor();
+            return ((BrowserTableEditingPanel) currentView).getFocusedTextEditor();
         }
         return null;
     }
@@ -170,36 +178,37 @@ public class BrowserViewPanel extends FormObjectViewContainer
     // PrintFunction implementation
     // --------------------------------------------------
 
-    /** 
+    /**
      * The name for this print job.
      *
      * @return the print job's name
      */
     public String getPrintJobName() {
-        return "Red Expert - Database Browser";
+        return bundleString("JobName");
     }
-    
-    /** 
+
+    /**
      * Returns whether the current browser panel has a printable.
      *
-     *  @return true | false
+     * @return true | false
      */
     public boolean canPrint() {
         return getPrintable() != null;
     }
-    
-    /** 
-     * Returns the <code>Printable</code> object. 
+
+    /**
+     * Returns the <code>Printable</code> object.
      */
     public Printable getPrintable() {
         if (currentView != null) {
             return currentView.getPrintable();
         } else {
             return null;
-        }        
+        }
     }
 
     // --------------------------------------------------
-    
+
 }
+
 

@@ -1,7 +1,7 @@
 /*
  * ConnectionsTreeToolBar.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,96 +20,119 @@
 
 package org.executequery.gui.browser;
 
-import javax.swing.JButton;
-
 import org.executequery.GUIUtilities;
+import org.executequery.localization.Bundles;
 import org.executequery.util.ThreadUtils;
 import org.underworldlabs.swing.toolbar.PanelToolBar;
 
+import javax.swing.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 class ConnectionsTreeToolBar extends PanelToolBar {
 
-    /** move connection up button */
+    /**
+     * move connection up button
+     */
     private JButton upButton;
-    
-    /** move connection down button */
+
+    /**
+     * move connection down button
+     */
     private JButton downButton;
 
-    /** the reload node button */
+    /**
+     * the reload node button
+     */
     private JButton reloadButton;
-    
-    /** new connection button */
+
+    /**
+     * new connection button
+     */
     @SuppressWarnings("unused")
     private JButton newConnectionButton;
 
-    /** delete connection button */
+    /**
+     * delete connection button
+     */
     private JButton deleteConnectionButton;
 
+    private JButton connectButton;
+
     private ConnectionsTreePanel treePanel;
-    
+
+    private ImageIcon connectedIcon;
+
+    private ImageIcon disconnectedIcon;
+
     public ConnectionsTreeToolBar(ConnectionsTreePanel treePanel) {
-        
+
         this.treePanel = treePanel;
 
         init();
     }
-    
+
     private void init() {
-        
+
+
+        connectButton = addButton(treePanel, "connectDisconnect",
+                GUIUtilities.getAbsoluteIconPath("Connected.png"),
+                Bundles.get("action.connect-to-database"));
+
         newConnectionButton = addButton(
-                treePanel, "newConnection", 
-                GUIUtilities.getAbsoluteIconPath("NewConnection16.png"), 
-                "New connection");
+                treePanel, "newConnection",
+                GUIUtilities.getAbsoluteIconPath("NewConnection16.png"),
+                Bundles.getCommon("newConnection.button"));
 
         addButton(
-                treePanel, "newFolder", 
-                GUIUtilities.getAbsoluteIconPath("NewFolder16.png"), 
-                "New folder");
-        
+                treePanel, "newFolder",
+                GUIUtilities.getAbsoluteIconPath("NewFolder16.png"),
+                bundleString("newFolder"));
+
         deleteConnectionButton = addButton(
-                treePanel, "deleteConnection", 
+                treePanel, "deleteConnection",
                 GUIUtilities.getAbsoluteIconPath("Delete16.png"),
-                "Delete");
+                Bundles.getCommon("delete.button"));
 
         upButton = addButton(
-                treePanel, "moveConnectionUp", 
+                treePanel, "moveConnectionUp",
                 GUIUtilities.getAbsoluteIconPath("Up16.png"),
-                "Move connection up");
+                bundleString("moveConnectionUp"));
 
         downButton = addButton(
-                treePanel, "moveConnectionDown", 
-                GUIUtilities.getAbsoluteIconPath("Down16.png"), 
-                "Move connection down");
+                treePanel, "moveConnectionDown",
+                GUIUtilities.getAbsoluteIconPath("Down16.png"),
+                bundleString("moveConnectionDown"));
 
         reloadButton = addButton(
-                treePanel, "reloadSelection", 
+                treePanel, "reloadSelection",
 //                GUIUtilities.getAbsoluteIconPath("Reload16.png"), 
-                GUIUtilities.getAbsoluteIconPath("Refresh16.png"), 
-                "Reload the currently selected node");
+                GUIUtilities.getAbsoluteIconPath("Refresh16.png"),
+                bundleString("reloadSelection"));
 
         addButton(
-                treePanel, "sortConnections", 
-                GUIUtilities.getAbsoluteIconPath("SortAtoZ16.png"), 
-                "Sort connections");
+                treePanel, "sortConnections",
+                GUIUtilities.getAbsoluteIconPath("SortAtoZ16.png"),
+                bundleString("sortConnections"));
 
         addButton(treePanel.getTreeFindAction());
 
         addButton(
-                treePanel, "collapseAll", 
-                GUIUtilities.getAbsoluteIconPath("Collapse16.png"), 
-                "Collapse all");
+                treePanel, "collapseAll",
+                GUIUtilities.getAbsoluteIconPath("Collapse16.png"),
+                bundleString("collapseAll"));
+        connectedIcon = GUIUtilities.loadIcon("Connected.png");
+        disconnectedIcon = GUIUtilities.loadIcon("Disconnected.png");
 
     }
 
-    protected void enableButtons(final boolean enableUpButton, 
+    protected void enableButtons(final boolean enableUpButton,
                                  final boolean enableDownButton,
                                  final boolean enableReloadButton,
-                                 final boolean enableDeleteButton) {
+                                 final boolean enableDeleteButton,
+                                 final boolean enableConnected,
+                                 final boolean databaseConnected) {
 
         ThreadUtils.invokeLater(new Runnable() {
 
@@ -119,12 +142,25 @@ class ConnectionsTreeToolBar extends PanelToolBar {
                 downButton.setEnabled(enableDownButton);
                 reloadButton.setEnabled(enableReloadButton);
                 deleteConnectionButton.setEnabled(enableDeleteButton);
+                connectButton.setEnabled(enableConnected);
+                if (enableConnected) {
+                    if (databaseConnected) {
+                        connectButton.setIcon(connectedIcon);
+                    } else {
+                        connectButton.setIcon(disconnectedIcon);
+                    }
+                }
             }
 
         });
     }
-    
+
+    private String bundleString(String key) {
+        return Bundles.get(getClass(), key);
+    }
+
 }
+
 
 
 

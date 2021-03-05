@@ -1,7 +1,7 @@
 /*
  * ImportExportDelimitedPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,71 +20,92 @@
 
 package org.executequery.gui.importexport;
 
-import java.awt.Dimension;
-import java.util.Vector;
-
-import javax.swing.JDialog;
-import javax.swing.JPanel;
-
 import org.executequery.ActiveComponent;
 import org.executequery.GUIUtilities;
 import org.executequery.databasemediators.DatabaseConnection;
 import org.executequery.databasemediators.MetaDataValues;
 import org.executequery.gui.ActionContainer;
 import org.executequery.gui.browser.ColumnData;
+import org.executequery.localization.Bundles;
 import org.executequery.log.Log;
 import org.underworldlabs.swing.actions.ActionBuilder;
 import org.underworldlabs.swing.wizard.DefaultWizardProcessModel;
 import org.underworldlabs.swing.wizard.WizardProcessPanel;
 
-/** 
+import javax.swing.*;
+import java.awt.*;
+import java.util.Vector;
+
+/**
  * Import export to delimited file parent object.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1530 $
- * @date     $Date: 2015-10-13 11:02:42 +1100 (Tue, 13 Oct 2015) $
+ * @author Takis Diakoumis
  */
 public class ImportExportDelimitedPanel extends WizardProcessPanel
-                                        implements ImportExportProcess,
-                                                   ActiveComponent {
-    
-    /** The type of transfer - import/export */
+        implements ImportExportDataProcess,
+        ActiveComponent {
+
+    /**
+     * The type of transfer - import/export
+     */
     private int transferType;
-    
-    /** The dimension of each child panel */
+
+    /**
+     * The dimension of each child panel
+     */
     private Dimension childDim;
-    
-    /** The object to retrieve table details */
+
+    /**
+     * The object to retrieve table details
+     */
     private MetaDataValues metaData;
-    
-    /** The worker that will run the process */
+
+    /**
+     * The worker that will run the process
+     */
     private ImportExportWorker worker;
-    
-    /** The first panel displayed */
+
+    /**
+     * The first panel displayed
+     */
     private ImportExportDelimitedPanel_1 firstPanel;
-    
-    /** The second panel displayed */
+
+    /**
+     * The second panel displayed
+     */
     private ImportExportPanel_2 secondPanel;
-    
-    /** The third panel displayed */
+
+    /**
+     * The third panel displayed
+     */
     private ImportExportPanel_3 thirdPanel;
-    
-    /** The fourth panel displayed */
+
+    /**
+     * The fourth panel displayed
+     */
     private ImportExportDelimitedPanel_4 fourthPanel;
-    
-    /** The progress panel to track the process */
+
+    /**
+     * The progress panel to track the process
+     */
     private ImportExportProgressPanel progressPanel;
-    
-    /** Whether the process was a success */
+
+    /**
+     * Whether the process was a success
+     */
     private boolean processing;
 
-    /** the parent container */
+    /**
+     * the parent container
+     */
     private ActionContainer parent;
 
-    /** the selection model */
+    /**
+     * the selection model
+     */
     private TransferDelimitedWizardModel model;
-    
-    /** 
+
+    /**
      * Creates a new instance of the process with the specified parent
      * container and process type.
      *
@@ -94,13 +115,13 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         this(parent, transferType, null, null, null);
     }
 
-    /** 
+    /**
      * Creates a new instance of the process with the specified parent
      * container and process type.
      *
      * @param the process type - import/export
      */
-    public ImportExportDelimitedPanel(ActionContainer parent, 
+    public ImportExportDelimitedPanel(ActionContainer parent,
                                       int transferType,
                                       DatabaseConnection databaseConnection,
                                       String schemaName,
@@ -112,15 +133,15 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         this.parent = parent;
 
         try {
-            jbInit();
-        } catch(Exception e) {
+            init();
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         if (databaseConnection != null) {
             firstPanel.setDatabaseConnection(databaseConnection);
             next();
-            
+
             if (schemaName != null) {
                 secondPanel.setSelectedSchema(schemaName);
                 if (tableName != null) {
@@ -131,23 +152,26 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
             }
 
         }
-        
+
     }
 
-    /** <p>Initialises the state of this instance and
-     *  lays out components on the panel. */
-    private void jbInit() throws Exception {
+    /**
+     * <p>Initialises the state of this instance and
+     * lays out components on the panel.
+     */
+    private void init() throws Exception {
+
         metaData = new MetaDataValues(true);
-        childDim = new Dimension(525, 360);
-    
+        childDim = new Dimension(580, 420);
+
         // set the help action
         setHelpAction(ActionBuilder.get("help-command"), "import-export");
-        
-        firstPanel = new ImportExportDelimitedPanel_1(this);        
+
+        firstPanel = new ImportExportDelimitedPanel_1(this);
         model.addPanel(firstPanel);
         prepare();
     }
-    
+
     /**
      * Returns the transfer format - XML, CSV etc.
      */
@@ -165,70 +189,80 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
     public String getSchemaName() {
         return secondPanel.getSelectedSchema();
     }
-    
-    /** <p>Retrieves the selected tables for this process.
+
+    /**
+     * <p>Retrieves the selected tables for this process.
      *
-     *  @return the selected table names
+     * @return the selected table names
      */
     public String[] getSelectedTables() {
         return secondPanel.getSelectedTables();
     }
-    
-    /** <p>Retrieves the table name for this process in the
-     *  case of a single table import/export.
+
+    /**
+     * <p>Retrieves the table name for this process in the
+     * case of a single table import/export.
      *
-     *  @return the table name
+     * @return the table name
      */
     public String getTableName() {
         return secondPanel.getSelectedTables()[0];
     }
-    
-    /** <p>Retrieves the column names for this process.
+
+    /**
+     * <p>Retrieves the column names for this process.
      *
-     *  @return the column names
+     * @return the column names
      */
     public Vector<ColumnData> getSelectedColumns() {
         return secondPanel.getSelectedColumns();
     }
-    
-    /** <p>Retrieves the selected rollback size for
-     *  the transfer.
+
+    /**
+     * <p>Retrieves the selected rollback size for
+     * the transfer.
      *
-     *  @return the rollback size
+     * @return the rollback size
      */
     public int getRollbackSize() {
         return fourthPanel.getRollbackSize();
     }
-    
+
+    public boolean quoteCharacterValues() {
+        return fourthPanel.quoteCharacterValues();
+    }
+
     public boolean includeColumnNames() {
         return fourthPanel.includeColumnNames();
     }
-    
-    /** <p>Retrieves the action on an error occuring
-     *  during the import/export process.
+
+    /**
+     * <p>Retrieves the action on an error occuring
+     * during the import/export process.
      *
-     *  @return the action on error -<br>either:
-     *          <code>ImportExportProcess.LOG_AND_CONTINUE</code> or
-     *          <code>ImportExportProcess.STOP_TRANSFER</code>
+     * @return the action on error -<br>either:
+     * <code>ImportExportProcess.LOG_AND_CONTINUE</code> or
+     * <code>ImportExportProcess.STOP_TRANSFER</code>
      */
     public int getOnError() {
         return fourthPanel.getOnError();
     }
-    
-    /** 
+
+    /**
      * Retrieves the selected type of delimiter within
-     *  the file to be used with this process.
+     * the file to be used with this process.
      *
-     *  @return the selected delimiter
+     * @return the selected delimiter
      */
     public String getDelimiter() {
         return fourthPanel.getDelimiter();
     }
-    
-    /** <p>Retrieves the date format for date fields
-     *  contained within the data file/database table.
+
+    /**
+     * <p>Retrieves the date format for date fields
+     * contained within the data file/database table.
      *
-     *  @return the date format (ie. ddMMyyy)
+     * @return the date format (ie. ddMMyyy)
      */
     public String getDateFormat() {
         String format = fourthPanel.getDateFormat();
@@ -238,7 +272,7 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
             return format;
         }
     }
-    
+
     /**
      * Returns whether to parse date values.
      *
@@ -248,8 +282,8 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         return fourthPanel.parseDateValues();
     }
 
-    /** 
-     * Indicates whether the process (import only) should 
+    /**
+     * Indicates whether the process (import only) should
      * be run as a batch process.
      *
      * @return whether to run as a batch process
@@ -257,12 +291,14 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
     public boolean runAsBatchProcess() {
         return fourthPanel.runAsBatchProcess();
     }
-    
+
     public boolean trimWhitespace() {
         return fourthPanel.trimWhitespace();
     }
-    
-    /** <p>Begins an import process. */
+
+    /**
+     * <p>Begins an import process.
+     */
     public void doImport() {
         Log.info("Beginning data import process");
         setNextButtonEnabled(false);
@@ -270,11 +306,11 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         setCancelButtonEnabled(false);
         worker = new ImportDelimitedWorker(this, progressPanel);
     }
-    
+
     public void setProcessComplete(boolean success) {
         setButtonsFinished(success);
     }
-    
+
     public void setButtonsFinished(boolean success) {
         setButtonsEnabled(true);
         setNextButtonEnabled(false);
@@ -284,10 +320,12 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         if (success) {
             setCancelButtonText("Finish");
         }
-        processing  = false;        
+        processing = false;
     }
-    
-    /** <p>Begins an export process. */
+
+    /**
+     * <p>Begins an export process.
+     */
     public void doExport() {
         Log.info("Beginning data export process");
         setNextButtonEnabled(false);
@@ -295,40 +333,44 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         setCancelButtonEnabled(false);
         worker = new ExportDelimitedWorker(this, progressPanel);
     }
-    
-    /** <p>Cancels the current in-process transfer */
+
+    /**
+     * <p>Cancels the current in-process transfer
+     */
     public void cancelTransfer() {
         Log.info("Process cancelled");
     }
-    
+
     public boolean isExport() {
 
         int type = getTransferType();
-        
-        return type == EXPORT || 
-            type == EXPORT_XML || 
-            type == EXPORT_DELIMITED;
+
+        return type == EXPORT ||
+                type == EXPORT_XML ||
+                type == EXPORT_DELIMITED;
     }
-    
-    /** <p>Returns the type of transfer - import or export.
+
+    /**
+     * <p>Returns the type of transfer - import or export.
      *
-     *  @return the transfer type - import/export
+     * @return the transfer type - import/export
      */
     public int getTransferType() {
         return transferType;
     }
-    
-    /** <p>Returns a <code>Vector</code> of <code>
-     *  DataTransferObject</code> objects containing
-     *  all relevant data for the process.
+
+    /**
+     * <p>Returns a <code>Vector</code> of <code>
+     * DataTransferObject</code> objects containing
+     * all relevant data for the process.
      *
-     *  @return a <code>Vector</code> of
-     *          <code>DataTransferObject</code> objects
+     * @return a <code>Vector</code> of
+     * <code>DataTransferObject</code> objects
      */
     public Vector<DataTransferObject> getDataFileVector() {
         return thirdPanel.getDataFileVector();
     }
-    
+
     /**
      * Returns the XML format style for an XML import/export.
      * Value of -1 is returned in this case.
@@ -344,19 +386,19 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
      */
     private boolean doPrevious() {
         // make sure the cancel button says cancel
-        setCancelButtonText("Cancel");
+        setCancelButtonText(Bundles.get("common.cancel.button"));
         return true;
     }
-    
-    /** 
+
+    /**
      * Defines the action for the NEXT button.
      */
     private boolean doNext() {
         JPanel nextPanel = null;
         int index = model.getSelectedIndex();
-        
+
         switch (index) {
-        
+
             case 0:
                 DatabaseConnection dc = getDatabaseConnection();
                 if (dc != null) {
@@ -374,26 +416,24 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
             case 1:
 
                 if (!secondPanel.hasSelections()) {
-                    if (getTableTransferType() == ImportExportProcess.MULTIPLE_TABLE) {
+                    if (getTableTransferType() == ImportExportDataProcess.MULTIPLE_TABLE) {
                         GUIUtilities.displayErrorMessage(
-                        "You must select at least one table");
+                                "You must select at least one table");
+                    } else if (getTableTransferType() == ImportExportDataProcess.SINGLE_TABLE) {
+                        GUIUtilities.displayErrorMessage(
+                                "You must select at least one column");
                     }
-                    else if (getTableTransferType() == ImportExportProcess.SINGLE_TABLE) {
-                        GUIUtilities.displayErrorMessage(
-                        "You must select at least one column");
-                    }                
                     return false;
                 }
 
                 if (thirdPanel == null) {
                     thirdPanel = new ImportExportPanel_3(this);
-                }
-                else {
+                } else {
                     thirdPanel.buildTable();
                 }
                 nextPanel = thirdPanel;
                 break;
-                
+
             case 2:
 
                 if (!thirdPanel.transferObjectsComplete()) {
@@ -407,17 +447,16 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
                 break;
 
             case 3:
-            
+
                 if (progressPanel == null) {
                     progressPanel = new ImportExportProgressPanel(this);
                 }
                 processing = true;
                 model.addPanel(progressPanel);
 
-                if (transferType == ImportExportProcess.EXPORT) {
+                if (transferType == ImportExportDataProcess.EXPORT) {
                     doExport();
-                }
-                else if (transferType == ImportExportProcess.IMPORT) {
+                } else if (transferType == ImportExportDataProcess.IMPORT) {
                     doImport();
                 }
                 setButtonsEnabled(false);
@@ -428,9 +467,9 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         model.addPanel(nextPanel);
         return true;
     }
-    
-    /** 
-     * Stops the current process. 
+
+    /**
+     * Stops the current process.
      */
     public void stopTransfer() {
         setButtonsEnabled(true);
@@ -440,7 +479,7 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         }
     }
 
-    /** 
+    /**
      * Defines the action for the CANCEL button.
      */
     public void cancel() {
@@ -448,21 +487,20 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         if (processing) {
             worker.cancelTransfer();
             setBackButtonEnabled(true);
-        }
-        else {
+        } else {
             worker = null;
             parent.finished();
         }
     }
-    
+
     public JDialog getDialog() {
         if (parent.isDialog()) {
-            return (JDialog)parent;
+            return (JDialog) parent;
         }
         return null;
     }
-    
-    /** 
+
+    /**
      * Returns the type of transfer - single or multiple table.
      *
      * @return the type of transfer
@@ -480,28 +518,31 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         return firstPanel.getDatabaseConnection();
     }
 
-    /** <p>Retrieves the size of the child panel
-     *  to be added to the main base panel.
+    /**
+     * <p>Retrieves the size of the child panel
+     * to be added to the main base panel.
      *
-     *  @return the size of the child panel
+     * @return the size of the child panel
      */
     public Dimension getChildDimension() {
         return childDim;
     }
-    
-    /** <p>Retrieves the <code>MetaDataValues</code>
-     *  object defined for this process.
+
+    /**
+     * <p>Retrieves the <code>MetaDataValues</code>
+     * object defined for this process.
      *
-     *  @return the <code>MetaDataValues</code> helper class
+     * @return the <code>MetaDataValues</code> helper class
      */
     public MetaDataValues getMetaDataUtility() {
         return metaData;
     }
-    
-    /** <p>Returns the type of multiple table
-     *  transfer - single or multiple file.
+
+    /**
+     * <p>Returns the type of multiple table
+     * transfer - single or multiple file.
      *
-     *  @return the type of multiple table transfer
+     * @return the type of multiple table transfer
      */
     public int getMutlipleTableTransferType() {
         return MULTIPLE_FILE;
@@ -510,35 +551,35 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
     public boolean isSingleFileExport() {
         return false;
     }
-    
-    
+
+
     private class TransferDelimitedWizardModel extends DefaultWizardProcessModel {
-        
+
         public TransferDelimitedWizardModel() {
             int type = getTransferType();
             String firstTitle = "Database Connection and Export Type";
             String fifthTitle = "Exporting Data...";
-            if (type == ImportExportProcess.IMPORT) {
+            if (type == ImportExportDataProcess.IMPORT) {
                 firstTitle = "Database Connection and Import Type";
                 fifthTitle = "Importing Data...";
             }
 
             String[] titles = {firstTitle,
-                               "Table Selection",
-                               "Data File Selection",
-                               "Options",
-                               fifthTitle};
+                    "Table Selection",
+                    "Data File Selection",
+                    "Options",
+                    fifthTitle};
             setTitles(titles);
 
             String[] steps = {"Select database connection and transfer type",
-                              "Select the tables/columns",
-                              type == ImportExportProcess.IMPORT ?
-                                  "Select the data file(s) to import from" :
-                                  "Select the data file(s) to export to",
-                              "Set any further transfer options",
-                              type == ImportExportProcess.IMPORT ?
-                                  "Import the data" :
-                                  "Export the data"};
+                    "Select the tables/columns",
+                    type == ImportExportDataProcess.IMPORT ?
+                            "Select the data file(s) to import from" :
+                            "Select the data file(s) to export to",
+                    "Set any further transfer options",
+                    type == ImportExportDataProcess.IMPORT ?
+                            "Import the data" :
+                            "Export the data"};
             setSteps(steps);
         }
 
@@ -548,7 +589,7 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
             }
             return false;
         }
-        
+
         public boolean next() {
             if (doNext()) {
                 return super.next();
@@ -557,8 +598,9 @@ public class ImportExportDelimitedPanel extends WizardProcessPanel
         }
 
     }
-    
+
 }
+
 
 
 

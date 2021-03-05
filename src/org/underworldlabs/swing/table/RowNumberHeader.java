@@ -1,7 +1,7 @@
 /*
  * RowNumberHeader.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,43 +20,40 @@
 
 package org.underworldlabs.swing.table;
 
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.FontMetrics;
+import org.underworldlabs.swing.plaf.UIUtils;
 
-import javax.swing.AbstractListModel;
-import javax.swing.BorderFactory;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JTable;
-import javax.swing.ListCellRenderer;
-import javax.swing.UIManager;
+import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.JTableHeader;
-
-import org.underworldlabs.swing.plaf.UIUtils;
+import java.awt.*;
 
 /**
  * Provides row numbers for a <code>JTable</code>.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class RowNumberHeader extends JList
-                             implements ListSelectionListener {
+        implements ListSelectionListener {
 
-    /** The table to apply the row header */
+    /**
+     * The table to apply the row header
+     */
     protected JTable table;
 
-    /** the row count to be displayed */
+    /**
+     * the row count to be displayed
+     */
     protected int rowCount;
 
-    /** the list model */
+    /**
+     * the list model
+     */
     protected RowHeaderListModel model;
 
-    /** the default min width */
+    /**
+     * the default min width
+     */
     private static final int MINIMUM_WIDTH = 20;
 
     public RowNumberHeader(JTable table) {
@@ -127,10 +124,10 @@ public class RowNumberHeader extends JList
         }
 
         public Component getListCellRendererComponent(JList list,
-                Object value, int index, boolean isSelected, boolean cellHasFocus) {
-            
+                                                      Object value, int index, boolean isSelected, boolean cellHasFocus) {
+
             setText((value == null) ? "" : value.toString() + " ");
-            
+
             return this;
         }
 
@@ -139,7 +136,8 @@ public class RowNumberHeader extends JList
 
     class RowHeaderListModel extends AbstractListModel {
 
-        RowHeaderListModel() {}
+        RowHeaderListModel() {
+        }
 
         public int getSize() {
             return rowCount;
@@ -156,5 +154,6 @@ public class RowNumberHeader extends JList
     } // class RowHeaderListModel
 
 }
+
 
 

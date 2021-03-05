@@ -1,7 +1,7 @@
 /*
  * PropertiesGeneral.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,166 +20,154 @@
 
 package org.executequery.gui.prefs;
 
+import org.apache.commons.lang.StringUtils;
+import org.executequery.gui.text.LineSeparator;
+import org.underworldlabs.util.SystemProperties;
+
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.SortedMap;
 
-import org.apache.commons.lang.StringUtils;
-import org.executequery.Constants;
-import org.executequery.gui.text.LineSeparator;
-import org.underworldlabs.util.SystemProperties;
-
-/** 
+/**
  * System preferences general panel.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1512 $
- * @date     $Date: 2015-09-27 21:23:07 +1000 (Sun, 27 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertiesGeneral extends AbstractPropertiesBasePanel {
-    
+
     private SimplePreferencesPanel preferencesPanel;
-    
+
     public PropertiesGeneral() {
-        try  {
+        try {
             init();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
+
     private void init() throws Exception {
 
-    	List<UserPreference> list = new ArrayList<UserPreference>();
-    	
+        List<UserPreference> list = new ArrayList<UserPreference>();
+
         list.add(new UserPreference(
-                    UserPreference.CATEGORY_TYPE,
-                    null,
-                    "General",
-                    null));
+                UserPreference.CATEGORY_TYPE,
+                null,
+                bundledString("General"),
+                null));
 
         String key = "startup.display.splash";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Display Splash Screen at Startup",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("DisplaySplashScreenAtStartup"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "startup.window.maximized";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Maximise window on startup",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("MaximiseWindowOnStartup"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "recent.files.count";
         list.add(new UserPreference(
-                    UserPreference.INTEGER_TYPE,
-                    1,
-                    key,
-                    "Recent files to store",
-                    stringUserProperty(key)));
+                UserPreference.INTEGER_TYPE,
+                1,
+                key,
+                bundledString("RecentFilesToStore"),
+                stringUserProperty(key)));
 
         key = "general.line.separator";
         list.add(new UserPreference(
-                    UserPreference.STRING_TYPE,
-                    key,
-                    "Line separator",
-                    SystemProperties.getProperty("user", key),
-                    new String[]{LineSeparator.DOS.label, 
+                UserPreference.STRING_TYPE,
+                key,
+                bundledString("LineSeparator"),
+                SystemProperties.getProperty("user", key),
+                new String[]{LineSeparator.DOS.label,
                         LineSeparator.WINDOWS.label,
                         LineSeparator.MAC_OS.label}));
 
         key = "general.save.prompt";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Prompt to save open documents",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("PromptToSaveOpenDocuments"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "startup.version.check";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Check for update on startup",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("CheckForUpdateOnStartup"),
+                Boolean.valueOf(stringUserProperty(key))));
 
-        key = "system.log.level";
+        key = "startup.unstableversions.load";
         list.add(new UserPreference(
-                    UserPreference.STRING_TYPE,
-                    key,
-                    "Output log level",
-                    stringUserProperty(key),
-                    Constants.LOG_LEVELS));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("LoadUnstableVersions"),
+                Boolean.valueOf(stringUserProperty(key))));
 
-        key = "system.log.out";
+        key = "startup.majorversions.load";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Log System.out to console",
-                    Boolean.valueOf(stringUserProperty(key))));
-
-        key = "system.log.err";
-        list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Log System.err to console",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("CheckMajorVersions"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "system.file.encoding";
         list.add(new UserPreference(
-                    UserPreference.STRING_TYPE,
-                    key,
-                    "Default file encoding",
-                    encodingValue(),
-                    availableCharsets()));
+                UserPreference.STRING_TYPE,
+                key,
+                bundledString("DefaultFileEncoding"),
+                encodingValue(),
+                availableCharsets()));
 
-        
+
         list.add(new UserPreference(
-                    UserPreference.CATEGORY_TYPE,
-                    null,
-                    "Internet Proxy Settings",
-                    null));
-        
+                UserPreference.CATEGORY_TYPE,
+                null,
+                bundledString("InternetProxySettings"),
+                null));
+
         key = "internet.proxy.set";
         list.add(new UserPreference(
-                    UserPreference.BOOLEAN_TYPE,
-                    key,
-                    "Use proxy server for internet connections",
-                    Boolean.valueOf(stringUserProperty(key))));
+                UserPreference.BOOLEAN_TYPE,
+                key,
+                bundledString("UseProxyServer"),
+                Boolean.valueOf(stringUserProperty(key))));
 
         key = "internet.proxy.host";
         list.add(new UserPreference(
-                    UserPreference.STRING_TYPE,
-                    key,
-                    "Proxy Host",
-                    stringUserProperty(key)));
+                UserPreference.STRING_TYPE,
+                key,
+                bundledString("ProxyHost"),
+                stringUserProperty(key)));
 
         key = "internet.proxy.port";
         list.add(new UserPreference(
-                    UserPreference.INTEGER_TYPE,
-                    key,
-                    "Proxy Port",
-                    stringUserProperty(key)));
+                UserPreference.INTEGER_TYPE,
+                key,
+                bundledString("ProxyPort"),
+                stringUserProperty(key)));
 
         key = "internet.proxy.user";
         list.add(new UserPreference(
-                    UserPreference.STRING_TYPE,
-                    key,
-                    "Proxy User",
-                    stringUserProperty(key)));
+                UserPreference.STRING_TYPE,
+                key,
+                bundledString("ProxyUser"),
+                stringUserProperty(key)));
 
         key = "internet.proxy.password";
         list.add(new UserPreference(
-                    UserPreference.PASSWORD_TYPE,
-                    key,
-                    "Proxy Password",
-                    stringUserProperty(key)));
+                UserPreference.PASSWORD_TYPE,
+                key,
+                bundledString("ProxyPassword"),
+                stringUserProperty(key)));
 
-        UserPreference[] preferences = 
-                (UserPreference[])list.toArray(new UserPreference[list.size()]);
+        UserPreference[] preferences =
+                list.toArray(new UserPreference[list.size()]);
         preferencesPanel = new SimplePreferencesPanel(preferences);
         addContent(preferencesPanel);
     }
@@ -189,33 +177,34 @@ public class PropertiesGeneral extends AbstractPropertiesBasePanel {
         List<String> available = new ArrayList<String>();
         SortedMap<String, Charset> charsets = Charset.availableCharsets();
         for (Charset charset : charsets.values()) {
-            
+
             available.add(charset.name());
         }
-        
+
         return available.toArray(new String[available.size()]);
     }
 
     private String encodingValue() {
-        
+
         String encoding = stringUserProperty("system.file.encoding");
         if (StringUtils.isBlank(encoding)) {
-            
+
             return System.getProperty("file.encoding");
         }
         return encoding;
     }
-    
+
     public void restoreDefaults() {
 
         preferencesPanel.restoreDefaults();
     }
-    
-    public void save() {      
-        
+
+    public void save() {
+
         preferencesPanel.savePreferences();
     }
-    
+
 }
+
 
 

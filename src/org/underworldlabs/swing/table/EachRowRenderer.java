@@ -1,7 +1,7 @@
 /*
  * EachRowRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,20 +20,17 @@
 
 package org.underworldlabs.swing.table;
 
-import java.awt.Component;
-import java.util.Hashtable;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+import java.util.Hashtable;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class EachRowRenderer implements TableCellRenderer {
-    
+
     protected Hashtable<Integer, TableCellRenderer> renderers;
     protected TableCellRenderer renderer;
     protected TableCellRenderer defaultRenderer;
@@ -44,36 +41,37 @@ public class EachRowRenderer implements TableCellRenderer {
     }
 
     public void add(int row, TableCellRenderer renderer) {
-        renderers.put(Integer.valueOf(row),renderer);
+        renderers.put(Integer.valueOf(row), renderer);
     }
-    
+
     public Component getTableCellRendererComponent(JTable table,
-                                                   Object value, 
-                                                   boolean isSelected, 
+                                                   Object value,
+                                                   boolean isSelected,
                                                    boolean hasFocus,
-                                                   int row, 
+                                                   int row,
                                                    int column) {
 
-        renderer = (TableCellRenderer)renderers.get(Integer.valueOf(row));
+        renderer = (TableCellRenderer) renderers.get(Integer.valueOf(row));
 
         if (renderer == null) {
             renderer = defaultRenderer;
         }
 
         if (value != null && renderer instanceof DefaultTableCellRenderer) {
-            ((DefaultTableCellRenderer)renderer).setToolTipText(value.toString());
+            ((DefaultTableCellRenderer) renderer).setToolTipText(value.toString());
         }
 
         return renderer.getTableCellRendererComponent(table,
-                                                      value, 
-                                                      isSelected, 
-                                                      hasFocus, 
-                                                      row, 
-                                                      column);
+                value,
+                isSelected,
+                hasFocus,
+                row,
+                column);
 
     }
 
 }
+
 
 
 

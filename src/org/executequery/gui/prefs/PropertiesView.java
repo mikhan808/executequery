@@ -1,7 +1,7 @@
 /*
  * PropertiesView.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -33,33 +33,35 @@ import org.underworldlabs.util.SystemProperties;
 // **************************************************
 
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
 
-/** <p>The view properties panel.
+/**
+ * <p>The view properties panel.
  *
- *  @author   Takis Diakoumis
- * @version  $Revision: 1512 $
- * @date     $Date: 2015-09-27 21:23:07 +1000 (Sun, 27 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertiesView extends AbstractPropertiesBasePanel {
-    
+
     private SimplePreferencesPanel preferencesPanel;
-    
-    /** <p>Constructs a new instance. */
+
+    /**
+     * <p>Constructs a new instance.
+     */
     public PropertiesView() {
         try {
             jbInit();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    /** <p>Initializes the state of this instance. */
+
+    /**
+     * <p>Initializes the state of this instance.
+     */
     private void jbInit() throws Exception {
 
         int count = 0;
@@ -70,42 +72,35 @@ public class PropertiesView extends AbstractPropertiesBasePanel {
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Status bar",
-                new Boolean(SystemProperties.getProperty("user", key)));
+                Boolean.valueOf(SystemProperties.getProperty("user", key)));
 
         key = "system.display.console";
         preferences[count++] = new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "System console",
-                new Boolean(SystemProperties.getProperty("user", key)));
-
-        key = "system.display.jdbclogger";
-        preferences[count++] = new UserPreference(
-                UserPreference.BOOLEAN_TYPE,
-                key,
-                "Jdbc logger",
-                new Boolean(SystemProperties.getProperty("user", key)));
+                Boolean.valueOf(SystemProperties.getProperty("user", key)));
 
         key = "system.display.connections";
         preferences[count++] = new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Connections",
-                new Boolean(SystemProperties.getProperty("user", key)));
+                Boolean.valueOf(SystemProperties.getProperty("user", key)));
 
         key = "system.display.drivers";
         preferences[count++] = new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Drivers",
-                new Boolean(SystemProperties.getProperty("user", key)));
+                Boolean.valueOf(SystemProperties.getProperty("user", key)));
 
         key = "system.display.systemprops";
         preferences[count++] = new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "System properties palette",
-                new Boolean(SystemProperties.getProperty("user", key)));
+                Boolean.valueOf(SystemProperties.getProperty("user", key)));
 
         preferencesPanel = new SimplePreferencesPanel(preferences);
         addContent(preferencesPanel);
@@ -115,12 +110,13 @@ public class PropertiesView extends AbstractPropertiesBasePanel {
     public void restoreDefaults() {
         preferencesPanel.savePreferences();
     }
-    
+
     public void save() {
         preferencesPanel.savePreferences();
     }
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * DatabaseObjectElement.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,39 +23,38 @@ package org.executequery.databaseobjects;
 import java.util.Map;
 
 /**
- *
  * @author takisd
  */
 public interface DatabaseObjectElement extends NamedObject {
-    
+
     /**
      * Returns the catalog name parent to this database object.
      *
      * @return the catalog name
      */
     String getCatalogName();
-    
+
     /**
      * Sets the parent catalog name to that specified.
      *
      * @param catalog the catalog nameColumnConstraint
      */
     void setCatalogName(String catalog);
-    
+
     /**
      * Returns the schema name parent to this database object.
      *
      * @return the schema name
      */
     String getSchemaName();
-    
+
     /**
      * Sets the parent schema name to that specified.
      *
      * @param schema the schema name
      */
     void setSchemaName(String schema);
-    
+
     /**
      * Returns any remarks attached to this object.
      *
@@ -68,8 +67,9 @@ public interface DatabaseObjectElement extends NamedObject {
      *
      * @return the meta data
      */
-    Map<String,String> getMetaData();
+    Map<String, String> getMetaData();
 
-    
+
 }
+
 

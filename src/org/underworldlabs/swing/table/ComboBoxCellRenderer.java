@@ -1,7 +1,7 @@
 /*
  * ComboBoxCellRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,54 +20,50 @@
 
 package org.underworldlabs.swing.table;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
-
 import org.underworldlabs.util.LabelValuePair;
 
+import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1508 $
- * @date     $Date: 2015-09-24 17:06:59 +1000 (Thu, 24 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class ComboBoxCellRenderer extends JLabel
-                                  implements TableCellRenderer {
-    
+        implements TableCellRenderer {
+
     private static Color iconColor;
-    
+
     static {
         iconColor = Color.DARK_GRAY.darker();
     }
-    
-    /** Creates a new instance of ComboBoxCellRenderer */
-    public ComboBoxCellRenderer() {}
+
+    /**
+     * Creates a new instance of ComboBoxCellRenderer
+     */
+    public ComboBoxCellRenderer() {
+    }
 
     public Component getTableCellRendererComponent(JTable table,
                                                    Object value,
                                                    boolean isSelected,
                                                    boolean cellHasFocus,
-                                                   int row, 
+                                                   int row,
                                                    int col) {
         setFont(table.getFont());
-        
+
         if (value == null) {
 
             setText("");
 
         } else {
-            
+
             if (value instanceof LabelValuePair) {
-            
+
                 setText(((LabelValuePair) value).getLabel());
-                
+
             } else {
-             
+
                 setText(value.toString());
             }
         }
@@ -76,10 +72,10 @@ public class ComboBoxCellRenderer extends JLabel
     }
 
     private int ICON_HEIGHT = 10;
-    
+
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        
+
         int height = getHeight();
         int width = getWidth();
 
@@ -87,23 +83,24 @@ public class ComboBoxCellRenderer extends JLabel
         int xo = width - 15;
         int yo = (height - ICON_HEIGHT) / 2;
 
-        g.setColor(iconColor);        
+        g.setColor(iconColor);
         for (int i = 1; i <= ICON_HEIGHT; i++) {
-            
+
             y = yo + i + 2;
-            
+
             for (int j = i; j <= ICON_HEIGHT; j++) {
-                
+
                 if (j > ICON_HEIGHT - i)
                     break;
-                
+
                 x = xo + j;
                 g.drawLine(x, y, x, y);
-                
+
             }
-            
+
         }
 
     }
 
 }
+

@@ -1,7 +1,7 @@
 /*
  * ImportDelimitedCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,57 +20,49 @@
 
 package org.executequery.actions.toolscommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.gui.BaseDialog;
+import org.executequery.gui.importexport.ImportExportDataProcess;
 import org.executequery.gui.importexport.ImportExportDelimitedPanel;
-import org.executequery.gui.importexport.ImportExportProcess;
 import org.underworldlabs.swing.actions.BaseCommand;
 
-/** 
+import java.awt.event.ActionEvent;
+
+/**
  * <p>Execution for Export to Delimited File
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ImportDelimitedCommand extends OpenFrameCommand
-                                    implements BaseCommand {
-    
+        implements BaseCommand {
+
     public void execute(ActionEvent e) {
 
         if (!isConnected()) {
             return;
         }
-        
+
         if (isActionableDialogOpen()) {
             GUIUtilities.acionableDialogToFront();
             return;
         }
-        
-        if (!isDialogOpen("Import Data")) {
+
+        if (!isDialogOpen(bundledString("title"))) {
             GUIUtilities.showWaitCursor();
             try {
-                BaseDialog dialog = 
-                        createDialog("Import Data", false, false);
-                ImportExportDelimitedPanel panel = 
-                        new ImportExportDelimitedPanel(dialog, ImportExportProcess.IMPORT);
+                BaseDialog dialog =
+                        createDialog(bundledString("title"), false, false);
+                ImportExportDelimitedPanel panel =
+                        new ImportExportDelimitedPanel(dialog, ImportExportDataProcess.IMPORT);
                 dialog.addDisplayComponent(panel);
                 dialog.display();
-            }
-            finally {
+            } finally {
                 GUIUtilities.showNormalCursor();
             }
         }
 
     }
-    
+
 }
-
-
-
-
-
 

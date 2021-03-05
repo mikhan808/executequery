@@ -1,7 +1,7 @@
 /*
  * ViewMenu.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,46 +20,42 @@
 
 package org.executequery.gui.menu;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.swing.JCheckBoxMenuItem;
-
 import org.executequery.EventMediator;
 import org.executequery.actions.viewcommands.ViewOptionsCommand;
 import org.executequery.event.UserPreferenceEvent;
 import org.executequery.event.UserPreferenceListener;
 
-/** 
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+import javax.swing.*;
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * @author Takis Diakoumis
  */
-public class ViewMenu extends AbstractOptionsMenu 
-                      implements UserPreferenceListener {
+public class ViewMenu extends AbstractOptionsMenu
+        implements UserPreferenceListener {
 
     private ViewOptionsCommand viewOptionsCommand;
-    
+
     public ViewMenu() {
-        
+
         viewOptionsCommand = new ViewOptionsCommand();
-        
+
         createCommandToPropertiesMap();
-        
+
         EventMediator.registerListener(this);
     }
-    
+
     protected void addActionForMenuItem(JCheckBoxMenuItem menuItem) {
-        
+
         menuItem.addActionListener(viewOptionsCommand);
     }
-    
+
     protected void setMenuItemValue(JCheckBoxMenuItem menuItem) {
 
         String actionCommand = menuItem.getActionCommand();
-        
-        if (actionCommand != null && 
+
+        if (actionCommand != null &&
                 actionCommandsToPropertiesMap.containsKey(actionCommand)) {
 
             menuItem.setSelected(booleanValueForKey(
@@ -69,18 +65,17 @@ public class ViewMenu extends AbstractOptionsMenu
     }
 
     protected boolean listeningForEvent(UserPreferenceEvent event) {
-        
-        return (event.getEventType() == UserPreferenceEvent.ALL 
+
+        return (event.getEventType() == UserPreferenceEvent.ALL
                 || event.getEventType() == UserPreferenceEvent.DOCKED_COMPONENT_CLOSED);
     }
 
-    private Map<String, String> actionCommandsToPropertiesMap; 
-    
+    private Map<String, String> actionCommandsToPropertiesMap;
+
     private void createCommandToPropertiesMap() {
-        
+
         actionCommandsToPropertiesMap = new HashMap<String, String>();
 
-        actionCommandsToPropertiesMap.put("viewLogger", "system.display.jdbclogger");
         actionCommandsToPropertiesMap.put("viewConsole", "system.display.console");
         actionCommandsToPropertiesMap.put("viewConnections", "system.display.connections");
         actionCommandsToPropertiesMap.put("viewKeywords", "system.display.keywords");
@@ -91,8 +86,9 @@ public class ViewMenu extends AbstractOptionsMenu
         actionCommandsToPropertiesMap.put("viewStatusBar", "system.display.statusbar");
 
     }
-    
+
 }
+
 
 
 

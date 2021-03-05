@@ -1,7 +1,7 @@
 /*
  * OpenConnectionsComboBox.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,34 +20,30 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.event.KeyEvent;
-import java.util.Vector;
-
-import javax.swing.JComboBox;
-
 import org.executequery.databasemediators.DatabaseConnection;
 import org.underworldlabs.swing.DynamicComboBoxModel;
 
+import javax.swing.*;
+import java.awt.event.KeyEvent;
+import java.util.Vector;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-final class OpenConnectionsComboBox extends JComboBox { 
- 
+final class OpenConnectionsComboBox extends JComboBox {
+
     private QueryEditor queryEditor;
-    
+
     private DynamicComboBoxModel connectionsModel;
-    
-    OpenConnectionsComboBox(QueryEditor queryEditor, 
-            Vector<DatabaseConnection> connections) {
-        
+
+    OpenConnectionsComboBox(QueryEditor queryEditor,
+                            Vector<DatabaseConnection> connections) {
+
         this.queryEditor = queryEditor;
-        
+
         connectionsModel = new DynamicComboBoxModel(connections);
         setModel(connectionsModel);
-        
+
         if (connectionsModel.getSize() == 0) {
             setEnabled(false);
         }
@@ -55,10 +51,10 @@ final class OpenConnectionsComboBox extends JComboBox {
     }
 
     public boolean contains(DatabaseConnection databaseConnection) {
-        
+
         return connectionsModel.contains(databaseConnection);
     }
-    
+
     public void processKeyEvent(KeyEvent e) {
 
         super.processKeyEvent(e);
@@ -68,16 +64,16 @@ final class OpenConnectionsComboBox extends JComboBox {
             queryEditor.resetCaretPositionToLast();
         }
     }
-    
+
     private boolean isKeyForCaretReset(int keyCode) {
         return keyCode == KeyEvent.VK_ENTER || keyCode == KeyEvent.VK_ESCAPE;
     }
-    
+
     protected void attemptToFocus() {
         requestFocus();
         setPopupVisible(true);
     }
-    
+
     protected void removeElement(DatabaseConnection databaseConnection) {
         connectionsModel.removeElement(databaseConnection);
         if (connectionsModel.getSize() == 0) {
@@ -89,8 +85,9 @@ final class OpenConnectionsComboBox extends JComboBox {
         connectionsModel.addElement(databaseConnection);
         setEnabled(true);
     }
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * ConnectionObject.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,23 +23,28 @@ package org.executequery.gui.browser;
 import org.executequery.databasemediators.DatabaseConnection;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ConnectionObject extends BaseDatabaseObject {
-    
-    /** the meta key names for this connection */
+
+    /**
+     * the meta key names for this connection
+     */
     private String[] metaKeyNames;
-    
-    /** whether catalogs are available for this connection */
+
+    /**
+     * whether catalogs are available for this connection
+     */
     private boolean catalogsInUse;
-    
-    /** the database connection properties object */
+
+    /**
+     * the database connection properties object
+     */
     private DatabaseConnection databaseConnection;
 
-    /** Creates a new instance of HostMetaObject */
+    /**
+     * Creates a new instance of HostMetaObject
+     */
     public ConnectionObject(DatabaseConnection databaseConnection) {
         super(BrowserConstants.HOST_NODE, databaseConnection.getName());
         this.databaseConnection = databaseConnection;
@@ -63,7 +68,7 @@ public class ConnectionObject extends BaseDatabaseObject {
         }
         return false;
     }
-    
+
     public DatabaseConnection getDatabaseConnection() {
         return databaseConnection;
     }
@@ -89,16 +94,17 @@ public class ConnectionObject extends BaseDatabaseObject {
     public void setCatalogsInUse(boolean catalogsInUse) {
         this.catalogsInUse = catalogsInUse;
     }
-    
+
     public String getName() {
         return databaseConnection.getName();
     }
-    
+
     public String toString() {
         return getName();
     }
-    
+
 }
+
 
 
 

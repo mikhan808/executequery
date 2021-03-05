@@ -1,7 +1,7 @@
 /*
  * PrintSelectDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,104 +20,114 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-
 import org.executequery.GUIUtilities;
 import org.executequery.gui.ActionContainer;
 import org.executequery.gui.DefaultPanelButton;
+import org.executequery.localization.Bundles;
 import org.executequery.print.PrintPreviewer;
 import org.executequery.print.PrintingSupport;
 import org.underworldlabs.swing.util.SwingWorker;
 
-/** The print selection dialog for the Query Editor
- *  allowing the user to select which portion of the editor
- *  to print from - the text area or the results panel.
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+/**
+ * The print selection dialog for the Query Editor
+ * allowing the user to select which portion of the editor
+ * to print from - the text area or the results panel.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class PrintSelectDialog extends JPanel {
-    
+
     public static final String PRINT_TITLE = "Print";
-    
+
     public static final String PRINT_PREVIEW_TITLE = "Print Preview";
-    
-    /** Indicates a call to print */
+
+    /**
+     * Indicates a call to print
+     */
     public static final int PRINT = 0;
-  
-    /** Indicates a call for a print preview */
+
+    /**
+     * Indicates a call for a print preview
+     */
     public static final int PRINT_PREVIEW = 1;
 
-    /** The owner of this dialog */
+    /**
+     * The owner of this dialog
+     */
     private QueryEditor queryEditor;
 
-    /** The text area radio button */
+    /**
+     * The text area radio button
+     */
     private JRadioButton queryRadio;
-    
-    /** The results area radio button */
+
+    /**
+     * The results area radio button
+     */
     private JRadioButton resultsRadio;
-    
-    /** The worker to perform the process */
+
+    /**
+     * The worker to perform the process
+     */
     private SwingWorker worker;
-    
-    /** The type of print - print or print preview */
+
+    /**
+     * The type of print - print or print preview
+     */
     private int commandType = PRINT;
 
     private final ActionContainer parent;
-    
-    public PrintSelectDialog(ActionContainer parent, 
-            QueryEditor queryEditor, int commandType) {
+
+    public PrintSelectDialog(ActionContainer parent,
+                             QueryEditor queryEditor, int commandType) {
 
         super(new GridBagLayout());
-        
+
         this.parent = parent;
         this.queryEditor = queryEditor;
         this.commandType = commandType;
-        
+
         init();
     }
-    
-    /** <p>Initializes the state of this instance. */
+
+    /**
+     * <p>Initializes the state of this instance.
+     */
     private void init() {
 
-        JButton okButton = new DefaultPanelButton(commandType == PRINT_PREVIEW ? 
-                                       "Preview" : "Print");
-        JButton cancelButton = new DefaultPanelButton("Cancel");
-        
+        JButton okButton = new DefaultPanelButton(commandType == PRINT_PREVIEW ?
+                "Preview" : "Print");
+        JButton cancelButton = new DefaultPanelButton(Bundles.get("common.cancel.button"));
+
         queryRadio = new JRadioButton("SQL Query Text Area", true);
         resultsRadio = new JRadioButton("SQL Table Results Panel");
-        
+
         queryRadio.setMnemonic('A');
         resultsRadio.setMnemonic('R');
-        
+
         ButtonGroup bg = new ButtonGroup();
         bg.add(queryRadio);
         bg.add(resultsRadio);
-        
+
         okButton.setMnemonic('P');
         cancelButton.setMnemonic('C');
-        
+
         ActionListener btnListener = new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                printButtons_actionPerformed(e); }
+                printButtons_actionPerformed(e);
+            }
         };
 
         okButton.addActionListener(btnListener);
         cancelButton.addActionListener(btnListener);
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
-        Insets ins = new Insets(10,50,0,50);
+        Insets ins = new Insets(10, 50, 0, 50);
         gbc.gridwidth = 2;
         gbc.insets = ins;
         gbc.anchor = GridBagConstraints.NORTHWEST;
@@ -142,60 +152,48 @@ public class PrintSelectDialog extends JPanel {
         gbc.gridx = 1;
         gbc.weighty = 1.0;
         add(cancelButton, gbc);
-        
+
     }
-    
+
     private String printTable() {
-        
+
         if (!queryEditor.isResultSetSelected()) {
 
             GUIUtilities.displayErrorMessage("No SQL table results.");
-
             queryEditor = null;
 
             return "Failed";
         }
-        
-        String title = "SQL: " + queryEditor.getEditorText().
-            replaceAll("\n", "").trim();
-        
-        if (title.length() > 60) {
-
-            title = title.substring(0, 60);
-        }
 
         PrintingSupport printingSupport = new PrintingSupport();
-
-        return printingSupport.print(queryEditor.getPrintableForQueryArea(), 
-                "Red Expert - editor");
+        return printingSupport.print(queryEditor.getPrintableForQueryArea(), "RedXpert - editor");
     }
-    
+
     private String printText() {
 
         PrintingSupport printingSupport = new PrintingSupport();
 
-        return printingSupport.print(queryEditor.getPrintableForQueryArea(), 
-                "Red Expert - editor", true);
+        return printingSupport.print(queryEditor.getPrintableForQueryArea(), "RedXpert - editor", true);
     }
-    
+
     private void printButtons_actionPerformed(ActionEvent e) {
 
         String command = e.getActionCommand();
-        
+
         if (command.equals("Cancel")) {
 
             parent.finished();
             return;
         }
-        
+
         final boolean printQuery = queryRadio.isSelected();
-        
+
         if (commandType == PRINT) {
-            
+
             worker = new SwingWorker() {
                 public Object construct() {
                     Object obj = null;
-                    
+
                     if (printQuery) {
                         obj = printText();
                     } else {
@@ -204,44 +202,46 @@ public class PrintSelectDialog extends JPanel {
 
                     return obj;
                 }
+
                 public void finished() {
                     parent.finished();
                 }
             };
-            
+
             setVisible(false);
             worker.start();
-            
+
         } else {
-            
+
             if (!printQuery && !queryEditor.isResultSetSelected()) {
 
                 GUIUtilities.displayErrorMessage("No SQL table results.");
                 parent.finished();
-                
+
                 return;
             }
 
             setVisible(false);
-            
+
             if (printQuery) {
-                
-                new PrintPreviewer(queryEditor.getPrintableForQueryArea(), 
+
+                new PrintPreviewer(queryEditor.getPrintableForQueryArea(),
                         queryEditor.getPrintJobName());
 
             } else {
-                
-                new PrintPreviewer(queryEditor.getPrintableForResultSet(), 
-                        queryEditor.getPrintJobName());                
+
+                new PrintPreviewer(queryEditor.getPrintableForResultSet(),
+                        queryEditor.getPrintJobName());
             }
-            
+
             queryEditor = null;
             parent.finished();
         }
-        
+
     }
-    
+
 }
+
 
 
 

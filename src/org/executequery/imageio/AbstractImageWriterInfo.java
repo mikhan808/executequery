@@ -1,7 +1,7 @@
 /*
  * AbstractImageWriterInfo.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,7 +26,7 @@ import java.io.File;
 public abstract class AbstractImageWriterInfo implements ImageWriterInfo {
 
     private File writeToFile;
-    
+
     private BufferedImage bufferedImage;
 
     public AbstractImageWriterInfo(BufferedImage bufferedImage, File writeToFile) {
@@ -42,8 +42,9 @@ public abstract class AbstractImageWriterInfo implements ImageWriterInfo {
     public BufferedImage getBufferedImage() {
         return bufferedImage;
     }
-    
+
 }
+
 
 
 

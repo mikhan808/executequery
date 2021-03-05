@@ -1,7 +1,7 @@
 /*
  * DockedTabCloseIcon.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,24 +20,24 @@
 
 package org.executequery.base;
 
-import java.awt.Component;
-import java.awt.Graphics;
+import java.awt.*;
 
 /**
  * Simple icon drawing the close button for a closeable tab on the CloseTabbedPane.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DockedTabCloseIcon implements TabControlIcon {
-    
-    /** Creates a new instance of TabCloseButtonIcon */
-    public DockedTabCloseIcon() {}
-    
+
+    /**
+     * Creates a new instance of TabCloseButtonIcon
+     */
+    public DockedTabCloseIcon() {
+    }
+
     /**
      * Returns the icon's height.
-     * 
+     *
      * @return the height of the icon
      */
     public int getIconHeight() {
@@ -46,7 +46,7 @@ public class DockedTabCloseIcon implements TabControlIcon {
 
     /**
      * Returns the icon's width.
-     * 
+     *
      * @return the width of the icon
      */
     public int getIconWidth() {
@@ -58,14 +58,15 @@ public class DockedTabCloseIcon implements TabControlIcon {
      *
      * @param the component
      * @param the graphics context
-     * @param x coordinate
-     * @param y coordinate
+     * @param x   coordinate
+     * @param y   coordinate
      */
     public void paintIcon(Component c, Graphics g, int x, int y) {
         g.setColor(ICON_COLOR);
         g.drawLine(x, y, x + ICON_WIDTH - 1, y + ICON_HEIGHT - 1);
         g.drawLine(x + ICON_WIDTH - 1, y, x, y + ICON_HEIGHT - 1);
     }
-    
+
 }
+
 

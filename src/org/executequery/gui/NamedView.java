@@ -1,7 +1,7 @@
 /*
  * NamedView.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,20 +25,19 @@ package org.executequery.gui;
  * displayed at the one time. This mainly allows for non-standard
  * names - ie. the title plus an incremented number as in 'Query Editor 1' etc.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface NamedView {
-    
+
     /**
      * Returns the display name for this view.
      *
      * @return the display name
      */
     public String getDisplayName();
-    
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * UserFeedback.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,11 +26,11 @@ import java.util.Map;
 public class UserFeedback {
 
     private String name;
-    
+
     private String email;
-    
+
     private String remarks;
-    
+
     private String type;
 
     public UserFeedback(String name, String email, String remarks, String type) {
@@ -45,10 +45,6 @@ public class UserFeedback {
         return name;
     }
 
-    public String getEmail() {
-        return email;
-    }
-
     public String getRemarks() {
         return remarks;
     }
@@ -56,20 +52,26 @@ public class UserFeedback {
     public String getType() {
         return type;
     }
-    
-    public Map<String, String> asMap() {
-        
-        final Map<String, String> map = new HashMap<String, String>();
 
-        map.put("remarks", getRemarks());
+    public String getEmail() {
+        return email;
+    }
+
+    public Map<String, String> asMap() {
+
+        final Map<String, String> map = new HashMap<String, String>();
+        map.put("body", getRemarks());
         map.put("name", getName());
         map.put("email", getEmail());
         map.put("type", getType());
-        
+        map.put("project", "/api/website/projects/3/");
+        map.put("version", System.getProperty("executequery.minor.version"));
+
         return map;
     }
-    
+
 }
+
 
 
 

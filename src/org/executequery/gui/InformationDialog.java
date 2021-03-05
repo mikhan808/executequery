@@ -1,7 +1,7 @@
 /*
  * InformationDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,54 +20,49 @@
 
 package org.executequery.gui;
 
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.io.IOException;
-
-import javax.swing.JButton;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-
+import org.executequery.localization.Bundles;
 import org.underworldlabs.util.FileUtils;
 
+import javax.swing.*;
+import java.awt.*;
+import java.io.IOException;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class InformationDialog extends ActionDialog {
 
     public static final int RESOURCE_PATH_VALUE = 0;
     public static final int TEXT_CONTENT_VALUE = 1;
-    
-    /** Creates a new instance of InformationDialog */
-    public InformationDialog(String name, String value, int valueType) {
+
+    /**
+     * Creates a new instance of InformationDialog
+     */
+    public InformationDialog(String name, String value, int valueType, String charSet) {
 
         super(name, true);
 
         try {
-        
-            String text = null;            
-            
+
+            String text = null;
+
             if (valueType == RESOURCE_PATH_VALUE) {
-            
+                if (charSet == null)
                 text = FileUtils.loadResource(value);
+                else
+                    text = FileUtils.loadResource(value, charSet);
 
             } else {
-                
+
                 text = value;
             }
-            
+
             JTextArea textArea = new JTextArea(text);
             textArea.setFont(new Font("monospaced", Font.PLAIN, 11));
             textArea.setEditable(false);
 
             JPanel panel = new JPanel(new GridBagLayout());
-            JButton closeButton = new DefaultPanelButton(this, "Close", "dispose");
+            JButton closeButton = new DefaultPanelButton(this, Bundles.get("common.close.button"), "dispose");
 
             GridBagConstraints gbc = new GridBagConstraints();
             gbc.insets.top = 5;
@@ -88,20 +83,21 @@ public class InformationDialog extends ActionDialog {
             gbc.fill = GridBagConstraints.NONE;
             gbc.anchor = GridBagConstraints.CENTER;
             panel.add(closeButton, gbc);
-            
-            panel.setPreferredSize(new Dimension(650,500));
-            
+
+            panel.setPreferredSize(new Dimension(650, 500));
+
             addDisplayComponent(panel);
             display();
-        
+
         } catch (IOException e) {
-          
+
             e.printStackTrace();
         }
 
     }
-    
+
 }
+
 
 
 

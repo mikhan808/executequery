@@ -1,7 +1,7 @@
 /*
  * PropertiesTreeCellRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,67 +20,62 @@
 
 package org.executequery.components.table;
 
-import java.awt.Color;
-import java.awt.Component;
-
-import javax.swing.BorderFactory;
-import javax.swing.JTree;
-import javax.swing.UIManager;
-
 import org.underworldlabs.swing.tree.AbstractTreeCellRenderer;
+
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * Properties frame tree renderer.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertiesTreeCellRenderer extends AbstractTreeCellRenderer {
-    
+
     private Color textBackground;
     private Color textForeground;
     private Color selectionBackground;
-	private Color selectionForeground;
-    
+    private Color selectionForeground;
+
     public PropertiesTreeCellRenderer() {
 
         textBackground = UIManager.getColor("Tree.textBackground");
         textForeground = UIManager.getColor("Tree.textForeground");
-        selectionBackground = UIManager.getColor("Tree.selectionBackground");        
-        selectionForeground = UIManager.getColor("Tree.selectionForeground");        
+        selectionBackground = UIManager.getColor("Tree.selectionBackground");
+        selectionForeground = UIManager.getColor("Tree.selectionForeground");
 
         setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
     }
-    
-    public Component getTreeCellRendererComponent(JTree tree, 
+
+    public Component getTreeCellRendererComponent(JTree tree,
                                                   Object value,
-                                                  boolean isSelected, 
+                                                  boolean isSelected,
                                                   boolean isExpanded,
-                                                  boolean isLeaf, 
-                                                  int row, 
+                                                  boolean isLeaf,
+                                                  int row,
                                                   boolean hasFocus) {
-        
+
         this.selected = isSelected;
         this.hasFocus = hasFocus;
-        
+
         if (!isSelected) {
-           
+
             setBackground(textBackground);
             setForeground(textForeground);
 
         } else {
-          
+
             setBackground(selectionBackground);
             setForeground(selectionForeground);
         }
 
         setText(value.toString());
-        
+
         return this;
     }
-    
+
 }
+
 
 
 

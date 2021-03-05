@@ -1,7 +1,7 @@
 /*
  * RecordDataItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,32 +23,47 @@ package org.executequery.gui.resultset;
 import org.underworldlabs.swing.table.TableCellValue;
 
 /**
- *
  * @author Takis Diakoumis
- * @version $Revision: 1689 $
- * @date $Date: 2017-02-14 11:05:59 +1100 (Tue, 14 Feb 2017) $
  */
-public interface RecordDataItem extends TableCellValue {
+public interface RecordDataItem extends TableCellValue, Comparable {
+
+    boolean isDeleted();
+
+    void setDeleted(boolean deleted);
+
+    boolean isNew();
+
+    void setNew(boolean newRecord);
+
+    boolean isGenerated();
+
+    void setGenerated(boolean generated);
+
+    Object getNewValue();
 
     int length();
 
-	int getDataType();
+    int getDataType();
 
     String getName();
 
-	Object getDisplayValue();
+    Object getDisplayValue();
 
-	void setValue(Object value);
+    boolean isDisplayValueNull();
 
-	boolean isValueNull();
+    void setValue(Object value);
 
-	void setNull();
+    boolean isValueNull();
+
+    void setNull();
 
     void valueChanged(Object newValue);
 
     boolean isChanged();
 
     boolean isSQLValueNull();
+
+    boolean isNewValueNull();
 
     Object getValueAsType();
 
@@ -59,6 +74,7 @@ public interface RecordDataItem extends TableCellValue {
     boolean valueContains(String pattern);
 
 }
+
 
 
 

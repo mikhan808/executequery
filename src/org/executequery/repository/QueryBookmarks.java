@@ -1,7 +1,7 @@
 /*
  * QueryBookmarks.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,23 +24,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class QueryBookmarks {
 
     private static QueryBookmarks instance;
-    
+
     private QueryBookmarkRepository queryBookmarkRepository;
 
     private List<QueryBookmark> queryBookmarks;
 
     private QueryBookmarks() {
 
-        queryBookmarkRepository = (QueryBookmarkRepository) 
-            RepositoryCache.load(QueryBookmarkRepository.REPOSITORY_ID);
+        queryBookmarkRepository = (QueryBookmarkRepository)
+                RepositoryCache.load(QueryBookmarkRepository.REPOSITORY_ID);
     }
 
     public static synchronized QueryBookmarks getInstance() {
@@ -52,7 +49,7 @@ public class QueryBookmarks {
 
         return instance;
     }
-    
+
     public void addBookmark(QueryBookmark queryBookmark) throws RepositoryException {
         loadBookmarks();
         queryBookmark.setOrder(queryBookmarks.size() + 1);
@@ -63,13 +60,13 @@ public class QueryBookmarks {
     public void save() throws RepositoryException {
         save(queryBookmarks);
     }
-    
+
     public void save(List<QueryBookmark> bookmarks) throws RepositoryException {
         queryBookmarkRepository.save(bookmarks);
         this.queryBookmarks = bookmarks;
     }
 
-    public List<QueryBookmark> getQueryBookmarks() {        
+    public List<QueryBookmark> getQueryBookmarks() {
         loadBookmarks();
         return queryBookmarks;
     }
@@ -85,19 +82,19 @@ public class QueryBookmarks {
 
             return false;
         }
-        
+
         return (findBookmarkByName(name) != null);
     }
 
     public void removeBookmarkByName(String name) {
-        
+
         QueryBookmark bookmark = findBookmarkByName(name);
-        
+
         if (bookmark != null) {
-            
+
             removeBookmark(bookmark);
         }
-        
+
     }
 
     public void removeBookmark(QueryBookmark bookmark) {
@@ -105,18 +102,18 @@ public class QueryBookmarks {
     }
 
     public QueryBookmark findBookmarkByName(String name) {
-        
+
         loadBookmarks();
-        
+
         for (QueryBookmark bookmark : queryBookmarks) {
-            
+
             if (bookmark.getName().equals(name)) {
 
                 return bookmark;
             }
-            
+
         }
-        
+
         return null;
     }
 
@@ -137,6 +134,7 @@ public class QueryBookmarks {
     }
 
 }
+
 
 
 

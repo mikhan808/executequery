@@ -1,7 +1,7 @@
 /*
  * Log.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -26,32 +26,31 @@ import org.executequery.repository.RepositoryCache;
 
 /**
  * Primary application logger.
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
 public final class Log {
 
     public static final String LOGGER_NAME = "system-logger";
-    
+
     public static final String PATTERN = "[%d{HH:mm:ss}] %m%n";
-    
+
     public static final int MAX_BACKUP_INDEX = 5;
 
     private static final String MAX_FILE_SIZE = "1MB";
-    
+
     private static final String LEVEL = "INFO";
 
-    private static final String LOG_FILE_PATH = 
-        ((LogRepository)RepositoryCache.load(
-                LogRepository.REPOSITORY_ID)).getLogFilePath(LogRepository.ACTIVITY);
-    
-    private static final ApplicationLog log = 
-        new ApplicationLog(LOG_FILE_PATH, LOGGER_NAME, PATTERN, LEVEL, 
-                MAX_BACKUP_INDEX, MAX_FILE_SIZE);
+    private static final String LOG_FILE_PATH =
+            ((LogRepository) RepositoryCache.load(
+                    LogRepository.REPOSITORY_ID)).getLogFilePath(LogRepository.ACTIVITY);
 
-    private Log() {}
+    private static final ApplicationLog log =
+            new ApplicationLog(LOG_FILE_PATH, LOGGER_NAME, PATTERN, LEVEL,
+                    MAX_BACKUP_INDEX, MAX_FILE_SIZE);
+
+    private Log() {
+    }
 
     /**
      * Adds the specified appender to the logger.
@@ -62,7 +61,7 @@ public final class Log {
 
         log.addAppender(appender);
     }
-    
+
     /**
      * Returns whether the log level is set to DEBUG.
      */
@@ -70,20 +69,20 @@ public final class Log {
 
         return log.isDebugEnabled();
     }
-    
+
     /**
      * Returns whether the log level is set to TRACE.
      */
     public static boolean isTraceEnabled() {
-    	
-    	return log.isTraceEnabled();
+
+        return log.isTraceEnabled();
     }
-    
+
     /**
      * Sets the logger level to that specified.
      *
      * @param level - the logger level to be set.<br>
-     *        Valid values are: ERROR, DEBUG, INFO, WARN, ALL, FATAL, TRACE
+     *              Valid values are: ERROR, DEBUG, INFO, WARN, ALL, FATAL, TRACE
      */
     public static void setLevel(String level) {
 
@@ -93,7 +92,7 @@ public final class Log {
     /**
      * Logs a message at log level INFO.
      *
-     * @param message  the log message.
+     * @param message   the log message.
      * @param throwable the throwable.
      */
     public static void info(Object message, Throwable throwable) {
@@ -104,7 +103,7 @@ public final class Log {
     /**
      * Logs a message at log level WARN.
      *
-     * @param message  the log message.
+     * @param message   the log message.
      * @param throwable the throwable.
      */
     public static void warning(Object message, Throwable throwable) {
@@ -115,7 +114,7 @@ public final class Log {
     /**
      * Logs a message at log level DEBUG.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void debug(Object message) {
 
@@ -125,60 +124,60 @@ public final class Log {
     /**
      * Logs a message at log level DEBUG.
      *
-     * @param message  the log message.
+     * @param message   the log message.
      * @param throwable the throwable.
      */
     public static void debug(Object message, Throwable throwable) {
-        
+
         log.debug("DEBUG: " + message, throwable);
     }
 
     /**
      * Logs a message at log level TRACE.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void trace(Object message) {
-        
+
         log.trace("TRACE: " + message);
     }
-    
+
     /**
      * Logs a message at log level TRACE.
      *
-     * @param message  the log message.
+     * @param message   the log message.
      * @param throwable the throwable.
      */
     public static void trace(Object message, Throwable throwable) {
-        
+
         log.trace("TRACE: " + message, throwable);
     }
-    
+
     /**
      * Logs a message at log level ERROR.
      *
-     * @param message  the log message.
-     * @param e the throwable.
+     * @param message the log message.
+     * @param e       the throwable.
      */
     public static void error(Object message, Throwable e) {
-        
+
         log.error(message, e);
     }
 
     /**
      * Logs a message at log level INFO.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void info(Object message) {
-        
+
         log.info(message);
     }
 
     /**
      * Logs a message at log level WARN.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void warning(Object message) {
 
@@ -188,7 +187,7 @@ public final class Log {
     /**
      * Logs a message at log level ERROR.
      *
-     * @param message  the log message.
+     * @param message the log message.
      */
     public static void error(Object message) {
 
@@ -196,6 +195,7 @@ public final class Log {
     }
 
 }
+
 
 
 

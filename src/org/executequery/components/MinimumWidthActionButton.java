@@ -1,7 +1,7 @@
 /*
  * MinimumWidthActionButton.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,32 +20,29 @@
 
 package org.executequery.components;
 
-import java.awt.Dimension;
-import java.awt.event.ActionListener;
-
 import org.underworldlabs.swing.DefaultButton;
 
-/** 
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
-*/
+import java.awt.*;
+import java.awt.event.ActionListener;
+
+/**
+ * @author Takis Diakoumis
+ */
 public class MinimumWidthActionButton extends DefaultButton {
 
     private final int minimumWidth;
-    
+
     public MinimumWidthActionButton(int minimumWidth,
-                                  ActionListener actionListener, 
-                                  String name, 
-                                  String command) {
+                                    ActionListener actionListener,
+                                    String name,
+                                    String command) {
 
         super(name);
         this.minimumWidth = minimumWidth;
         setActionCommand(command);
         addActionListener(actionListener);
     }
-    
+
     @Override
     public Dimension getPreferredSize() {
 
@@ -56,6 +53,7 @@ public class MinimumWidthActionButton extends DefaultButton {
     }
 
 }
+
 
 
 

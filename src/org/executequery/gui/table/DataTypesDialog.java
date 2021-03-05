@@ -1,7 +1,7 @@
 /*
  * DataTypesDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,50 +20,46 @@
 
 package org.executequery.gui.table;
 
-import java.awt.BorderLayout;
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Frame;
+import org.executequery.GUIUtilities;
+import org.executequery.gui.DefaultList;
+import org.underworldlabs.swing.AbstractBaseDialog;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JDialog;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.ListSelectionModel;
-
-import org.executequery.GUIUtilities;
-import org.executequery.gui.DefaultList;
-import org.underworldlabs.swing.AbstractBaseDialog;
-
 /**
  * Simple data type selection dialog.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class DataTypesDialog extends AbstractBaseDialog 
-                             implements MouseListener,
-                                        KeyListener {
-    
+public class DataTypesDialog extends AbstractBaseDialog
+        implements MouseListener,
+        KeyListener {
+
     public static final String TITLE = "Data Type Selection";
-    
-    /** the type values */
+
+    /**
+     * the type values
+     */
     private String[] values;
-    
-    /** the list object */
+
+    /**
+     * the list object
+     */
     private JList list;
-    
-    /** the parent listener */
+
+    /**
+     * the parent listener
+     */
     private DataTypeSelectionListener parent;
-    
-    /** Creates a new instance of DataTypesPanel */
+
+    /**
+     * Creates a new instance of DataTypesPanel
+     */
     public DataTypesDialog(Frame owner, DataTypeSelectionListener parent, String[] values) {
         super(owner, TITLE, true);
         this.parent = parent;
@@ -71,7 +67,9 @@ public class DataTypesDialog extends AbstractBaseDialog
         init();
     }
 
-    /** Creates a new instance of DataTypesPanel */
+    /**
+     * Creates a new instance of DataTypesPanel
+     */
     public DataTypesDialog(Dialog owner, DataTypeSelectionListener parent, String[] values) {
         super(owner, TITLE, true);
         this.parent = parent;
@@ -87,7 +85,7 @@ public class DataTypesDialog extends AbstractBaseDialog
         list.addKeyListener(this);
 
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBorder(BorderFactory.createEmptyBorder(3,3,3,3));
+        panel.setBorder(BorderFactory.createEmptyBorder(3, 3, 3, 3));
         panel.add(new JScrollPane(list), BorderLayout.CENTER);
         panel.setPreferredSize(new Dimension(300, 450));
 
@@ -105,7 +103,7 @@ public class DataTypesDialog extends AbstractBaseDialog
         }
         super.dispose();
     }
-    
+
     public void keyPressed(KeyEvent e) {
         if (e.getKeyCode() == KeyEvent.VK_ENTER) {
             selectionMade();
@@ -116,21 +114,24 @@ public class DataTypesDialog extends AbstractBaseDialog
         keyPressed(e);
     }
 
-    public void keyTyped(KeyEvent e) {}
+    public void keyTyped(KeyEvent e) {
+    }
 
     private void selectionMade() {
         if (selected) {
             return;
         }
-        Object value = list.getSelectedValue();
-        parent.dataTypeSelected(value.toString());
+        int item = list.getSelectedIndex();
+        parent.dataTypeSelected(item);
         selected = true;
         dispose();
     }
-    
-    /** Indicates a selection has been made */
+
+    /**
+     * Indicates a selection has been made
+     */
     private boolean selected;
-    
+
     public void mouseClicked(MouseEvent e) {
         if (e.getClickCount() < 2) {
             return;
@@ -142,18 +143,24 @@ public class DataTypesDialog extends AbstractBaseDialog
         mouseClicked(e);
     }
 
-    public void mouseReleased(MouseEvent e) {}
-    public void mouseEntered(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {}
-    
+    public void mouseReleased(MouseEvent e) {
+    }
+
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
+
     private void display() {
         pack();
         setLocation(GUIUtilities.getLocationForDialog(getSize()));
         GUIUtilities.registerDialog(this);
         setVisible(true);
     }
-    
+
 }
+
 
 
 

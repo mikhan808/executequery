@@ -1,7 +1,7 @@
 /*
  * DefaultDatabaseView.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,13 +20,15 @@
 
 package org.executequery.databaseobjects.impl;
 
+import org.executequery.databaseobjects.DatabaseColumn;
 import org.executequery.databaseobjects.DatabaseHost;
 import org.executequery.databaseobjects.DatabaseObject;
 import org.executequery.databaseobjects.DatabaseView;
-import org.executequery.sql.StatementGenerator;
 import org.underworldlabs.jdbc.DataSourceException;
 
-public class DefaultDatabaseView extends DefaultDatabaseObject implements DatabaseView {
+import java.util.List;
+
+public class DefaultDatabaseView extends AbstractTableObject implements DatabaseView {
 
     public DefaultDatabaseView(DatabaseObject object) {
 
@@ -36,6 +38,7 @@ public class DefaultDatabaseView extends DefaultDatabaseObject implements Databa
         setSchemaName(object.getSchemaName());
         setName(object.getName());
         setRemarks(object.getRemarks());
+        setSource(object.getSource());
     }
 
     public DefaultDatabaseView(DatabaseHost host) {
@@ -44,9 +47,33 @@ public class DefaultDatabaseView extends DefaultDatabaseObject implements Databa
     }
 
     public String getCreateSQLText() throws DataSourceException {
-        
-        StatementGenerator statementGenerator = createStatementGenerator();
-        return statementGenerator.viewDefinition(databaseProductName(), this);
+
+        String sql = getSource();
+
+        StringBuilder sb = new StringBuilder();
+
+        List<DatabaseColumn> columns = this.getColumns();
+
+        sb.append("CREATE OR ALTER VIEW ");
+        sb.append("\"");
+        sb.append(getName());
+        sb.append("\"");
+        sb.append("(\n");
+
+        for (int i = 0; i < columns.size(); i++) {
+            sb.append("\t");
+            sb.append("\"");
+            sb.append(columns.get(i).getName());
+            sb.append("\"");
+            if (i != columns.size() - 1)
+                sb.append(",\n");
+        }
+        sb.append(")\n");
+        sb.append("AS\n");
+        sb.append(sql);
+
+        sb.append("\n");
+        return sb.toString();
     }
 
     @Override
@@ -54,8 +81,25 @@ public class DefaultDatabaseView extends DefaultDatabaseObject implements Databa
 
         return true;
     }
-    
+
+    public int getType() {
+        if (isSystem()) {
+            return SYSTEM_VIEW;
+        } else {
+            return VIEW;
+        }
+    }
+
+    public String getMetaDataKey() {
+        return META_TYPES[getType()];
+    }
+
+    public boolean allowsChildren() {
+        return true;
+    }
+
 }
+
 
 
 

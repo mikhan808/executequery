@@ -1,7 +1,7 @@
 /*
  * DatabaseObjectMetaDataPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,9 +38,9 @@ public class DatabaseObjectMetaDataPanel extends JPanel implements ResultSetTabl
     public DatabaseObjectMetaDataPanel() {
 
         super(new BorderLayout());
-        
+
         table = new ResultSetTable();
-        tableModel = new ResultSetTableModel();
+        tableModel = new ResultSetTableModel(false);
         table.setModel(new TableSorter(tableModel, table.getTableHeader()));
         table.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 
@@ -52,19 +52,21 @@ public class DatabaseObjectMetaDataPanel extends JPanel implements ResultSetTabl
 
         tableModel.createTable(resultSet);
     }
-    
+
     public JTable getTable() {
-        
+
         return table;
     }
-    
+
     public boolean isTransposeAvailable() {
 
         return false;
     }
 
-    public void transposeRow(TableModel tableModel, int row) {}
+    public void transposeRow(TableModel tableModel, int row) {
+    }
 }
+
 
 
 

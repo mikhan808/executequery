@@ -1,7 +1,7 @@
 /*
  * ColumnConstraint.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,16 +27,14 @@ import org.executequery.databaseobjects.NamedObject;
 import org.underworldlabs.jdbc.DataSourceException;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface ColumnConstraint extends DatabaseObjectElement {
 
     String PRIMARY = "PRIMARY";
     String FOREIGN = "FOREIGN";
     String UNIQUE = "UNIQUE";
+    String CHECK = "CHECK";
 
     /**
      * Returns the column object referenced by this column or
@@ -66,6 +64,8 @@ public interface ColumnConstraint extends DatabaseObjectElement {
      * @return true | false
      */
     boolean isUniqueKey();
+
+    boolean isCheck();
 
     /**
      * Returns whether this is a new constraint.
@@ -102,6 +102,8 @@ public interface ColumnConstraint extends DatabaseObjectElement {
      * @return the table
      */
     DatabaseTable getTable();
+
+    void setTable(DatabaseTable table);
 
     /**
      * Returns the table name associated with this constraint.
@@ -146,12 +148,16 @@ public interface ColumnConstraint extends DatabaseObjectElement {
 
     String getReferencedCatalog();
 
+    String getCheck();
+
+    void setCheck(String check);
+
     boolean isMarkedDeleted();
 
     /**
      * Returns whether this constraint has been modified.
      * A modification exists where this constraint is not new,
-     * an internal value has changed or it has been marked 
+     * an internal value has changed or it has been marked
      * for deletion.
      *
      * @return true | false
@@ -177,13 +183,14 @@ public interface ColumnConstraint extends DatabaseObjectElement {
      */
     void detachFromColumn();
 
-    short getUpdateRule();
+    String getUpdateRule();
 
-    short getDeleteRule();
+    String getDeleteRule();
 
     short getDeferrability();
-    
+
 }
+
 
 
 

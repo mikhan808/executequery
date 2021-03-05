@@ -1,7 +1,7 @@
 /*
  * DateRecordDataItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,24 +22,25 @@ package org.executequery.gui.resultset;
 
 public class DateRecordDataItem extends SimpleRecordDataItem {
 
-	public DateRecordDataItem(String name, int dataType, String dataTypeName) {
+    public DateRecordDataItem(String name, int dataType, String dataTypeName) {
 
-		super(name, dataType, dataTypeName);
-	}
+        super(name, dataType, dataTypeName);
+    }
 
-	@Override
-	public void setValue(Object value) {
+    @Override
+    public void setValue(Object value) {
 
-	    Object dateValue = value;
-	    if (value != null) {
-	        
-	        dateValue = valueAsType(value);
-	    }
-	    
-	    super.setValue(dateValue);
-	}
-	
+        Object dateValue = value;
+        if (value != null) {
+
+            dateValue = valueAsType(value);
+        }
+
+        super.setValue(dateValue);
+    }
+
 }
+
 
 
 

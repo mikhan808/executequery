@@ -1,7 +1,7 @@
 /*
  * TransposedRowResultSetTableModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,23 +20,24 @@
 
 package org.executequery.gui.editor;
 
-import java.util.List;
-
 import org.executequery.gui.resultset.RecordDataItem;
 import org.executequery.gui.resultset.ResultSetTableModel;
 
+import java.util.List;
+
 public class TransposedRowResultSetTableModel extends ResultSetTableModel {
 
-	public TransposedRowResultSetTableModel(List<String> columnHeaders, List<List<RecordDataItem>> tableData) {
-		
-		super(columnHeaders, tableData);
-	}
+    public TransposedRowResultSetTableModel(List<String> columnHeaders, List<List<RecordDataItem>> tableData) {
 
-	@Override
-	public boolean canSortColumn(int column) {
+        super(columnHeaders, tableData);
+    }
 
-		return (column != 1);
-	}
-	
+    @Override
+    public boolean canSortColumn(int column) {
+
+        return (column != 1);
+    }
+
 }
+
 

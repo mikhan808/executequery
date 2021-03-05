@@ -1,7 +1,7 @@
 /*
  * SimpleTableDescriptionPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,20 +22,17 @@ package org.executequery.gui.table;
 
 
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class SimpleTableDescriptionPanel extends TableDefinitionPanel {
-    
+
     public SimpleTableDescriptionPanel() {
         // TODO: COMPLETE ME
         super(false, null);
@@ -44,14 +41,19 @@ public class SimpleTableDescriptionPanel extends TableDefinitionPanel {
     // --------------------------------------------------
     // --- do nothing TableDefinitionPanel methods
     // --------------------------------------------------
-    public void tableChanged(int col, int row, String value) {}
-    public void addColumnLines(int row) {}
+    public void tableChanged(int col, int row, String value) {
+    }
+
+    public void addColumnLines(int row) {
+    }
+
     public String getSQLText() {
         return null;
     }
     // --------------------------------------------------
-    
+
 }
+
 
 
 

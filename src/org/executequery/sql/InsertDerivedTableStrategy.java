@@ -1,7 +1,7 @@
 /*
  * InsertDerivedTableStrategy.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,22 +30,23 @@ public class InsertDerivedTableStrategy extends AbstractDerivedTableStrategy {
 
         int index = query.indexOf(INSERT);
         if (index != -1) {
-            
+
             String portion = query.substring(index + INSERT.length()).trim();
-            
+
             index = portion.indexOf('(');
             if (index != -1) {
-                
-                tables = portion.substring(0, index); 
-            
+
+                tables = portion.substring(0, index);
+
             }
 
         }
-        
+
         return tables;
     }
 
 }
+
 
 
 

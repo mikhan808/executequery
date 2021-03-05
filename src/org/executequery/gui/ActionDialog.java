@@ -1,7 +1,7 @@
 /*
  * ActionDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,24 +20,21 @@
 
 package org.executequery.gui;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.Method;
 
-import javax.swing.JPanel;
-
 /**
- * Extension to base dialog implementing ActionListener for 
+ * Extension to base dialog implementing ActionListener for
  * reflective use of action commands on components (similar to
  * org.underworldlabs.swing.ActionPanel)
- *  
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
-public class ActionDialog extends BaseDialog 
-                          implements ActionListener {
-    
+public class ActionDialog extends BaseDialog
+        implements ActionListener {
+
     private static Object[] args;
     private static Class<?>[] argTypes;
 
@@ -56,7 +53,7 @@ public class ActionDialog extends BaseDialog
     public void actionPerformed(ActionEvent e) {
 
         String command = e.getActionCommand();
-        
+
         try {
 
             if (argTypes == null) {
@@ -64,7 +61,7 @@ public class ActionDialog extends BaseDialog
             }
 
             Method method = getClass().getMethod(command, argTypes);
-            
+
             if (args == null) {
                 args = new Object[0];
             }
@@ -72,13 +69,14 @@ public class ActionDialog extends BaseDialog
             method.invoke(this, args);
 
         } catch (Exception ex) {
-          
+
             ex.printStackTrace();
         }
 
     }
-    
+
 }
+
 
 
 

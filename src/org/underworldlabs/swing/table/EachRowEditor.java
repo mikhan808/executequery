@@ -1,7 +1,7 @@
 /*
  * EachRowEditor.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,30 +20,24 @@
 
 package org.underworldlabs.swing.table;
 
-import java.awt.Component;
+import javax.swing.*;
+import javax.swing.event.CellEditorListener;
+import javax.swing.table.TableCellEditor;
+import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.util.EventObject;
 import java.util.Hashtable;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.event.CellEditorListener;
-import javax.swing.table.TableCellEditor;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class EachRowEditor implements TableCellEditor {
-    
+
     protected Hashtable<Integer, TableCellEditor> editors;
     protected TableCellEditor editor;
     protected TableCellEditor defaultEditor;
     protected JTable table;
-    
+
     /**
      * Constructs a EachRowEditor.
      * create default editor
@@ -58,7 +52,7 @@ public class EachRowEditor implements TableCellEditor {
         defaultField.setBorder(null);
         defaultEditor = new DefaultCellEditor(defaultField);
     }
-    
+
     /**
      * @param row    table row
      * @param editor table cell editor
@@ -66,48 +60,54 @@ public class EachRowEditor implements TableCellEditor {
     public void setEditorAt(int row, TableCellEditor editor) {
         editors.put(Integer.valueOf(row), editor);
     }
-    
+
     public Component getTableCellEditorComponent(JTable table,
-                                                 Object value, 
-                                                 boolean isSelected, 
-                                                 int row, 
+                                                 Object value,
+                                                 boolean isSelected,
+                                                 int row,
                                                  int column) {
-        
+
         Component _editor = editor.getTableCellEditorComponent(
-                                      table, value, isSelected, row, column);
+                table, value, isSelected, row, column);
         _editor.setFont(table.getFont());
         return _editor;
     }
-    
+
     public Object getCellEditorValue() {
         return editor.getCellEditorValue();
     }
+
     public boolean stopCellEditing() {
         return editor.stopCellEditing();
     }
+
     public void cancelCellEditing() {
         editor.cancelCellEditing();
     }
+
     public boolean isCellEditable(EventObject anEvent) {
-        
+
         if (anEvent instanceof MouseEvent) {
-        
-            selectEditor((MouseEvent)anEvent);
+
+            selectEditor((MouseEvent) anEvent);
         }
 
         return editor.isCellEditable(anEvent);
     }
+
     public void addCellEditorListener(CellEditorListener l) {
         editor.addCellEditorListener(l);
     }
+
     public void removeCellEditorListener(CellEditorListener l) {
         editor.removeCellEditorListener(l);
     }
+
     public boolean shouldSelectCell(EventObject anEvent) {
-        selectEditor((MouseEvent)anEvent);
+        selectEditor((MouseEvent) anEvent);
         return editor.shouldSelectCell(anEvent);
     }
-    
+
     protected void selectEditor(MouseEvent e) {
         int row;
         if (e == null) {
@@ -115,12 +115,13 @@ public class EachRowEditor implements TableCellEditor {
         } else {
             row = table.rowAtPoint(e.getPoint());
         }
-        editor = (TableCellEditor)editors.get(Integer.valueOf(row));
+        editor = (TableCellEditor) editors.get(Integer.valueOf(row));
         if (editor == null) {
             editor = defaultEditor;
         }
     }
 }
+
 
 
 

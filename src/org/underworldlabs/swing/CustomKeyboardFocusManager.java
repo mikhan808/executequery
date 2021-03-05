@@ -1,7 +1,7 @@
 /*
  * CustomKeyboardFocusManager.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,93 +20,89 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Component;
-import java.awt.Container;
-import java.awt.DefaultKeyboardFocusManager;
-import java.awt.FocusTraversalPolicy;
-
-import javax.swing.JComponent;
-import javax.swing.JTextField;
+import javax.swing.*;
+import java.awt.*;
 
 
-/** <p>Custom KeyboardFocusManager to mainly control the focus of
- *  <code>JTextField<code> objects within a container. This
- *  provides the functionaliaty to select (highlight) any
- *  text already contained within the field when focus is
- *  gained through keyboard traversal (ie. TAB key).
+/**
+ * <p>Custom KeyboardFocusManager to mainly control the focus of
+ * <code>JTextField<code> objects within a container. This
+ * provides the functionaliaty to select (highlight) any
+ * text already contained within the field when focus is
+ * gained through keyboard traversal (ie. TAB key).
  *
- *  @author   Takis Diakoumis
- *  @version  $Revision: 1487 $
- *  @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CustomKeyboardFocusManager extends DefaultKeyboardFocusManager {
-    
-    /** <p>Focuses the Component before aComponent, typically based on a
-     *  FocusTraversalPolicy.
+
+    /**
+     * <p>Focuses the Component before aComponent, typically based on a
+     * FocusTraversalPolicy.
      *
-     *  @param aComponent the Component that is the basis for the focus
-     *         traversal operation
+     * @param aComponent the Component that is the basis for the focus
+     *                   traversal operation
      */
     public void focusPreviousComponent(Component aComponent) {
 
         if (aComponent == null)
             return;
-       
+
         if (aComponent.getParent() instanceof TextFieldFocusController) {
-            
+
             Container rootAncestor = aComponent.getFocusCycleRootAncestor();
             Component comp = aComponent;
-            
+
             if (comp instanceof JTextField) {
-                ((JTextField)comp).select(0, 0);
+                ((JTextField) comp).select(0, 0);
             }
 
             while (rootAncestor != null && !(rootAncestor.isShowing() &&
                     rootAncestor.isFocusable() &&
-                    rootAncestor.isEnabled()) ) {
-                
+                    rootAncestor.isEnabled())) {
+
                 comp = rootAncestor;
                 rootAncestor = comp.getFocusCycleRootAncestor();
-                
+
             }
 
             if (rootAncestor != null) {
-                
+
                 FocusTraversalPolicy policy =
                         rootAncestor.getFocusTraversalPolicy();
                 Component _component = policy.getComponentBefore(rootAncestor, comp);
-                
+
                 if (_component == null)
                     _component = policy.getDefaultComponent(rootAncestor);
-                
+
                 if (_component != null) {
-                    
+
                     if (_component instanceof JTextField) {
-                        ((JTextField)_component).selectAll();
+                        ((JTextField) _component).selectAll();
                     }
-                    
-                    ((JComponent)_component).grabFocus();
-                    
+
+                    ((JComponent) _component).grabFocus();
+
                 } else {
                     aComponent.transferFocusBackward();
                 }
-                
+
             }
-            
+
         } else {
             aComponent.transferFocusBackward();
         }
 
     }
-    
-    /** <p>Focuses the Component after aComponent, typically based on a
-     *  FocusTraversalPolicy.
+
+    /**
+     * <p>Focuses the Component after aComponent, typically based on a
+     * FocusTraversalPolicy.
      *
-     *  @param the Component that is the basis for the focus
-     *         traversal operation
+     * @param the Component that is the basis for the focus
+     *            traversal operation
      */
     public void focusNextComponent(Component aComponent) {
-        
+
         if (aComponent == null)
             return;
 
@@ -114,47 +110,47 @@ public class CustomKeyboardFocusManager extends DefaultKeyboardFocusManager {
 
             Container rootAncestor = aComponent.getFocusCycleRootAncestor();
             Component comp = aComponent;
-            
+
             if (comp instanceof JTextField) {
-                ((JTextField)comp).select(0, 0);
+                ((JTextField) comp).select(0, 0);
             }
-            
+
             while (rootAncestor != null && !(rootAncestor.isShowing() &&
                     rootAncestor.isFocusable() &&
-                    rootAncestor.isEnabled()) ) {
+                    rootAncestor.isEnabled())) {
                 comp = rootAncestor;
                 rootAncestor = comp.getFocusCycleRootAncestor();
             }
-            
+
             if (rootAncestor != null) {
-                
+
                 FocusTraversalPolicy policy =
                         rootAncestor.getFocusTraversalPolicy();
                 Component _component = policy.getComponentAfter(rootAncestor, comp);
-                
+
                 if (_component == null)
                     _component = policy.getDefaultComponent(rootAncestor);
-                
+
                 if (_component != null) {
-                    
+
                     if (_component instanceof JTextField) {
-                        ((JTextField)_component).selectAll();
+                        ((JTextField) _component).selectAll();
                     }
 
-                    ((JComponent)_component).grabFocus();
-                    
+                    ((JComponent) _component).grabFocus();
+
                 } else {
                     aComponent.transferFocus();
                 }
-                
+
             }
-            
+
         } else {
             aComponent.transferFocus();
         }
-        
+
     }
-    
+
     // --- some fiddling with the focus bits ---
     
 /*
@@ -221,6 +217,7 @@ public class CustomKeyboardFocusManager extends DefaultKeyboardFocusManager {
     }
     */
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * BumpyGradientInternalFrameUI.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,44 +21,41 @@
 package org.underworldlabs.swing.plaf.bumpygradient;
 
 
-import javax.swing.JComponent;
-import javax.swing.JInternalFrame;
-import javax.swing.plaf.ComponentUI;
-
 import org.underworldlabs.swing.plaf.smoothgradient.SmoothGradientInternalFrameUI;
 
+import javax.swing.*;
+import javax.swing.plaf.ComponentUI;
+
 /* ----------------------------------------------------------
- * CVS NOTE: Changes to the CVS repository prior to the 
- *           release of version 3.0.0beta1 has meant a 
+ * CVS NOTE: Changes to the CVS repository prior to the
+ *           release of version 3.0.0beta1 has meant a
  *           resetting of CVS revision numbers.
  * ----------------------------------------------------------
  */
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public final class BumpyGradientInternalFrameUI 
-                        extends SmoothGradientInternalFrameUI {
+public final class BumpyGradientInternalFrameUI
+        extends SmoothGradientInternalFrameUI {
 
-	private BumpyGradientInternalFrameTitlePane titlePane;
+    private BumpyGradientInternalFrameTitlePane titlePane;
 
     public BumpyGradientInternalFrameUI(JInternalFrame b) {
-		super(b);
-	}
+        super(b);
+    }
 
-	public static ComponentUI createUI(JComponent c) {
-		return new BumpyGradientInternalFrameUI((JInternalFrame) c);
-	}
+    public static ComponentUI createUI(JComponent c) {
+        return new BumpyGradientInternalFrameUI((JInternalFrame) c);
+    }
 
-	protected JComponent createNorthPane(JInternalFrame w) {
-		titlePane = new BumpyGradientInternalFrameTitlePane(w);
-		return titlePane;
-	}
+    protected JComponent createNorthPane(JInternalFrame w) {
+        titlePane = new BumpyGradientInternalFrameTitlePane(w);
+        return titlePane;
+    }
 
 }
+
 
 
 

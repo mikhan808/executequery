@@ -1,7 +1,7 @@
 /*
  * DockedTabPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,69 +20,62 @@
 
 package org.executequery.base;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.Rectangle;
-import java.awt.RenderingHints;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-
-import javax.swing.Icon;
-import javax.swing.JMenuItem;
-import javax.swing.JPanel;
-import javax.swing.JPopupMenu;
-import javax.swing.SwingUtilities;
-import javax.swing.ToolTipManager;
-import javax.swing.UIManager;
-import javax.swing.event.MouseInputListener;
-
 import org.executequery.gui.GUIConstants;
 import org.underworldlabs.swing.menu.MenuItemFactory;
 import org.underworldlabs.swing.plaf.UIUtils;
 
+import javax.swing.*;
+import javax.swing.event.MouseInputListener;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+
 /**
  * Left, right and bottom docked tab pane.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1498 $
- * @date     $Date: 2015-09-18 10:16:35 +1000 (Fri, 18 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class DockedTabPane extends AbstractTabPane {
-    
-    /** the currently dragging index */
+
+    /**
+     * the currently dragging index
+     */
     private int draggingIndex;
-    
-    /** the tab panel */
+
+    /**
+     * the tab panel
+     */
     private TabPanel tabPanel;
-    
-    /** the tab popup menu */
+
+    /**
+     * the tab popup menu
+     */
     private TabPopupMenu tabPopupMenu;
-    
-    /** 
+
+    private boolean printTitle = true;
+
+
+    /**
      * Creates a new instance of DockedTabPane with
      * the specified parent container
      *
      * @param the enclosing tab container
      */
-    public DockedTabPane(DockedTabContainer parent) {
+    public DockedTabPane(DockedTabContainer parent, boolean printTitle) {
+        this.printTitle = printTitle;
         setLayout(new BorderLayout());
         this.parent = parent;
         init();
     }
 
-    /** Initialises the state of this object */
+    /**
+     * Initialises the state of this object
+     */
     private void init() {
         super.initComponents();
         // panel where actual tabs are drawn
-        tabPanel = new TabPanel();
+        tabPanel = new TabPanel(printTitle);
         setTabPanel(tabPanel);
     }
 
@@ -93,31 +86,31 @@ public class DockedTabPane extends AbstractTabPane {
         if (tabPanel != null)
             tabPanel.repaint();
     }
-    
-    /** 
+
+    /**
      * Adds the specified tab component to the pane.
      *
      * @param the component to be added
      */
     public void addTab(TabComponent tabComponent) {
-        
+
         components.add(tabComponent);
-        
+
         Component component = tabComponent.getComponent();
         String layoutName = tabComponent.getLayoutName();
 
         componentPanel.add(component, layoutName);
         cardLayout.addLayoutComponent(component, layoutName);
-        
+
         // inform the tab of its position
         tabComponent.setIndex(components.indexOf(tabComponent));
         tabComponent.setPosition(parent.getTabPanePosition(this));
-        
+
         if (components.size() == 1) {
             setSelectedTab(tabComponent);
         }
-    }    
-    
+    }
+
     protected void calculateTabRects(int tabCount) {
 
         // check that we still have the right count
@@ -136,7 +129,7 @@ public class DockedTabPane extends AbstractTabPane {
             }
 
             if (i > 0) {
-                rect.x = tabRects[i-1].x + tabRects[i-1].width;
+                rect.x = tabRects[i - 1].x + tabRects[i - 1].width;
             } else {
                 rect.x = 0;
             }
@@ -148,9 +141,9 @@ public class DockedTabPane extends AbstractTabPane {
     }
 
     /**
-     * Returns whether the specified x-y coordinates 
+     * Returns whether the specified x-y coordinates
      * intersect the tab area (tab panel).
-     * 
+     *
      * @param the x coordinate
      * @param the x coordinate
      * @return true if the point intersects, false otherwise
@@ -158,7 +151,7 @@ public class DockedTabPane extends AbstractTabPane {
     protected boolean intersectsTabArea(int x, int y) {
         return tabPanel.getBounds().contains(x, y);
     }
-    
+
     /**
      * Returns the index of the tab currently being dragged.
      *
@@ -167,11 +160,11 @@ public class DockedTabPane extends AbstractTabPane {
     protected int getDraggingIndex() {
         return draggingIndex;
     }
-    
+
     private int getTabWidth(int tabCount) {
         return (getWidth() / tabCount);
     }
-    
+
     /**
      * Calculates the close icon rectangle for the specified
      * tab bounds.
@@ -181,7 +174,7 @@ public class DockedTabPane extends AbstractTabPane {
      */
     private Rectangle getCloseIconRectangle(Rectangle tabRect) {
         int y = tabRect.y + ((tabRect.height - TabControlIcon.ICON_HEIGHT) / 2);
-        int x = tabRect.x + ((int)(tabRect.width - TabControlIcon.ICON_WIDTH - 6));
+        int x = tabRect.x + ((int) (tabRect.width - TabControlIcon.ICON_WIDTH - 6));
         return new Rectangle(x, y, TabControlIcon.ICON_WIDTH, TabControlIcon.ICON_HEIGHT);
     }
 
@@ -194,7 +187,7 @@ public class DockedTabPane extends AbstractTabPane {
      */
     private Rectangle getMinimizeIconRectangle(Rectangle tabRect) {
         int y = tabRect.y + ((tabRect.height - TabControlIcon.ICON_HEIGHT) / 2);
-        int x = tabRect.x + ((int)(tabRect.width - (TabControlIcon.ICON_WIDTH * 2) - 10));
+        int x = tabRect.x + ((int) (tabRect.width - (TabControlIcon.ICON_WIDTH * 2) - 10));
         return new Rectangle(x, y, TabControlIcon.ICON_WIDTH, TabControlIcon.ICON_HEIGHT);
     }
 
@@ -208,12 +201,12 @@ public class DockedTabPane extends AbstractTabPane {
 
     /**
      * Returns the index in the tab pane of the specified
-     * tab rectangle. if the specified tab rectangle is 
+     * tab rectangle. if the specified tab rectangle is
      * not in the tab pane, -1 is returned.
      *
      * @param the tab rectangle
      * @return the index of the tab rectangle or -1 if its
-     *         not present
+     * not present
      */
     protected int getTabRectangleIndex(Rectangle tabRect) {
         for (int i = 0; i < tabRects.length; i++) {
@@ -225,7 +218,7 @@ public class DockedTabPane extends AbstractTabPane {
     }
 
     /**
-     * Returns the tab component object at the 
+     * Returns the tab component object at the
      * specified x and y coordinate.
      *
      * @param x coordinate
@@ -246,7 +239,7 @@ public class DockedTabPane extends AbstractTabPane {
         tabPanel.repaint();
         fireTabSelected(new DockedTabEvent(components.get(index)));
     }
-    
+
     protected void insertTab(TabComponent tabComponent, int toIndex) {
         if (tabComponent == null || toIndex == -1) {
             return;
@@ -255,12 +248,12 @@ public class DockedTabPane extends AbstractTabPane {
         componentPanel.add(tabComponent.getComponent(), tabComponent.getTitle());
 
         // reset the layout
-        cardLayout.invalidateLayout(componentPanel);        
+        cardLayout.invalidateLayout(componentPanel);
         int tabCount = components.size();
         for (int i = 0; i < tabCount; i++) {
             TabComponent _tabComponent = components.get(i);
-            cardLayout.addLayoutComponent(_tabComponent.getComponent(), 
-                                          _tabComponent.getLayoutName());
+            cardLayout.addLayoutComponent(_tabComponent.getComponent(),
+                    _tabComponent.getLayoutName());
         }
 
         // inform the tab of its position
@@ -269,13 +262,13 @@ public class DockedTabPane extends AbstractTabPane {
 
         setSelectedIndex(toIndex);
     }
-    
+
     protected void moveTab(int fromIndex, int toIndex) {
         if (fromIndex == toIndex || (fromIndex == -1 || toIndex == -1)) {
             return;
         }
 
-        TabComponent tabComponent = components.get(fromIndex);        
+        TabComponent tabComponent = components.get(fromIndex);
         tabComponent.setIndex(toIndex);
 
         // remove from the component cache
@@ -287,13 +280,13 @@ public class DockedTabPane extends AbstractTabPane {
     /**
      * Returns the height of the tab itself ie. the selection part with
      * the title etc.
-     * 
+     *
      * @return the tab height
      */
     public int getTabHeight() {
         return tabPanel.getHeight();
     }
-    
+
     /**
      * Minimises all the tabs in the panel
      */
@@ -305,6 +298,7 @@ public class DockedTabPane extends AbstractTabPane {
         }
         removeAllTabs();
     }
+
     /**
      * Minimises the tab from the panel at the specified index.
      *
@@ -319,9 +313,9 @@ public class DockedTabPane extends AbstractTabPane {
         TabComponent tabComponent = components.get(index);
 
         // remove from the tab display and minimise
-        parent.minimiseComponent(tabComponent); 
+        parent.minimiseComponent(tabComponent);
         removeIndex(index);
-        
+
         // fire the event
         fireTabMinimised(new DockedTabEvent(tabComponent));
     }
@@ -372,11 +366,11 @@ public class DockedTabPane extends AbstractTabPane {
 
         // remove from the component cache
         components.remove(index);
-        
+
         // reset the layout
         cardLayout.invalidateLayout(componentPanel);
         componentPanel.removeAll();
-        
+
         int tabCount = components.size();
         if (tabCount == 0) {
             allTabsRemoved();
@@ -389,8 +383,8 @@ public class DockedTabPane extends AbstractTabPane {
             TabComponent tabComponent = components.get(i);
             layoutName = tabComponent.getLayoutName();
             componentPanel.add(tabComponent.getComponent(), layoutName);
-            cardLayout.addLayoutComponent(tabComponent.getComponent(), 
-                                          layoutName);
+            cardLayout.addLayoutComponent(tabComponent.getComponent(),
+                    layoutName);
         }
 
         // check if the last panel was removed
@@ -398,20 +392,20 @@ public class DockedTabPane extends AbstractTabPane {
             // reset the index
             index--;
         }
-        
+
         selectedIndex = index;
         TabComponent tabComponent = components.get(index);
         cardLayout.show(componentPanel, tabComponent.getLayoutName());
         tabPanel.repaint();
-        
+
         // fire the event
         fireTabClosed(new DockedTabEvent(removed));
     }
-    
+
     protected int getTabPanePosition() {
         return parent.getTabPanePosition(this);
     }
-    
+
     private Rectangle[] tabRects;
 
     private class TabPanel extends JPanel {
@@ -419,9 +413,9 @@ public class DockedTabPane extends AbstractTabPane {
         protected Font font;
 
         protected Color foreground;
-        protected Color background;        
+        protected Color background;
         protected Color activeColor;
-//        protected Color activeNoFocusColor;
+        //        protected Color activeNoFocusColor;
         protected Color controlShadow;
 
         protected int textIconGap;
@@ -429,11 +423,14 @@ public class DockedTabPane extends AbstractTabPane {
         protected Insets tabInsets;
         private int height;
 
+        private boolean printTitle;
+
         protected static final int TEXT_CROP_OFFSET = 10;
-        
+
         protected static final int TAB_BOTTOM_BORDER_HEIGHT = 3;
-        
-        protected TabPanel() {
+
+        protected TabPanel(boolean printTitle) {
+            this.printTitle = printTitle;
             initDefaults();
             tabRects = new Rectangle[0];
             MouseHandler mouseHandler = new MouseHandler();
@@ -443,7 +440,7 @@ public class DockedTabPane extends AbstractTabPane {
 
         public String getToolTipText(MouseEvent e) {
             // check if we are over a button
-            if (currentCloseRolloverIndex != -1 || 
+            if (currentCloseRolloverIndex != -1 ||
                     currentMinimizeRolloverIndex != -1) {
                 return null;
             }
@@ -462,10 +459,10 @@ public class DockedTabPane extends AbstractTabPane {
         public int getHeight() {
             if (height == 0) {
                 calculateTabHeight();
-            }            
+            }
             return height;
         }
-        
+
         public Dimension getPreferredSize() {
             return new Dimension(getWidth(), getHeight());
         }
@@ -475,9 +472,13 @@ public class DockedTabPane extends AbstractTabPane {
         }
 
         protected void calculateTabHeight() {
-            FontMetrics metrics = getFontMetrics(font);
-            height = metrics.getHeight() + tabInsets.top + 
-                    tabInsets.bottom + TAB_BOTTOM_BORDER_HEIGHT + 6;
+            if (!printTitle)
+                height = 0;
+            else {
+                FontMetrics metrics = getFontMetrics(font);
+                height = metrics.getHeight() + tabInsets.top +
+                        tabInsets.bottom + TAB_BOTTOM_BORDER_HEIGHT + 6;
+            }
         }
 
         /*
@@ -489,8 +490,10 @@ public class DockedTabPane extends AbstractTabPane {
         private int getTabHeight() {
             return height - TAB_BOTTOM_BORDER_HEIGHT;
         }
-        
+
         public void paintComponent(Graphics g) {
+            if (!printTitle)
+                return;
             if (components == null) {
                 return;
             }
@@ -500,7 +503,7 @@ public class DockedTabPane extends AbstractTabPane {
                 return;
             }
 
-            Graphics2D g2d = (Graphics2D)g;
+            Graphics2D g2d = (Graphics2D) g;
             Object antialiasHint = g2d.getRenderingHint(RenderingHints.KEY_ANTIALIASING);
             UIUtils.antialias(g2d);
 
@@ -509,7 +512,7 @@ public class DockedTabPane extends AbstractTabPane {
 
             int x = getX();
             int y = getY();
-            
+
             int w = getWidth();
             int h = getHeight();
 
@@ -522,32 +525,32 @@ public class DockedTabPane extends AbstractTabPane {
                 if (isFocusedTabPane) {
                     g.setColor(activeColor);
                     Rectangle selected = tabRects[selectedIndex];
-                    g.fillRect(selected.x, selected.y, 
-                               selected.width + 1, selected.height);
+                    g.fillRect(selected.x, selected.y,
+                            selected.width + 1, selected.height);
 
                     // fill the bottom border
                     g.fillRect(x, h - TAB_BOTTOM_BORDER_HEIGHT,
-                               w , TAB_BOTTOM_BORDER_HEIGHT);
+                            w, TAB_BOTTOM_BORDER_HEIGHT);
                 }
-                
+
             }
-            
+
             // draw the borders
             g.setColor(controlShadow);
 
             // left and right absolute borders
             g.drawLine(x, y, x, y + h); // left-most
             g.drawLine(x + w - 1, y, x + w - 1, y + h); // right-most
-            
+
             for (int i = 0; i < tabCount; i++) {
                 Rectangle rect = tabRects[i];
                 x = rect.x;
                 y = rect.y;
                 w = rect.width;
                 h = rect.height;
-                
-                g.drawLine(x, y, x, y+h-2); // left side
-                g.drawLine(x+1, y, x+w+2, y); // top side
+
+                g.drawLine(x, y, x, y + h - 2); // left side
+                g.drawLine(x + 1, y, x + w + 2, y); // top side
 
                 /*
                 if (i < tabCount - 1) {
@@ -559,16 +562,16 @@ public class DockedTabPane extends AbstractTabPane {
                 if (i != selectedIndex) {
                     g.drawLine(x, y + h - 1, x + w, y + h - 1);
                 } else {
-                    g.drawLine(0, y + h + TAB_BOTTOM_BORDER_HEIGHT - 1, 
-                               getWidth(), y + h + TAB_BOTTOM_BORDER_HEIGHT - 1);
+                    g.drawLine(0, y + h + TAB_BOTTOM_BORDER_HEIGHT - 1,
+                            getWidth(), y + h + TAB_BOTTOM_BORDER_HEIGHT - 1);
                 }
-                
+
             }
 
             // draw the text
             Rectangle iconRect = new Rectangle();
             Rectangle textRect = new Rectangle();
-            
+
             g.setFont(font);
             FontMetrics metrics = getFontMetrics(font);
 
@@ -579,7 +582,7 @@ public class DockedTabPane extends AbstractTabPane {
 
                 // if tab selected make crop smaller to
                 // account for min and close buttons
-                if (i == selectedIndex) {                    
+                if (i == selectedIndex) {
                     // paint the close button
                     Rectangle buttonRect = getCloseIconRectangle(tabRect);
                     closeIcon.paintIcon(this, g, buttonRect.x, buttonRect.y);
@@ -587,21 +590,21 @@ public class DockedTabPane extends AbstractTabPane {
                     if (selectedIndex == currentCloseRolloverIndex) {
                         g.setColor(TabControlIcon.ICON_COLOR);
                         g.drawRect(buttonRect.x - 2,
-                                   buttonRect.y - 2,
-                                   buttonRect.width + 3,
-                                   buttonRect.height + 3);
+                                buttonRect.y - 2,
+                                buttonRect.width + 3,
+                                buttonRect.height + 3);
                     }
 
                     // paint the minimise button
                     buttonRect = getMinimizeIconRectangle(tabRect);
                     minimizeIcon.paintIcon(this, g, buttonRect.x, buttonRect.y);
-                    
+
                     if (selectedIndex == currentMinimizeRolloverIndex) {
                         g.setColor(TabControlIcon.ICON_COLOR);
                         g.drawRect(buttonRect.x - 2,
-                                   buttonRect.y - 2,
-                                   buttonRect.width + 3,
-                                   buttonRect.height + 3);
+                                buttonRect.y - 2,
+                                buttonRect.width + 3,
+                                buttonRect.height + 3);
                     }
 
                     // smaller text crop area
@@ -610,41 +613,41 @@ public class DockedTabPane extends AbstractTabPane {
 
                 // text crop offset
                 tabRect.width -= TEXT_CROP_OFFSET;
-                
+
                 textRect.x = textRect.y = iconRect.x = iconRect.y = 0;
 
                 String title = SwingUtilities.layoutCompoundLabel(
-                                                    this,
-                                                    metrics, 
-                                                    tabComponent.getDisplayName(), 
-                                                    tabComponent.getIcon(),
-                                                    SwingUtilities.CENTER,
-                                                    SwingUtilities.LEFT,
-                                                    SwingUtilities.CENTER,
-                                                    SwingUtilities.TRAILING,
-                                                    tabRect,
-                                                    iconRect,
-                                                    textRect,
-                                                    textIconGap);
+                        this,
+                        metrics,
+                        tabComponent.getDisplayName(),
+                        tabComponent.getIcon(),
+                        SwingUtilities.CENTER,
+                        SwingUtilities.LEFT,
+                        SwingUtilities.CENTER,
+                        SwingUtilities.TRAILING,
+                        tabRect,
+                        iconRect,
+                        textRect,
+                        textIconGap);
 
                 g.setColor(foreground);
                 if (i != selectedIndex || !isFocusedTabPane) {
-                	g.setColor(UIManager.getColor("TabbedPane.foreground"));
+                    g.setColor(UIManager.getColor("TabbedPane.foreground"));
                 }
 
                 g.drawString(title, textRect.x + 3, textRect.y + textRect.height - 3);
                 g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, antialiasHint);
             }
         }
-        
-        private Rectangle calculateTextRect(Rectangle tabRect, 
-                                            Rectangle textRect, 
+
+        private Rectangle calculateTextRect(Rectangle tabRect,
+                                            Rectangle textRect,
                                             int index) {
 
             textRect.x = tabRect.x + tabInsets.left;
             textRect.y = tabRect.y + tabInsets.top + 2;
 
-            if (index == 0) {            
+            if (index == 0) {
                 textRect.height = tabRect.height - tabInsets.top - tabInsets.bottom;
             }
 
@@ -653,17 +656,17 @@ public class DockedTabPane extends AbstractTabPane {
             if (selectedIndex == index) {
                 Rectangle closeIconRect = getCloseIconRectangle(tabRect);
                 Rectangle minIconRect = getMinimizeIconRectangle(tabRect);
-                textRect.width = tabRect.width - 
-                                 tabInsets.left - tabInsets.right -
-                                 closeIconRect.width - minIconRect.width;
-            } 
-            
+                textRect.width = tabRect.width -
+                        tabInsets.left - tabInsets.right -
+                        closeIconRect.width - minIconRect.width;
+            }
+
             return textRect;
         }
 
         // the close and minimise icon
-        private Icon closeIcon = new DockedTabCloseIcon();
-        private Icon minimizeIcon = new DockedTabMinimizeIcon(parent.getOrientation());
+        private transient Icon closeIcon = new DockedTabCloseIcon();
+        private transient Icon minimizeIcon = new DockedTabMinimizeIcon(parent.getOrientation());
 
         private void initDefaults() {
             Font _font = DockedTabPane.this.getFont();
@@ -693,36 +696,42 @@ public class DockedTabPane extends AbstractTabPane {
 //            controlShadow = UIManager.getColor("controlShadow");
             Color color = UIManager.getColor("executequery.TabbedPane.border");
             if (color != null) {
-                
+
                 controlShadow = color;
 
             } else {
-                
-                controlShadow = UIManager.getColor("controlShadow");                
+
+                controlShadow = UIManager.getColor("controlShadow");
             }
 
             textIconGap = 2;
             tabInsets = tabInsets();
         }
-        
+
     } // TabPanel
-    
-    /** The tab's tool tip */
+
+    /**
+     * The tab's tool tip
+     */
     protected DockedTabToolTip toolTip;
-    
-    /** Indicates the current rollover index for the min button */
+
+    /**
+     * Indicates the current rollover index for the min button
+     */
     protected int currentMinimizeRolloverIndex = -1;
 
-    /** Indicates the current rollover index for the close button */
+    /**
+     * Indicates the current rollover index for the close button
+     */
     protected int currentCloseRolloverIndex = -1;
-    
+
     private class MouseHandler implements MouseInputListener {
-        
+
         private boolean dragging;
-        
+
         public void mouseMoved(MouseEvent e) {
             boolean doRepaint = false;
-            
+
             try {
                 if (currentCloseRolloverIndex != -1 || currentMinimizeRolloverIndex != -1) {
                     doRepaint = true;
@@ -775,13 +784,12 @@ public class DockedTabPane extends AbstractTabPane {
                 }
 
                 // --------------------------------------------
-            }
-            finally {
+            } finally {
                 if (doRepaint) {
                     tabPanel.repaint();
                 }
             }
-            
+
         }
 
         private boolean maybeShowPopup(MouseEvent e) {
@@ -817,7 +825,9 @@ public class DockedTabPane extends AbstractTabPane {
                     DockedTabPane.this, e, getTabComponentAt(draggingIndex)));
         }
 
-        public void mouseEntered(MouseEvent e) {}
+        public void mouseEntered(MouseEvent e) {
+        }
+
         public void mouseExited(MouseEvent e) {
             if (currentCloseRolloverIndex != -1 || currentMinimizeRolloverIndex != -1) {
                 currentCloseRolloverIndex = -1;
@@ -828,7 +838,7 @@ public class DockedTabPane extends AbstractTabPane {
                 toolTip.setVisible(false);
             }
         }
-        
+
         public void mouseClicked(MouseEvent e) {
             maybeShowPopup(e);
         }
@@ -838,7 +848,7 @@ public class DockedTabPane extends AbstractTabPane {
         }
 
         public void mouseReleased(MouseEvent e) {
-            if (maybeShowPopup(e) || 
+            if (maybeShowPopup(e) ||
                     (tabPopupMenu != null && tabPopupMenu.isVisible())) {
                 return;
             }
@@ -846,7 +856,7 @@ public class DockedTabPane extends AbstractTabPane {
             try {
                 int x = e.getX();
                 int y = e.getY();
-                
+
                 int index = getTabAtLocation(x, y);
 
                 if (!dragging) {
@@ -877,29 +887,27 @@ public class DockedTabPane extends AbstractTabPane {
                         return;
                     }
 
-                }
-                else {
+                } else {
                     parent.dockedTabReleased(new DockedDragEvent(
                             DockedTabPane.this, e, getTabComponentAt(draggingIndex)));
                 }
                 dragging = false;
                 draggingIndex = -1;
-            }
-            finally {
+            } finally {
                 currentCloseRolloverIndex = -1;
                 currentMinimizeRolloverIndex = -1;
             }
         }
 
     }
-    
+
     /**
      * Popup menu for tab components accessible through
      * mouse right-click action.
      */
-    private class TabPopupMenu extends JPopupMenu 
-                               implements ActionListener {
-        
+    private class TabPopupMenu extends JPopupMenu
+            implements ActionListener {
+
         private int popupTabIndex;
         private JMenuItem minimise;
         private JMenuItem close;
@@ -907,13 +915,13 @@ public class DockedTabPane extends AbstractTabPane {
 
         public TabPopupMenu() {
             Font font = UIManager.getFont("PopupMenu.font").
-                                        deriveFont(Font.PLAIN, 10);
+                    deriveFont(Font.PLAIN, 10);
             setFont(font);
-            
-            close = MenuItemFactory.createMenuItem("Close");
-            minimise = MenuItemFactory.createMenuItem("Minimize");
-            minimiseAll = MenuItemFactory.createMenuItem("Minimize All");
-            
+
+            close = MenuItemFactory.createMenuItem(bundledString("menuItem.close"));
+            minimise = MenuItemFactory.createMenuItem(bundledString("menuItem.minimize"));
+            minimiseAll = MenuItemFactory.createMenuItem(bundledString("menuItem.minimizeAll"));
+
             close.addActionListener(this);
             minimiseAll.addActionListener(this);
             minimise.addActionListener(this);
@@ -922,15 +930,15 @@ public class DockedTabPane extends AbstractTabPane {
             add(minimiseAll);
             addSeparator();
             add(close);
-            
+
             popupTabIndex = -1;
         }
-        
+
         public void showPopup(int index, int x, int y) {
             popupTabIndex = index;
             show(tabPanel, x, y);
         }
-        
+
         public void actionPerformed(ActionEvent e) {
             if (popupTabIndex == -1) {
                 return;
@@ -940,15 +948,12 @@ public class DockedTabPane extends AbstractTabPane {
                 Object source = e.getSource();
                 if (source == close) {
                     removeIndex(popupTabIndex);
-                }
-                else if (source == minimiseAll) {
+                } else if (source == minimiseAll) {
                     minimiseAll();
-                }
-                else if (source == minimise) {
+                } else if (source == minimise) {
                     minimiseIndex(popupTabIndex);
                 }
-            }
-            finally {
+            } finally {
                 popupTabIndex = -1;
             }
 
@@ -957,14 +962,4 @@ public class DockedTabPane extends AbstractTabPane {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
 

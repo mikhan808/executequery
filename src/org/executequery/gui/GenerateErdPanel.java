@@ -1,7 +1,7 @@
 /*
  * GenerateErdPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,56 +20,57 @@
 
 package org.executequery.gui;
 
-import java.awt.BorderLayout;
+import org.executequery.GUIUtilities;
+import org.executequery.components.BottomButtonPanel;
+import org.executequery.gui.erd.ErdGenerateProgressDialog;
+import org.executequery.gui.erd.ErdSelectionPanel;
+import org.executequery.localization.Bundles;
+
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JPanel;
-
-import org.executequery.GUIUtilities;
-import org.executequery.gui.erd.ErdGenerateProgressDialog;
-import org.executequery.gui.erd.ErdSelectionPanel;
-import org.executequery.components.BottomButtonPanel;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class GenerateErdPanel extends JPanel
-                              implements ActionListener {
-    
-    public static final String TITLE = "Generate ERD";
+        implements ActionListener {
 
-    /** The table selection panel */
+    public static final String TITLE = Bundles.get(GenerateErdPanel.class, "title");
+
+    /**
+     * The table selection panel
+     */
     private ErdSelectionPanel selectionPanel;
-    
-    /** the parent container */
+
+    /**
+     * the parent container
+     */
     private ActionContainer parent;
-    
+
     public GenerateErdPanel(ActionContainer parent) {
         super(new BorderLayout());
         this.parent = parent;
-        
+
         try {
             jbInit();
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
     }
-    
+
     private void jbInit() throws Exception {
 
         selectionPanel = new ErdSelectionPanel();
         JPanel basePanel = new JPanel(new BorderLayout());
         basePanel.add(selectionPanel, BorderLayout.NORTH);
-        basePanel.add(new BottomButtonPanel(this, "Generate", "erd", true),
-                                                BorderLayout.SOUTH);
+        basePanel.add(new BottomButtonPanel(this, bundleString("Generate"), "erd", true),
+                BorderLayout.SOUTH);
         add(basePanel, BorderLayout.CENTER);
     }
-    
+
     /**
      * Releases database resources before closing.
      */
@@ -81,30 +82,36 @@ public class GenerateErdPanel extends JPanel
         if (inProcess) {
 
             parent.block();
-            
+
         } else {
-            
+
             parent.unblock();
         }
     }
-    
+
     public void actionPerformed(ActionEvent e) {
-        
+
         if (selectionPanel.hasSelections()) {
-            
+
             new ErdGenerateProgressDialog(selectionPanel.getDatabaseConnection(),
-                                          selectionPanel.getSelectedValues(),
-                                          selectionPanel.getSchema());
+                    selectionPanel.getSelectedValues(),
+                    selectionPanel.getSchema());
 
         } else {
-        
+
             GUIUtilities.displayErrorMessage(
-                            "You must select at least one table.");
+                    "You must select at least one table.");
         }
-        
+
     }
-    
+
+    private String bundleString(String key) {
+        return Bundles.get(GenerateErdPanel.class, key);
+    }
+
+
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * CompareDataTypesCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,37 +20,37 @@
 
 package org.executequery.actions.databasecommands;
 
-import java.awt.event.ActionEvent;
 import org.executequery.GUIUtilities;
-import org.underworldlabs.swing.actions.BaseCommand;
 import org.executequery.actions.OpenFrameCommand;
 import org.executequery.gui.CompareDataTypesPanel;
+import org.underworldlabs.swing.actions.BaseCommand;
+
+import java.awt.event.ActionEvent;
 
 /**
  * Execution command for data type comparison.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class CompareDataTypesCommand extends OpenFrameCommand
-                                     implements BaseCommand {
-    
+        implements BaseCommand {
+
     public void execute(ActionEvent e) {
 
         if (!isConnected()) {
-        
+
             return;
         }
 
         GUIUtilities.addCentralPane(CompareDataTypesPanel.TITLE,
-                                    CompareDataTypesPanel.FRAME_ICON, 
-                                    new CompareDataTypesPanel(),
-                                    null,
-                                    true);
+                CompareDataTypesPanel.FRAME_ICON,
+                new CompareDataTypesPanel(),
+                null,
+                true);
     }
-    
+
 }
+
 
 
 

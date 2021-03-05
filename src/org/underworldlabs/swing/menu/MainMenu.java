@@ -1,7 +1,7 @@
 /*
  * MainMenu.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,22 +20,20 @@
 
 package org.underworldlabs.swing.menu;
 
-import java.awt.Dimension;
-import java.awt.Insets;
-
-import javax.swing.JMenu;
-
 import org.executequery.gui.GUIConstants;
+
+import javax.swing.*;
+import java.awt.*;
 
 public class MainMenu extends JMenu {
 
     public MainMenu() {
-    
+
         super();
     }
-    
+
     public MainMenu(String text) {
-        
+
         super(text);
     }
 
@@ -44,7 +42,7 @@ public class MainMenu extends JMenu {
 
         return new Insets(0, 0, 0, 10);
     }
-    
+
     public Dimension getPreferredSize() {
 
         Dimension preferredSize = super.getPreferredSize();
@@ -52,5 +50,6 @@ public class MainMenu extends JMenu {
 
         return preferredSize;
     }
-    
+
 }
+

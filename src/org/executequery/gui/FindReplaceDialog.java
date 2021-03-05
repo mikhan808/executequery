@@ -1,7 +1,7 @@
 /*
  * FindReplaceDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,106 +20,85 @@
 
 package org.executequery.gui;
 
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-
-import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
-import javax.swing.ComboBoxEditor;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
-
 import org.executequery.ActiveComponent;
 import org.executequery.GUIUtilities;
 import org.executequery.gui.text.TextEditor;
+import org.executequery.localization.Bundles;
 import org.executequery.search.TextAreaSearch;
 import org.underworldlabs.swing.DefaultButton;
 import org.underworldlabs.swing.GUIUtils;
 import org.underworldlabs.swing.actions.ActionUtilities;
 import org.underworldlabs.swing.actions.ReflectiveAction;
 
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+
 /**
  * <p>Find replace for text components.
- * 
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ *
+ * @author Takis Diakoumis
  */
 public class FindReplaceDialog extends DefaultActionButtonsPanel
-                               implements ActionListener,
-                                          ActiveComponent {
-    
+        implements ActionListener,
+        ActiveComponent {
+
     public static final String TITLE = "Find and Replace";
-    
+
     public static final int FIND = 0;
     public static final int REPLACE = 1;
-    
+
     private JButton findNextButton;
     private JButton closeButton;
     private JButton replaceButton;
     private JButton replaceAllButton;
-    
+
     private JCheckBox wholeWordsCheck;
     private JCheckBox regexCheck;
     private JCheckBox matchCaseCheck;
     private JCheckBox replaceCheck;
     private JCheckBox wrapCheck;
-    
+
     private JRadioButton searchUpRadio;
     private JRadioButton searchDownRadio;
-    
+
     private JComboBox findField;
     private JComboBox replaceField;
 
     private final ActionContainer parent;
-    
+
     public FindReplaceDialog(ActionContainer parent, int type) {
-        
+
         this.parent = parent;
-        
-        try {
-            init();
-        } catch(Exception e) {
-            e.printStackTrace();
-        }
-        
+        init();
         setFindReplace(type == REPLACE);
     }
-    
-    private void init() throws Exception {
+
+    private void init() {
 
         JPanel optionsPanel = new JPanel(new GridBagLayout());
         optionsPanel.setBorder(BorderFactory.createTitledBorder("Options"));
-        
-        Dimension optionsDim = new Dimension(500, 120);
+
+        Dimension optionsDim = new Dimension(600, 140);
         optionsPanel.setPreferredSize(optionsDim);
-        
+
         TextEditor textFunction = GUIUtilities.getTextEditorInFocus();
         JTextComponent textComponent = textFunction.getEditorTextComponent();
         String selectedText = textComponent.getSelectedText();
-        
+
         if (selectedText != null && selectedText.length() > 0) {
             addFind(selectedText);
         }
-       
+
         findField = WidgetFactory.createComboBox(TextAreaSearch.getPrevFindValues());
         replaceField = WidgetFactory.createComboBox(TextAreaSearch.getPrevReplaceValues());
         findField.setEditable(true);
         replaceField.setEditable(true);
-        
+
         KeyAdapter keyListener = createKeyListener();
         findFieldTextEditor().addKeyListener(keyListener);
         replaceFieldTextEditor().addKeyListener(keyListener);
@@ -129,19 +108,19 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
         wrapCheck = new JCheckBox("Wrap Search", true);
 
         replaceCheck = ActionUtilities.createCheckBox("Replace:", "setToReplace");
-        regexCheck = ActionUtilities.createCheckBox("Regular expressions", "setToRegex"); 
-        
+        regexCheck = ActionUtilities.createCheckBox("Regular expressions", "setToRegex");
+
         searchUpRadio = new JRadioButton("Search Up");
         searchDownRadio = new JRadioButton("Search Down", true);
-        
+
         ButtonGroup btnGroup = new ButtonGroup();
         btnGroup.add(searchUpRadio);
         btnGroup.add(searchDownRadio);
-        
+
         findNextButton = new DefaultButton("Find Next");
         replaceButton = new DefaultButton("Replace");
         replaceAllButton = new DefaultButton("Replace All");
-        closeButton = ActionUtilities.createButton("Close", "close");
+        closeButton = ActionUtilities.createButton(Bundles.get("common.close.button"), "close");
 
         setExpandButtonsToFill(true);
 
@@ -154,11 +133,11 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
         replaceButton.setMnemonic('R');
         replaceAllButton.setMnemonic('A');
         closeButton.setMnemonic('C');
-        
+
         JPanel panel = new JPanel(new GridBagLayout());
 
         GridBagConstraints gbc = new GridBagConstraints();
-        Insets ins = new Insets(15,10,0,5);
+        Insets ins = new Insets(15, 10, 0, 5);
         gbc.insets = ins;
         gbc.anchor = GridBagConstraints.WEST;
         optionsPanel.add(matchCaseCheck, gbc);
@@ -208,9 +187,9 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
         gbc.gridy = 2;
         gbc.insets.bottom = 10;
         panel.add(optionsPanel, gbc);
-        
+
         addContentPanel(panel);
-        
+
         ReflectiveAction action = new ReflectiveAction(this);
         replaceCheck.addActionListener(action);
         regexCheck.addActionListener(action);
@@ -219,7 +198,7 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
         findNextButton.addActionListener(this);
         replaceButton.addActionListener(this);
         replaceAllButton.addActionListener(this);
-        
+
     }
 
     private JTextField replaceFieldTextEditor() {
@@ -231,9 +210,9 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
     }
 
     private JTextField editorFromComboBox(JComboBox comboBox) {
-        return (JTextField)((ComboBoxEditor)comboBox.getEditor()).getEditorComponent();
+        return (JTextField) ((ComboBoxEditor) comboBox.getEditor()).getEditorComponent();
     }
-    
+
     private KeyAdapter createKeyListener() {
         KeyAdapter keyListener = new KeyAdapter() {
             public void keyPressed(KeyEvent e) {
@@ -242,24 +221,23 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
         };
         return keyListener;
     }
-    
+
     private void keyPressedInFields(KeyEvent e) {
         int keyCode = e.getKeyCode();
-        
+
         if (keyCode == KeyEvent.VK_ENTER) {
-            JTextField comboField= findFieldTextEditor();
-            
+            JTextField comboField = findFieldTextEditor();
+
             if (comboField == e.getSource()) {
                 startFindReplace(findNextButton);
-            }
-            else {
+            } else {
                 startFindReplace(replaceButton);
             }
-            
+
         }
-        
+
     }
-    
+
     public Component getDefaultFocusComponent() {
         return findField;
     }
@@ -267,13 +245,13 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
     public void cleanup() {
         TextAreaSearch.setTextComponent(null);
     }
-    
+
     private void startFindReplace(Object button) {
-        
+
         try {
 
             GUIUtilities.showWaitCursor();
-            
+
             String find = getFindFieldText();
             String replacement = getReplaceFieldText();
 
@@ -281,129 +259,121 @@ public class FindReplaceDialog extends DefaultActionButtonsPanel
 
                 return;
             }
-            
+
             addFind(find);
-            
+
             TextEditor textFunction = GUIUtilities.getTextEditorInFocus();
-            
+
             TextAreaSearch.setTextComponent(textFunction.getEditorTextComponent());
             TextAreaSearch.setFindText(find);
             TextAreaSearch.setSearchDirection(searchUpRadio.isSelected() ?
-                                                TextAreaSearch.SEARCH_UP :
-                                                TextAreaSearch.SEARCH_DOWN);
-            
+                    TextAreaSearch.SEARCH_UP :
+                    TextAreaSearch.SEARCH_DOWN);
+
             boolean useRegex = regexCheck.isSelected();
             TextAreaSearch.setUseRegex(useRegex);
-            
+
             if (useRegex) {
-                
+
                 TextAreaSearch.setWholeWords(false);
 
             } else {
-            
+
                 TextAreaSearch.setWholeWords(wholeWordsCheck.isSelected());
             }
-            
+
             TextAreaSearch.setMatchCase(matchCaseCheck.isSelected());
             TextAreaSearch.setWrapSearch(wrapCheck.isSelected());
-            
+
             if (button == findNextButton) {
 
                 TextAreaSearch.findNext(false, true);
 
             } else if (button == replaceButton) {
-                
+
                 if (!replaceCheck.isSelected()) {
 
                     return;
                 }
-                
+
                 addReplace(replacement);
                 TextAreaSearch.setReplacementText(replacement);
                 TextAreaSearch.findNext(true, true);
-                
+
             } else if (button == replaceAllButton) {
-                
+
                 if (!replaceCheck.isSelected()) {
 
                     return;
                 }
-                
+
                 addReplace(replacement);
                 TextAreaSearch.setReplacementText(replacement);
                 TextAreaSearch.replaceAll();
             }
-            
+
             findField.requestFocusInWindow();
             GUIUtils.scheduleGC();
-            
+
         } finally {
-            
+
             GUIUtilities.showNormalCursor();
         }
-        
+
     }
 
     private boolean isValidForReplace(String find, String replacement) {
-        
+
         if (replaceCheck.isSelected() && find.compareTo(replacement) == 0) {
-            
+
             GUIUtilities.displayErrorMessage(
-                "The replacement text must be different to the find text.");
-            
+                    "The replacement text must be different to the find text.");
+
             return false;
         }
-        
+
         return true;
     }
 
     private String getReplaceFieldText() {
-        return (String)(replaceField.getEditor().getItem());
+        return (String) (replaceField.getEditor().getItem());
     }
 
     private String getFindFieldText() {
-        return (String)(findField.getEditor().getItem());
+        return (String) (findField.getEditor().getItem());
     }
-    
+
     public void setToReplace(ActionEvent e) {
         setFindReplace(replaceCheck.isSelected());
     }
-    
+
     public void setToRegex(ActionEvent e) {
         wholeWordsCheck.setEnabled(!regexCheck.isSelected());
     }
-    
+
     public void close(ActionEvent e) {
         parent.finished();
     }
-    
+
     public void actionPerformed(ActionEvent e) {
         startFindReplace(e.getSource());
     }
-    
+
     private void addFind(String s) {
         TextAreaSearch.addPrevFindValue(s);
     }
-    
+
     private void addReplace(String s) {
         TextAreaSearch.addPrevReplaceValue(s);
     }
-    
+
     private void setFindReplace(boolean replace) {
         replaceCheck.setSelected(replace);
         replaceField.setEditable(replace);
         replaceField.setEnabled(replace);
         replaceField.setOpaque(replace);
     }
-        
+
 }
-
-
-
-
-
-
-
-
 
 

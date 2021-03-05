@@ -1,7 +1,7 @@
 /*
  * UpdatableComboBoxModel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,33 +20,33 @@
 
 package org.underworldlabs.swing;
 
+import javax.swing.*;
 import java.util.Vector;
-import javax.swing.DefaultComboBoxModel;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 @SuppressWarnings("unchecked")
 public class UpdatableComboBoxModel extends DefaultComboBoxModel {
-    
+
     private Vector values;
-    
+
     public UpdatableComboBoxModel(Object[] _values) {
         values = new Vector(_values.length);
         for (int i = 0; i < _values.length; i++) {
             values.add(_values[i]);
         }
     }
-    
-    /** Creates a new instance of UpdatableComboBoxModel */
+
+    /**
+     * Creates a new instance of UpdatableComboBoxModel
+     */
     public UpdatableComboBoxModel(Vector values) {
         this.values = values;
     }
 
 }
+
 
 
 

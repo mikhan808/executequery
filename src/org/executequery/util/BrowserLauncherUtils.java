@@ -1,7 +1,7 @@
 /*
  * BrowserLauncherUtils.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,13 @@
 
 package org.executequery.util;
 
-import org.executequery.GUIUtilities;
-
 import edu.stanford.ejalbert.BrowserLauncher;
 import edu.stanford.ejalbert.exception.BrowserLaunchingInitializingException;
 import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
+import org.executequery.GUIUtilities;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  * @deprecated use SystemWebBrowserLauncher
  */
 public class BrowserLauncherUtils {
@@ -39,30 +35,32 @@ public class BrowserLauncherUtils {
         try {
             BrowserLauncher launcher = new BrowserLauncher();
             launcher.openURLinBrowser(url);
-            
+
 //            BrowserLauncherRunner runner = 
 //                    new BrowserLauncherRunner(launcher, url, null);
 //            Thread launcherThread = new Thread(runner);
 //            launcherThread.start();
-        } 
-        catch (BrowserLaunchingInitializingException e) {
+        } catch (BrowserLaunchingInitializingException e) {
             handleException(e);
-        }
-        catch (UnsupportedOperatingSystemException e) {
+        } catch (UnsupportedOperatingSystemException e) {
             handleException(e);
         }
     }
-    
+
     private static void handleException(Throwable e) {
         GUIUtilities.displayExceptionErrorDialog(
-                "Error launching local web browser:\n" + 
-                e.getMessage(), e);
+                "Error launching local web browser:\n" +
+                        e.getMessage(), e);
     }
-    
-    /** Creates a new instance of BrowserLauncherUtils */
-    private BrowserLauncherUtils() {}
-    
+
+    /**
+     * Creates a new instance of BrowserLauncherUtils
+     */
+    private BrowserLauncherUtils() {
+    }
+
 }
+
 
 
 

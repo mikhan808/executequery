@@ -1,7 +1,7 @@
 /*
  * LookAndFeelType.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,12 +23,12 @@ package org.executequery.plaf;
 
 public enum LookAndFeelType {
 
-    EXECUTE_QUERY("Red Expert Default"),
-    EXECUTE_QUERY_DARK("Red Expert Dark Theme"),
-    EXECUTE_QUERY_GRADIENT("Red Expert Default 3D"),
+    EXECUTE_QUERY("RedXpert Default"),
+    EXECUTE_QUERY_DARK("RedXpert Dark Theme"),
+    EXECUTE_QUERY_GRADIENT("RedXpert Default 3D"),
     SMOOTH_GRADIENT("Smooth Gradient"),
     BUMPY_GRADIENT("Bumpy Gradient"),
-    EXECUTE_QUERY_THEME("Red Expert Theme"),
+    EXECUTE_QUERY_THEME("RedXpert Theme"),
     METAL("Metal - Classic"),
     OCEAN("Metal - Ocean (JDK1.5+)"),
     WINDOWS("Windows"),
@@ -36,16 +36,16 @@ public enum LookAndFeelType {
     GTK("GTK+"),
     PLUGIN("Plugin"),
     NATIVE("Native");
- 
+
     private String description;
-    
+
     private LookAndFeelType(String description) {
 
         this.description = description;
     }
 
     public String getDescription() {
-     
+
         return description;
     }
 
@@ -54,20 +54,21 @@ public enum LookAndFeelType {
 
         return getDescription();
     }
-    
+
     public boolean isDarkTheme() {
-        
+
         return (this == LookAndFeelType.EXECUTE_QUERY_DARK);
     }
-    
+
     public boolean isExecuteQueryLookCompatible() {
-        
+
         return (this == SMOOTH_GRADIENT ||
                 this == EXECUTE_QUERY_THEME ||
                 this == EXECUTE_QUERY ||
                 this == EXECUTE_QUERY_DARK ||
                 this == EXECUTE_QUERY_GRADIENT);
     }
-    
+
 }
+
 

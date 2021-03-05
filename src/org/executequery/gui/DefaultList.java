@@ -1,7 +1,7 @@
 /*
  * DefaultList.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,15 +20,13 @@
 
 package org.executequery.gui;
 
+import javax.swing.*;
 import java.util.Vector;
-
-import javax.swing.JList;
-import javax.swing.ListModel;
 
 public class DefaultList extends JList {
 
     private static final int DEFAULT_ROW_HEIGHT = 20;
-    
+
     public DefaultList() {
 
         super();
@@ -54,11 +52,12 @@ public class DefaultList extends JList {
     }
 
     private void init() {
-        
+
         setFixedCellHeight(DEFAULT_ROW_HEIGHT);
     }
 
 }
+
 
 
 

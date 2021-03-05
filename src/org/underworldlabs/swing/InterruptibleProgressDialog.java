@@ -1,7 +1,7 @@
 /*
  * InterruptibleProgressDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,46 +20,40 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.Dimension;
-import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JDialog;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-
+import org.executequery.log.Log;
 import org.underworldlabs.Constants;
 import org.underworldlabs.swing.util.Interruptible;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class InterruptibleProgressDialog extends JDialog
-                                         implements Runnable,
-                                                    ActionListener {
+        implements Runnable,
+        ActionListener {
 
-    /** The event parent to this object */
+    /**
+     * The event parent to this object
+     */
     private Interruptible process;
 
-    /** The progress bar widget */
+    /**
+     * The progress bar widget
+     */
     private ProgressBar progressBar;
 
-    /** The parent frame of this dialog */
+    /**
+     * The parent frame of this dialog
+     */
     private Frame parentFrame;
 
-    /** The progress bar label text */
+    /**
+     * The progress bar label text
+     */
     private String labelText;
 
     public InterruptibleProgressDialog(Frame parentFrame,
@@ -84,9 +78,9 @@ public class InterruptibleProgressDialog extends JDialog
     }
 
     public InterruptibleProgressDialog(Dialog parentDialog,
-                                        String title,
-                                        String labelText,
-                                        Interruptible process) {
+                                       String title,
+                                       String labelText,
+                                       Interruptible process) {
 
         super(parentDialog, title, true);
 
@@ -99,7 +93,7 @@ public class InterruptibleProgressDialog extends JDialog
 
         } catch (Exception e) {
 
-            e.printStackTrace();
+            Log.error("Error init class InterruptibleProgressDialog:", e);
         }
 
     }
@@ -137,9 +131,9 @@ public class InterruptibleProgressDialog extends JDialog
         Container c = this.getContentPane();
         c.setLayout(new GridBagLayout());
         c.add(base, new GridBagConstraints(1, 1, 1, 1, 1.0, 1.0,
-                                           GridBagConstraints.SOUTHEAST,
-                                           GridBagConstraints.BOTH,
-                                           new Insets(5, 5, 5, 5), 0, 0));
+                GridBagConstraints.SOUTHEAST,
+                GridBagConstraints.BOTH,
+                new Insets(5, 5, 5, 5), 0, 0));
 
         setResizable(false);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
@@ -202,6 +196,7 @@ public class InterruptibleProgressDialog extends JDialog
     }
 
 }
+
 
 
 

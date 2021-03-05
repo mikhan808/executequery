@@ -1,7 +1,7 @@
 /*
  * BaseRootPane.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,32 +20,29 @@
 
 package org.executequery.base;
 
-import java.awt.Component;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-
-import javax.swing.JComponent;
-import javax.swing.JRootPane;
-import javax.swing.SwingUtilities;
-
 import org.underworldlabs.swing.GlassCapturePanel;
 
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseEvent;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class BaseRootPane extends JRootPane {
-    
-    /** The glass pane to trap mouse events */
+
+    /**
+     * The glass pane to trap mouse events
+     */
     private Component glassPane;
 
-    /** Creates a new instance of BaseRootPane */
+    /**
+     * Creates a new instance of BaseRootPane
+     */
     public BaseRootPane(Component mainComponent) {
-        getContentPane().add(mainComponent);        
+        getContentPane().add(mainComponent);
         // setup the glass pane
-        glassPane = new GlassPanePanel((JComponent)mainComponent);
+        glassPane = new GlassPanePanel((JComponent) mainComponent);
         setGlassPane(glassPane);
         glassPane.setVisible(true);
     }
@@ -58,13 +55,13 @@ public class BaseRootPane extends JRootPane {
     public void setGlassPaneVisible(boolean visible) {
         glassPane.setVisible(visible);
     }
-    
+
     static class GlassPanePanel extends GlassCapturePanel {
-        
+
         public GlassPanePanel(JComponent mainComponent) {
             super(mainComponent);
         }
-        
+
         /*
          * Dispatch an event clone, retargeted for the specified target.
          */
@@ -86,18 +83,18 @@ public class BaseRootPane extends JRootPane {
 
             }
         }
-        
+
         private void findTabContainerAt(int x, int y) {
             // check we don't already have it
             if (mainComponent instanceof TabPane) {
-                ((TabPane)mainComponent).focusGained();
+                ((TabPane) mainComponent).focusGained();
                 return;
             }
 
             Point point = null;
             Component component = null;
             Component lastComponent = mainComponent;
-            
+
             while ((component = lastComponent.getComponentAt(x, y)) != null) {
 
                 if (component == lastComponent) { // short-circuit
@@ -109,7 +106,7 @@ public class BaseRootPane extends JRootPane {
                 y = point.y;
 
                 if (component instanceof TabPane) {
-                    ((TabPane)component).focusGained();
+                    ((TabPane) component).focusGained();
                     break;
                 }
                 lastComponent = component;
@@ -120,6 +117,7 @@ public class BaseRootPane extends JRootPane {
     } // GlassCapturePanel
 
 }
+
 
 
 

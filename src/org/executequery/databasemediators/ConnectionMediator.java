@@ -1,7 +1,7 @@
 /*
  * ConnectionMediator.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,8 +20,6 @@
 
 package org.executequery.databasemediators;
 
-import java.util.List;
-
 import org.executequery.ApplicationException;
 import org.executequery.EventMediator;
 import org.executequery.databasemediators.spi.DefaultConnectionBuilder;
@@ -31,17 +29,17 @@ import org.executequery.event.DefaultConnectionEvent;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.swing.GUIUtils;
 
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public final class ConnectionMediator {
 
     private static ConnectionMediator connectionMediator = new ConnectionMediator();
 
-    private ConnectionMediator() {}
+    private ConnectionMediator() {
+    }
 
     public static synchronized ConnectionMediator getInstance() {
 
@@ -60,6 +58,19 @@ public final class ConnectionMediator {
     }
 
     public boolean connect(DatabaseConnection dc) throws DataSourceException {
+
+        if (!establish(dc)) {
+            
+            return false;
+        }
+
+        fireConnectionOpened(dc);
+        GUIUtils.scheduleGC();
+
+        return true;
+    }
+
+    private boolean establish(DatabaseConnection dc) {
 
         DefaultConnectionBuilder builder = new DefaultConnectionBuilder(dc);
         builder.connect();
@@ -85,12 +96,19 @@ public final class ConnectionMediator {
 
         }
 
-        fireConnectionOpened(dc);
-        GUIUtils.scheduleGC();
-
-        return true;
+        return connected;
     }
 
+    public boolean test(DatabaseConnection dc) throws DataSourceException {
+        
+        if (!establish(dc)) {
+            
+            return false;
+        }
+        disconnect(dc);
+        return true;
+    }
+    
     private void fireConnectionOpened(DatabaseConnection dc) {
 
         fireConnectionEvent(new DefaultConnectionEvent(dc, DefaultConnectionEvent.CONNECTED));
@@ -107,6 +125,7 @@ public final class ConnectionMediator {
     }
 
 }
+
 
 
 

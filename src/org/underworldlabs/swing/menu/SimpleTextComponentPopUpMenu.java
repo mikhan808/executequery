@@ -1,7 +1,7 @@
 /*
  * SimpleTextComponentPopUpMenu.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,52 +20,49 @@
 
 package org.underworldlabs.swing.menu;
 
-import java.awt.Color;
+import org.underworldlabs.swing.actions.ActionBuilder;
+import org.underworldlabs.swing.actions.ReflectiveAction;
+
+import javax.swing.*;
+import javax.swing.text.JTextComponent;
 import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
-import javax.swing.Action;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.KeyStroke;
-import javax.swing.text.JTextComponent;
-
-import org.underworldlabs.swing.actions.ActionBuilder;
-import org.underworldlabs.swing.actions.ReflectiveAction;
-
-/** 
+/**
  * The text utilities popup menu function
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1496 $
- * @date     $Date: 2015-09-17 17:09:08 +1000 (Thu, 17 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class SimpleTextComponentPopUpMenu extends JPopupMenu {
-    
-    /** the action listener */
+
+    /**
+     * the action listener
+     */
     private ReflectiveAction reflectiveAction;
 
-    /** the text component this popup belongs to */
+    /**
+     * the text component this popup belongs to
+     */
     private JTextComponent textComponent;
-    
+
     public SimpleTextComponentPopUpMenu(JTextComponent textComponent) {
-        
+
         // create the listener
         reflectiveAction = new ReflectiveAction(this);
 
         this.textComponent = textComponent;
         textComponent.addMouseListener(new PopupListener(this));
-        
+
         // the menu label text
         String[] menuLabels = {"Cut", "Copy", "Paste"};
-        
+
         // cached actions from which to retrieve common accels and mnemonics
         String[] actionNames = {"cut-command", "copy-command", "paste-command"};
-        
+
         // action command settings to map to method names in this class
         String[] actionCommands = {"cut", "copy", "paste"};
-        
+
         for (int i = 0; i < menuLabels.length; i++) {
 
             add(createMenuItem(menuLabels[i], actionNames[i], actionCommands[i]));
@@ -94,53 +91,54 @@ public class SimpleTextComponentPopUpMenu extends JPopupMenu {
         textComponent.paste();
     }
 
-    private JMenuItem createMenuItem(String text, 
-                                     String actionName, 
+    private JMenuItem createMenuItem(String text,
+                                     String actionName,
                                      String actionCommand) {
 
         JMenuItem menuItem = MenuItemFactory.createMenuItem(text);
         Action action = ActionBuilder.get(actionName);
         Object object = action.getValue(Action.ACCELERATOR_KEY);
         if (object != null) {
-            menuItem.setAccelerator((KeyStroke)object);
+            menuItem.setAccelerator((KeyStroke) object);
         }
-        
+
         object = action.getValue(Action.MNEMONIC_KEY);
         if (object != null) {
-            menuItem.setMnemonic(((Integer)object).intValue());
+            menuItem.setMnemonic(((Integer) object).intValue());
         }
-        
+
         menuItem.setActionCommand(actionCommand);
         menuItem.addActionListener(reflectiveAction);
         return menuItem;
     }
-    
-    
+
+
     class PopupListener extends MouseAdapter {
-        
+
         private JPopupMenu popup;
-        
+
         public PopupListener(JPopupMenu popup) {
             this.popup = popup;
         }
-        
+
         public void mousePressed(MouseEvent e) {
             maybeShowPopup(e);
         }
-        
+
         public void mouseReleased(MouseEvent e) {
             maybeShowPopup(e);
         }
-        
+
         private void maybeShowPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
                 popup.show(e.getComponent(), e.getX(), e.getY());
             }
         }
-        
+
     } // class PopupListener
-    
+
 }
+
 
 
 

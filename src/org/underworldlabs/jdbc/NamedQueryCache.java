@@ -1,7 +1,7 @@
 /*
  * NamedQueryCache.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,43 +20,34 @@
 
 package org.underworldlabs.jdbc;
 
-import java.io.BufferedInputStream;
-import java.io.CharArrayWriter;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-
 import org.underworldlabs.util.Log;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import java.io.*;
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Dynamic SQL query loader and cache.
  *
  * @author Takis Diakoumis
- * @version $Revision: 1487 $
- * @date $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
  */
 public class NamedQueryCache {
-   
+
     public static final String QUERY = "query";
     public static final String NAME = "name";
 
-    private static Map<String,String> queries;
+    private static Map<String, String> queries;
 
     public String getNamedQuery(String name) {
         if (queries == null) {
             throw new IllegalArgumentException("Queries not loaded.");
-        }        
+        }
         if (queries.containsKey(name)) {
             return queries.get(name);
         } else {
@@ -72,9 +63,9 @@ public class NamedQueryCache {
             load(cl.getResourceAsStream(path));
         } else {
             load(ClassLoader.getSystemResourceAsStream(path));
-        }            
+        }
     }
-    
+
     public void loadFromFile(String path) {
         File file = new File(path);
 
@@ -82,15 +73,16 @@ public class NamedQueryCache {
 
             try {
                 load(new FileInputStream(file));
-            } catch (FileNotFoundException e) {}
-                
+            } catch (FileNotFoundException e) {
+            }
+
         } else {
             throw new IllegalArgumentException("Specified file not found");
         }
     }
-    
+
     private void load(InputStream input) {
-         
+
         try {
             SAXParserFactory factory = SAXParserFactory.newInstance();
             factory.setNamespaceAware(true);
@@ -105,19 +97,18 @@ public class NamedQueryCache {
             }
 
             Log.info("Query cache loaded.");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             Log.error("Error loading named queries from file.", e);
-        }
-        finally {
+        } finally {
             if (input != null) {
                 try {
                     input.close();
-                } catch (IOException e) {}
+                } catch (IOException e) {
+                }
             }
         }
     }
-    
+
     /**
      * XML handler class to load the properties from file.
      */
@@ -125,9 +116,9 @@ public class NamedQueryCache {
 
         private String queryName;
         private CharArrayWriter contents;
-        
+
         public NamedQueryHandler() {
-            queries = new HashMap<String,String>();
+            queries = new HashMap<String, String>();
             contents = new CharArrayWriter();
         }
 
@@ -138,34 +129,35 @@ public class NamedQueryCache {
             if (localName.equals(QUERY)) {
                 queryName = attrs.getValue(NAME);
             }
-            
+
         }
-        
-        public void endElement(String nameSpaceURI, 
+
+        public void endElement(String nameSpaceURI,
                                String localName,
                                String qName) {
 
             if (localName.equals(QUERY) && queryName != null) {
                 queries.put(queryName, contents.toString());
             }
-            queryName = null;            
+            queryName = null;
         }
-        
+
         public void characters(char[] data, int start, int length) {
             contents.write(data, start, length);
         }
-        
+
         public void ignorableWhitespace(char[] data, int start, int length) {
             characters(data, start, length);
         }
-        
+
         public void error(SAXParseException spe) throws SAXException {
             throw new SAXException(spe.getMessage());
         }
-        
+
     } // XMLHandler
-    
+
 }
+
 
 
 

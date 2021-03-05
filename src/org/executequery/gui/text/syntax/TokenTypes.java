@@ -1,7 +1,7 @@
 /*
  * TokenTypes.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,94 +27,102 @@ package org.executequery.gui.text.syntax;
  * scanner states, and in highlighters to determine the colour or style of
  * tokens.  There is also an array typeNames of textual names, indexed by type,
  * for descriptive purposes.
- *
+ * <p>
  * <p>The UNRECOGNIZED constant (zero) is for tokens which are completely
  * unrecognized, usually consisting of a single illegal character.  Other error
  * tokens are represented by negative types, where -t represents an incomplete
  * or malformed token of type t.  An error token usually consists of the
  * maximal legal substring of the source text.
- *
  */
+
 /**
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface TokenTypes {
 
-    public static final String OPEN_COMMENT = "/*";
-    public static final String CLOSE_COMMENT = "*/";
-    public static final String SINGLE_LINE_COMMENT_STRING = "--";
+    String OPEN_COMMENT = "/*";
+    String CLOSE_COMMENT = "*/";
+    String SINGLE_LINE_COMMENT_STRING = "--";
 
-    public static final String SINGLE_LINE_COMMENT_REGEX = "--.*$";
+    String SINGLE_LINE_COMMENT_REGEX = "--.*$";
+
+    String DECLARE_BLOCK_REGEX = "declare\\svariable[^;]*;";
+    // String BEGIN_END_BLOCK_REGEX =
 
 //    public static final String QUOTE_REGEX = "'([^'\r\n])+'|'.*";
-    
-    public static final String QUOTE_REGEX = "\'((?>[^\']*+)(?>\'{2}[^\']*+)*+)\'|\'.*";
 
-    public static final String NUMBER_REGEX = "\\b(([0-9]+)\\.?[0-9]*)\\b";
+    String QUOTE_REGEX = "\'((?>[^\']*+)(?>\'{2}[^\']*+)*+)\'|\'.*";
+
+    String NUMBER_REGEX = "\\b(([0-9]+)\\.?[0-9]*)\\b";
     //public static final String NUMBER_REGEX = "\\b(([0-9]+)\\.?[0-9]+[^\\.])\\b";
 
-    public static final String BRACES_REGEX = "\\(|\\{|\\[|\\)|\\]|\\}";
+    String BRACES_REGEX = "\\(|\\{|\\[|\\)|\\]|\\}";
 
-    public static final String OPERATOR_REGEX = "(\\;|\\.|\\,|~|\\?|\\:|" +
-                                                "\\+|\\-|\\&|\\||\\\\|\\!" + 
-                                                "|\\=|\\*|\\^|%|\\$|/|\\<|\\>)+";
+    String OPERATOR_REGEX = "(\\;|\\.|\\,|~|\\?|\\:|" +
+            "\\+|\\-|\\&|\\||\\\\|\\!" +
+            "|\\=|\\*|\\^|%|/|\\<|\\>)+";
 
-    public static final String[] MATCHERS = {
-        "keyword",
-        "operator",
-        "number",
-        "literals",
-        "braces",
-        "string",
-        "single-line-comment"
+    String[] MATCHERS = {
+            "keyword",
+            "operator",
+            "number",
+            "literals",
+            "dbobjects",
+            "braces",
+            "string",
+            "single-line-comment"
     };
 
-    public static final int KEYWORD_MATCH = 0,
-                            OPERATOR_MATCH = 1,
-                            NUMBER_MATCH = 2,
-                            LITERALS_MATCH = 3,
-                            BRACES_MATCH = 4,
-                            SINGLE_LINE_COMMENT_MATCH = 6,
-                            STRING_MATCH = 5;
-    
-    public static final int UNRECOGNIZED = 0,
-                            WORD = 1,
-                            NUMBER = 2,
-                            COMMENT = 3,
-                            KEYWORD = 4,
-                            KEYWORD2 = 5,
-                            LITERAL = 6,
-                            STRING = 7,
-                            OPERATOR = 8,
-                            BRACKET = 9,
-                            SINGLE_LINE_COMMENT = 10,
-                            BRACKET_HIGHLIGHT = 11,
-                            BRACKET_HIGHLIGHT_ERR = 12;
-        
+    int KEYWORD_MATCH = 0,
+            OPERATOR_MATCH = 1,
+            NUMBER_MATCH = 2,
+            LITERALS_MATCH = 3,
+            DBOBJECTS_MATCH = 4,
+            BRACES_MATCH = 5,
+            SINGLE_LINE_COMMENT_MATCH = 7,
+            STRING_MATCH = 6;
+
+    int UNRECOGNIZED = 0,
+            WORD = 1,
+            NUMBER = 2,
+            COMMENT = 3,
+            KEYWORD = 4,
+            KEYWORD2 = 5,
+            LITERAL = 6,
+            STRING = 7,
+            OPERATOR = 8,
+            BRACKET = 9,
+            SINGLE_LINE_COMMENT = 10,
+            BRACKET_HIGHLIGHT = 11,
+            BRACKET_HIGHLIGHT_ERR = 12,
+            DBOBJECT = 13,
+            DECLARE_BLOCK = 14,
+            BEGIN_END_BLOCK = 15;
+
 
     /**
      * The names of the token types, indexed by type, are provided for
      * descriptive purposes.
      */
-    public static final String[] typeNames = {
-        "bad token",
-        "normal",
-        "number",
-        "comment",
-        "keyword",
-        "keyword 2",
-        "literal",
-        "string",
-        "operator",
-        "bracket",
-        "single line comment",
-        "bracket highlight at cursor",
-        "bracket highlight at cursor error"
+    String[] typeNames = {
+            "bad token",
+            "normal",
+            "number",
+            "comment",
+            "keyword",
+            "keyword 2",
+            "literal",
+            "string",
+            "operator",
+            "bracket",
+            "single line comment",
+            "bracket highlight at cursor",
+            "bracket highlight at cursor error",
+            "object db"
     };
 }
+
 
 
 

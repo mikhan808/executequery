@@ -1,7 +1,7 @@
 /*
  * UserSettingsProperties.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -25,26 +25,26 @@ import org.executequery.ApplicationContext;
 public final class UserSettingsProperties {
 
     public String getUserSettingsDirectory() {
-        
-        /* 
+
+        /*
          * /home/user_name/.executequery/1234
          */
-        
+
         StringBuilder sb = new StringBuilder();
 
         sb.append(getUserSettingsBaseHome()).
-           append(eqBuild()).
-           append(fileSeparator());
+                append(eqBuild()).
+                append(fileSeparator());
 
         return sb.toString();
     }
-    
+
     public String getUserSettingsBaseHome() {
-    
-        /* 
+
+        /*
          * /home/user_name/.executequery/
          */
-        
+
         return ApplicationContext.getInstance().getUserSettingsHome();
     }
 
@@ -53,10 +53,11 @@ public final class UserSettingsProperties {
         return ApplicationContext.getInstance().getBuild();
     }
 
-    private String fileSeparator() {
+    public String fileSeparator() {
 
         return System.getProperty("file.separator");
     }
-    
+
 }
+
 

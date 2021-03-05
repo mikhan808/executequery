@@ -1,7 +1,7 @@
 /*
  * PropertiesEditorDisplay.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,68 +21,67 @@
 package org.executequery.gui.prefs;
 
 
+import org.executequery.log.Log;
+import org.underworldlabs.util.SystemProperties;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import org.underworldlabs.util.SystemProperties;
-
-/** <p>The Query Editor properties panel.
+/**
+ * <p>The Query Editor properties panel.
  *
- *  @author   Takis Diakoumis
- * @version  $Revision: 1512 $
- * @date     $Date: 2015-09-27 21:23:07 +1000 (Sun, 27 Sep 2015) $
+ * @author Takis Diakoumis
  */
 public class PropertiesEditorDisplay extends AbstractPropertiesBasePanel {
-    
+
     private SimplePreferencesPanel preferencesPanel;
-    
-    public PropertiesEditorDisplay() {       
+
+    public PropertiesEditorDisplay() {
         try {
             init();
-        }
-        catch (Exception e) {
-            e.printStackTrace();
+        } catch (Exception e) {
+            Log.error("Error init Class PropertiesEditorDisplay:", e);
         }
     }
-    
+
     private void init() throws Exception {
-        
-    	List<UserPreference> list = new ArrayList<UserPreference>();
-    	
+
+        List<UserPreference> list = new ArrayList<UserPreference>();
+
         String key = "editor.display.statusbar";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Status bar",
-                new Boolean(SystemProperties.getProperty("user", key))));
-        
+                Boolean.valueOf(SystemProperties.getProperty("user", key))));
+
         key = "editor.display.linenums";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Line numbers",
-                new Boolean(SystemProperties.getProperty("user", key))));
-        
+                Boolean.valueOf(SystemProperties.getProperty("user", key))));
+
         key = "editor.display.results";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Results panel",
-                new Boolean(SystemProperties.getProperty("user", key))));
+                Boolean.valueOf(SystemProperties.getProperty("user", key))));
 
         key = "editor.display.linehighlight";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Current line highlight",
-                new Boolean(SystemProperties.getProperty("user", key))));
+                Boolean.valueOf(SystemProperties.getProperty("user", key))));
 
         key = "editor.display.margin";
         list.add(new UserPreference(
                 UserPreference.BOOLEAN_TYPE,
                 key,
                 "Right margin",
-                new Boolean(SystemProperties.getProperty("user", key))));
+                Boolean.valueOf(SystemProperties.getProperty("user", key))));
 
         key = "editor.margin.size";
         list.add(new UserPreference(
@@ -99,23 +98,24 @@ public class PropertiesEditorDisplay extends AbstractPropertiesBasePanel {
                 "Right margin colour",
                 SystemProperties.getColourProperty("user", key)));
 
-        UserPreference[] preferences = 
-            (UserPreference[])list.toArray(new UserPreference[list.size()]);
+        UserPreference[] preferences =
+                (UserPreference[]) list.toArray(new UserPreference[list.size()]);
 
         preferencesPanel = new SimplePreferencesPanel(preferences);
         addContent(preferencesPanel);
-        
+
     }
 
     public void restoreDefaults() {
         preferencesPanel.restoreDefaults();
     }
-    
+
     public void save() {
         preferencesPanel.savePreferences();
     }
-    
+
 }
+
 
 
 

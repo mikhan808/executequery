@@ -1,7 +1,7 @@
 /*
  * AbstractLobRecordDataItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -21,33 +21,69 @@
 package org.executequery.gui.resultset;
 
 public abstract class AbstractLobRecordDataItem extends AbstractRecordDataItem
-												implements LobRecordDataItem {
+        implements LobRecordDataItem {
 
-	private byte[] data;
+    private byte[] data;
 
-	public AbstractLobRecordDataItem(String name, int dataType, String dataTypeName) {
+    public AbstractLobRecordDataItem(String name, int dataType, String dataTypeName) {
 
-		super(name, dataType, dataTypeName);
-	}
+        super(name, dataType, dataTypeName);
+    }
 
-	@Override
+    @Override
     public int length() {
 
-		return (data == null ? 0 : data.length);
-	}
+        return (data == null ? 0 : data.length);
+    }
 
-	@Override
+    @Override
     public byte[] getData() {
 
-		if (data == null) {
+        if (data == null && !isNew()) {
 
-			data = readLob();
-		}
+            data = readLob();
+        }
 
-		return data;
-	}
+        return data;
+    }
 
-	abstract byte[] readLob();
+    public void valueChanged(Object newValue) {
+
+        byte[] bytes = (byte[]) newValue;
+        if (valuesEqual(this.getData(), bytes)) {
+
+            changed = false;
+            return;
+        }
+        if (newValue == null) {
+            super.valueChanged(null);
+        }
+        setData(bytes);
+        changed = true;
+    }
+
+    @Override
+    public void setData(byte[] data) {
+
+        if (data != null)
+            this.data = data.clone();
+        else this.data = null;
+    }
+
+    @Override
+    public boolean isNewValueNull() {
+        if (isNew())
+            return data == null;
+        else
+            return data == null && super.isNewValueNull();
+    }
+
+    @Override
+    public boolean isDisplayValueNull() {
+        return data == null && isValueNull() || isNewValueNull();
+    }
+
+    abstract byte[] readLob();
 
     @Override
     public String asBinaryString() {
@@ -90,6 +126,7 @@ public abstract class AbstractLobRecordDataItem extends AbstractRecordDataItem
     }
 
 }
+
 
 
 

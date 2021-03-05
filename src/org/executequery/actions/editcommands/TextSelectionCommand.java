@@ -1,7 +1,7 @@
 /*
  * TextSelectionCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,34 +20,31 @@
 
 package org.executequery.actions.editcommands;
 
-import java.awt.event.ActionEvent;
-
 import org.executequery.GUIUtilities;
+import org.executequery.gui.text.TextEditor;
 import org.underworldlabs.swing.actions.BaseCommand;
 import org.underworldlabs.swing.actions.ReflectiveAction;
-import org.executequery.gui.text.TextEditor;
+
+import java.awt.event.ActionEvent;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class TextSelectionCommand extends ReflectiveAction 
-                                  implements BaseCommand {
-    
+public class TextSelectionCommand extends ReflectiveAction
+        implements BaseCommand {
+
     public void execute(ActionEvent e) {
 
         actionPerformed(e);
     }
 
     public void selectAll(ActionEvent e) {
-        
+
         if (hasTextFunctionInFocus()) {
 
             textFunction().selectAll();
         }
-        
+
     }
 
     public void selectNone(ActionEvent e) {
@@ -56,7 +53,7 @@ public class TextSelectionCommand extends ReflectiveAction
 
             textFunction().selectNone();
         }
-        
+
     }
 
     public void insertAfter(ActionEvent e) {
@@ -69,7 +66,7 @@ public class TextSelectionCommand extends ReflectiveAction
     }
 
     public void insertBefore(ActionEvent e) {
-        
+
         if (hasTextFunctionInFocus()) {
 
             textFunction().insertLineBefore();
@@ -78,7 +75,7 @@ public class TextSelectionCommand extends ReflectiveAction
     }
 
     public void insertFromFile(ActionEvent e) {
-        
+
         if (hasTextFunctionInFocus()) {
 
             textFunction().insertFromFile();
@@ -101,9 +98,9 @@ public class TextSelectionCommand extends ReflectiveAction
 
             textFunction().deleteSelection();
         }
-        
+
     }
-    
+
     public void deleteLine(ActionEvent e) {
 
         if (hasTextFunctionInFocus()) {
@@ -114,7 +111,7 @@ public class TextSelectionCommand extends ReflectiveAction
     }
 
     public void toLowerCase(ActionEvent e) {
-        
+
         if (hasTextFunctionInFocus()) {
 
             textFunction().changeSelectionCase(false);
@@ -132,16 +129,17 @@ public class TextSelectionCommand extends ReflectiveAction
     }
 
     private boolean hasTextFunctionInFocus() {
-        
+
         return (textFunction() != null);
     }
-    
+
     private TextEditor textFunction() {
 
-        return (TextEditor)GUIUtilities.getTextEditorInFocus();
+        return (TextEditor) GUIUtilities.getTextEditorInFocus();
     }
 
 }
+
 
 
 

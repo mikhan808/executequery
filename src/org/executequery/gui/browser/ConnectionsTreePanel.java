@@ -1,7 +1,7 @@
 /*
  * ConnectionsTreePanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,23 +20,6 @@
 
 package org.executequery.gui.browser;
 
-import java.awt.BorderLayout;
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.util.List;
-
-import javax.swing.Action;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
-
 import org.executequery.EventMediator;
 import org.executequery.GUIUtilities;
 import org.executequery.databasemediators.ConnectionMediator;
@@ -47,21 +30,14 @@ import org.executequery.databaseobjects.DatabaseHost;
 import org.executequery.databaseobjects.DatabaseObjectFactory;
 import org.executequery.databaseobjects.NamedObject;
 import org.executequery.databaseobjects.impl.DatabaseObjectFactoryImpl;
-import org.executequery.event.ApplicationEvent;
-import org.executequery.event.ConnectionEvent;
-import org.executequery.event.ConnectionListener;
-import org.executequery.event.ConnectionRepositoryEvent;
-import org.executequery.event.ConnectionsFolderRepositoryEvent;
-import org.executequery.event.DefaultConnectionRepositoryEvent;
-import org.executequery.event.DefaultConnectionsFolderRepositoryEvent;
-import org.executequery.event.UserPreferenceEvent;
-import org.executequery.event.UserPreferenceListener;
-import org.executequery.gui.AbstractDockedTabActionPanel;
+import org.executequery.event.*;
 import org.executequery.gui.browser.nodes.ConnectionsFolderNode;
 import org.executequery.gui.browser.nodes.DatabaseHostNode;
 import org.executequery.gui.browser.nodes.DatabaseObjectNode;
 import org.executequery.gui.browser.nodes.RootDatabaseObjectNode;
 import org.executequery.gui.browser.tree.SchemaTree;
+import org.executequery.gui.browser.tree.TreePanel;
+import org.executequery.localization.Bundles;
 import org.executequery.repository.ConnectionFoldersRepository;
 import org.executequery.repository.DatabaseConnectionRepository;
 import org.executequery.repository.RepositoryCache;
@@ -72,809 +48,812 @@ import org.underworldlabs.swing.tree.DynamicTree;
 import org.underworldlabs.swing.util.SwingWorker;
 import org.underworldlabs.util.SystemProperties;
 
+import javax.swing.*;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1539 $
- * @date     $Date: 2015-10-18 22:55:23 +1100 (Sun, 18 Oct 2015) $
+ * @author Takis Diakoumis
  */
-public class ConnectionsTreePanel extends AbstractDockedTabActionPanel
-                                  implements ConnectionListener,
-                                             UserPreferenceListener {
+public class ConnectionsTreePanel extends TreePanel
+        implements ConnectionListener,
+        ConnectionRepositoryListener,
+        UserPreferenceListener {
 
-    public static final String TITLE = "Connections";
+  public static final String TITLE = Bundles.get(ConnectionsTreePanel.class, "Connections");
 
-    private SchemaTree tree;
+  public SchemaTree getTree() {
+    return tree;
+  }
 
-    private List<DatabaseConnection> connections;
+  private SchemaTree tree;
 
-    private SwingWorker worker;
+  private List<DatabaseConnection> connections;
 
-    private BrowserController controller;
+  private SwingWorker worker;
 
-    private TreePath oldSelectionPath;
+  private BrowserController controller;
 
-    private BrowserTreePopupMenu popupMenu;
+  private TreePath oldSelectionPath;
 
-    /** indicates whether to reselect the connection
-     * properties node following a disconnection event. */
-    private boolean rootSelectOnDisconnect;
+  private BrowserTreePopupMenu popupMenu;
 
-    private DatabaseConnectionFactory databaseConnectionFactory;
+  /**
+   * indicates whether to reselect the connection
+   * properties node following a disconnection event.
+   */
+  private boolean rootSelectOnDisconnect;
 
-    private DatabaseObjectFactoryImpl databaseObjectFactory;
+  private DatabaseConnectionFactory databaseConnectionFactory;
 
-    private ConnectionsTreeToolBar toolBar;
+  private DatabaseObjectFactoryImpl databaseObjectFactory;
 
-    private DatabaseHostNodeSorter hostNodeSorter;
+  private ConnectionsTreeToolBar toolBar;
 
-    private TreeFindAction treeFindAction;
+  private DatabaseHostNodeSorter hostNodeSorter;
 
-    public ConnectionsTreePanel() {
+  private TreeFindAction treeFindAction;
 
-        super(new BorderLayout());
-        init();
+  private JScrollPane scrollPane;
+
+  public ConnectionsTreePanel() {
+
+    super(new BorderLayout());
+    init();
+  }
+
+  private boolean moveScroll = false;
+
+  private DefaultMutableTreeNode createTreeStructure() {
+
+    RootDatabaseObjectNode root = new RootDatabaseObjectNode();
+    try {
+      folders = folders();
+    } catch (Exception e) {
+      e.printStackTrace();
+      folders = new ArrayList<>();
+    }
+    List<DatabaseConnection> connectionsAdded = new ArrayList<DatabaseConnection>();
+
+    DatabaseObjectFactory factory = databaseObjectFactory();
+
+    int count = 0;
+    try {
+      connections = connections();
+    } catch (Exception e) {
+      e.printStackTrace();
+      connections = new ArrayList<>();
+    }
+    for (ConnectionsFolder folder : folders) {
+
+      ConnectionsFolderNode folderNode = new ConnectionsFolderNode(folder);
+      for (DatabaseConnection connection : folder.getConnections()) {
+
+        DatabaseHostNode child = createHostNode(factory, folderNode, connection);
+
+        child.setOrder(count++);
+        folderNode.add(child);
+        connectionsAdded.add(connection);
+      }
+
+      root.add(folderNode);
     }
 
-    private void init() {
+    for (DatabaseConnection connection : connections) {
 
-        // default to not select the root node after a disconnection
-        rootSelectOnDisconnect = false;
+      if (!connectionsAdded.contains(connection)) {
 
-        controller = new BrowserController(this);
-        tree = new SchemaTree(createTreeStructure(), this);
-
-        MouseHandler mouseHandler = new MouseHandler();
-        tree.addMouseListener(mouseHandler);
-
-        treeFindAction = new TreeFindAction();
-        treeFindAction.install(tree);
-
-        // add the tools and tree to the panel
-        add(createToolBar(), BorderLayout.NORTH);
-        add(new JScrollPane(tree), BorderLayout.CENTER);
-
-        // register with the event listener
-        EventMediator.registerListener(this);
-
-        enableButtons(false, false, false, false);
-        tree.setSelectionRow(0);
-        tree.setToggleClickCount(2);
-    }
-
-    private DefaultMutableTreeNode createTreeStructure() {
-
-        RootDatabaseObjectNode root = new RootDatabaseObjectNode();
-        
-        folders = folders();
-        List<DatabaseConnection> connectionsAdded = new ArrayList<DatabaseConnection>();
-
-        DatabaseObjectFactory factory = databaseObjectFactory();
-        
-        int count = 0;
-        connections = connections();
-        for (ConnectionsFolder folder : folders) {
-            
-            ConnectionsFolderNode folderNode = new ConnectionsFolderNode(folder);
-            for (DatabaseConnection connection : folder.getConnections()) {
-
-                DatabaseHostNode child = createHostNode(factory, folderNode, connection);
-
-                child.setOrder(count++);
-                folderNode.add(child);
-                connectionsAdded.add(connection);
-            }
-            
-            root.add(folderNode);
-        }
-
-        for (DatabaseConnection connection : connections) {
-
-            if (!connectionsAdded.contains(connection)) {
-                
-                DatabaseHostNode child = createHostNode(factory, null, connection);
-                root.add(child);
-            }
-            
-        }
-
-        return root;
-    }
-
-    private DatabaseHostNode createHostNode(DatabaseObjectFactory factory,
-            ConnectionsFolderNode folderNode, DatabaseConnection connection) {
-
-        DatabaseHost host = factory.createDatabaseHost(connection);
-        return new DatabaseHostNode(host, folderNode);
-    }
-
-    public Action getTreeFindAction() {
-
-        return treeFindAction;
-    }
-
-    private List<ConnectionsFolder> folders() {
-
-        return ((ConnectionFoldersRepository)RepositoryCache.load(
-                ConnectionFoldersRepository.REPOSITORY_ID)).findAll();
-    }
-
-    private List<DatabaseConnection> connections() {
-        
-        return ((DatabaseConnectionRepository)RepositoryCache.load(
-                DatabaseConnectionRepository.REPOSITORY_ID)).findAll();
-    }
-    
-    private DatabaseConnectionFactory databaseConnectionFactory() {
-
-        if (databaseConnectionFactory == null) {
-
-            databaseConnectionFactory = new DatabaseConnectionFactoryImpl();
-        }
-
-        return databaseConnectionFactory;
-    }
-
-    private DatabaseObjectFactory databaseObjectFactory() {
-
-        if (databaseObjectFactory == null) {
-
-            databaseObjectFactory = new DatabaseObjectFactoryImpl();
-        }
-
-        return databaseObjectFactory;
-    }
-
-    private PanelToolBar createToolBar() {
-
-        toolBar = new ConnectionsTreeToolBar(this);
-        return toolBar;
-    }
-
-    private void enableButtons(boolean enableUpButton,
-                               boolean enableDownButton,
-                               boolean enableReloadButton,
-                               boolean enableDeleteButton) {
-
-        toolBar.enableButtons(enableUpButton, enableDownButton,
-                enableReloadButton, enableDeleteButton);
-    }
-
-    @SuppressWarnings("unchecked")
-    public void collapseAll() {
-        
-        for (Enumeration<DefaultMutableTreeNode> i = tree.getRootNode().children(); i.hasMoreElements();) {
-            
-            DefaultMutableTreeNode node = i.nextElement();
-            tree.collapsePath(new TreePath(node.getPath()));
-        }
-        
-    }
-    
-    /**
-     * Moves the selected connection (host node) up in the list.
-     */
-    public void moveConnectionUp() {
-        move(DynamicTree.MOVE_UP);
-    }
-
-    /**
-     * Moves the selected connection (host node) down in the list.
-     */
-    public void moveConnectionDown() {
-        move(DynamicTree.MOVE_DOWN);
-    }
-
-    private void move(int direction) {
-
-        if (tree.canMoveSelection(direction)) {
-        
-            try {
-    
-                removeTreeSelectionListener();
-                tree.moveSelection(direction);
-    
-                // adjust the position of the connection
-                Object object = tree.getLastPathComponent();
-                if (isADatabaseHostNode(object)) {
-    
-                    moveNode(connections, asDatabaseHostNode(object).getDatabaseConnection(), direction);
-    
-                } else if (isAConnectionsFolderNode(object)) {
-                    
-                    moveNode(folders, asConnectionsFolderNode(object).getConnectionsFolder(), direction);
-                }
-    
-            } finally {
-    
-                addTreeSelectionListener();
-            }        
-        }
-    }
-    
-    private ConnectionsFolderNode asConnectionsFolderNode(Object object) {
-        return (ConnectionsFolderNode)object;
-    }
-
-    private DatabaseHostNode asDatabaseHostNode(Object object) {
-        return (DatabaseHostNode)object;
-    }
-
-    @SuppressWarnings("rawtypes")
-    public void sortConnections() {
-
-        if (hostNodeSorter == null) {
-
-            hostNodeSorter = new DatabaseHostNodeSorter();
-        }
-
-        boolean isRootNode = false;
-        DefaultMutableTreeNode selectedNode = getSelectedFolderNode();
-        if (selectedNode == null) {
-            
-            isRootNode = true;
-            selectedNode = tree.getConnectionsBranchNode();
-        }
-        
-        hostNodeSorter.sort(selectedNode);
-        tree.nodeStructureChanged(selectedNode);
-
-        int count = 0;
-        for (Enumeration i = selectedNode.children(); i.hasMoreElements();) {
-
-            Object object = i.nextElement();
-            if (object instanceof DatabaseHostNode) {
-
-                DatabaseHostNode node = asDatabaseHostNode(object);
-                DatabaseConnection databaseConnection = node.getDatabaseConnection();
-                connections.remove(databaseConnection);
-                connections.add(count, databaseConnection);
-                
-                count++;
-            }
-        }
-
-        if (isRootNode) {
-        
-            connectionModified(null);
-
-        } else {
-        
-            ConnectionsFolderNode folderNode = (ConnectionsFolderNode) selectedNode;
-            ConnectionsFolder folder = folderNode.getConnectionsFolder();
-            folder.empty();
-            
-            for (Enumeration<?> j = selectedNode.children(); j.hasMoreElements();) {
-
-                Object object = j.nextElement();
-                if (isADatabaseHostNode(object)) {
-                    
-                    DatabaseHostNode child = asDatabaseHostNode(object);
-                    DatabaseConnection databaseConnection = child.getDatabaseConnection();
-                    folder.addConnection(databaseConnection.getId());
-                    databaseConnection.setFolderId(folder.getId());
-                }
-
-            }
-
-            folderModified(folder);
-            
-        }
-    }
-
-    public void rebuildConnectionsFromTree() {
-        
-        DefaultMutableTreeNode root = tree.getConnectionsBranchNode();
-        connections.clear();
-        folders.clear();
-
-        for (Enumeration<?> i = root.children(); i.hasMoreElements();) {
-
-            DefaultMutableTreeNode _node = (DefaultMutableTreeNode)i.nextElement();
-            if (_node instanceof ConnectionsFolderNode) {
-
-                ConnectionsFolderNode folderNode = (ConnectionsFolderNode) _node;
-                ConnectionsFolder connectionsFolder = folderNode.getConnectionsFolder();
-                connectionsFolder.empty();
-
-                for (Enumeration<?> j = folderNode.children(); j.hasMoreElements();) {
-
-                    Object object = j.nextElement();
-                    if (isADatabaseHostNode(object)) {
-
-                        DatabaseHostNode child = asDatabaseHostNode(object);
-                        child.setParentFolder(folderNode);
-
-                        DatabaseConnection databaseConnection = addConnectionFromNode(child);
-                        connectionsFolder.addConnection(databaseConnection.getId());
-                    }
-
-                }
-
-                folders.add(folderNode.getConnectionsFolder());
-                
-            } else if (_node instanceof DatabaseHostNode) {
-            
-                addConnectionFromNode(_node);
-            }
-            
-        }
-
-        folderModified(null);
-    }
-
-    private void connectionModified(DatabaseConnection databaseConnection) {
-        
-        EventMediator.fireEvent(
-                new DefaultConnectionRepositoryEvent(
-                        this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, databaseConnection));
-    }
-    
-    private void connectionAdded(DatabaseConnection databaseConnection) {
-        
-        EventMediator.fireEvent(
-                new DefaultConnectionRepositoryEvent(
-                        this, ConnectionRepositoryEvent.CONNECTION_ADDED, databaseConnection));
-    }
-    
-    private void folderModified(ConnectionsFolder connectionsFolder) {
-
-        EventMediator.fireEvent(new DefaultConnectionsFolderRepositoryEvent(
-                this, ConnectionsFolderRepositoryEvent.FOLDER_MODIFIED, connectionsFolder));
-    }
-    
-    private void folderAdded(ConnectionsFolder connectionsFolder) {
-        
-        EventMediator.fireEvent(new DefaultConnectionsFolderRepositoryEvent(
-                this, ConnectionsFolderRepositoryEvent.FOLDER_ADDED, connectionsFolder));
-    }
-    
-    private void folderRemoved(ConnectionsFolder connectionsFolder) {
-        
-        EventMediator.fireEvent(new DefaultConnectionsFolderRepositoryEvent(
-                this, ConnectionsFolderRepositoryEvent.FOLDER_REMOVED, connectionsFolder));
-    }
-    
-    
-    
-    private DatabaseConnection addConnectionFromNode(DefaultMutableTreeNode _node) {
-
-        Object userObject = _node.getUserObject();
-        DatabaseHost object = (DatabaseHost)userObject;
-        
-        DatabaseConnection databaseConnection = object.getDatabaseConnection();
-        connections.add(databaseConnection);
-        return databaseConnection;
-    }
-    
-    /**
-     * Selectes and scrolls the tree to the specified path.
-     *
-     * @param path the tree path
-     */
-    protected void selectTreePath(TreePath path) {
-
-        try {
-
-            removeTreeSelectionListener();
-
-            tree.scrollPathToVisible(path);
-            tree.setSelectionPath(path);
-
-        } finally {
-
-            addTreeSelectionListener();
-        }
+        DatabaseHostNode child = createHostNode(factory, null, connection);
+        root.add(child);
+      }
 
     }
 
-    /**
-     * Sets the selected connection tree node to the
-     * specified database connection.
-     *
-     * @param dc - the database connection to select
-     */
-    public void setSelectedConnection(DatabaseConnection dc) {
+    return root;
+  }
 
-        DefaultMutableTreeNode node = getHostNode(dc);
-        if (node != null) {
+  private DatabaseHostNode createHostNode(DatabaseObjectFactory factory,
+                                          ConnectionsFolderNode folderNode, DatabaseConnection connection) {
 
-            selectTreePath(new TreePath(node.getPath()));
-            Object object = tree.getLastPathComponent();
-            if (isADatabaseHostNode(object)) {
+    DatabaseHost host = factory.createDatabaseHost(connection);
+    return new DatabaseHostNode(host, folderNode);
+  }
 
-                controller.valueChanged_(asDatabaseHostNode(object));
-            }
+  public Action getTreeFindAction() {
 
-        }
+    return treeFindAction;
+  }
+
+  private List<ConnectionsFolder> folders() {
+
+    return ((ConnectionFoldersRepository) RepositoryCache.load(ConnectionFoldersRepository.REPOSITORY_ID)).findAll();
+  }
+
+  private List<DatabaseConnection> connections() {
+
+    return ((DatabaseConnectionRepository) RepositoryCache.load(DatabaseConnectionRepository.REPOSITORY_ID)).findAll();
+  }
+
+  private DatabaseConnectionFactory databaseConnectionFactory() {
+
+    if (databaseConnectionFactory == null) {
+
+      databaseConnectionFactory = new DatabaseConnectionFactoryImpl();
     }
 
-    /**
-     * Deletes the selected connection (host node) from the list.
-     */
-    public void deleteConnection() {
+    return databaseConnectionFactory;
+  }
 
+  private DatabaseObjectFactory databaseObjectFactory() {
+
+    if (databaseObjectFactory == null) {
+
+      databaseObjectFactory = new DatabaseObjectFactoryImpl();
+    }
+
+    return databaseObjectFactory;
+  }
+
+  private PanelToolBar createToolBar() {
+
+    toolBar = new ConnectionsTreeToolBar(this);
+    return toolBar;
+  }
+
+  private void enableButtons(boolean enableUpButton,
+                             boolean enableDownButton,
+                             boolean enableReloadButton,
+                             boolean enableDeleteButton,
+                             boolean enableConnect
+  ) {
+
+    toolBar.enableButtons(enableUpButton, enableDownButton,
+            enableReloadButton, enableDeleteButton, enableConnect, enableReloadButton);
+  }
+
+  @SuppressWarnings("unchecked")
+  public void collapseAll() {
+
+    for (Enumeration<TreeNode> i = tree.getRootNode().children(); i.hasMoreElements();) {
+
+      DefaultMutableTreeNode node = (DefaultMutableTreeNode) i.nextElement();
+      tree.collapsePath(new TreePath(node.getPath()));
+    }
+
+  }
+
+  /**
+   * Moves the selected connection (host node) up in the list.
+   */
+  public void moveConnectionUp() {
+    move(DynamicTree.MOVE_UP);
+  }
+
+  /**
+   * Moves the selected connection (host node) down in the list.
+   */
+  public void moveConnectionDown() {
+    move(DynamicTree.MOVE_DOWN);
+  }
+
+  private void move(int direction) {
+
+    if (tree.canMoveSelection(direction)) {
+
+      try {
+
+        removeTreeSelectionListener();
+        tree.moveSelection(direction);
+
+        // adjust the position of the connection
         Object object = tree.getLastPathComponent();
         if (isADatabaseHostNode(object)) {
-        
-            deleteConnection(asDatabaseHostNode(object));
+
+          moveNode(connections, asDatabaseHostNode(object).getDatabaseConnection(), direction);
 
         } else if (isAConnectionsFolderNode(object)) {
-            
-            deleteFolder(asConnectionsFolderNode(object));
+
+          moveNode(folders, asConnectionsFolderNode(object).getConnectionsFolder(), direction);
         }
+
+      } finally {
+
+        addTreeSelectionListener();
+      }
+    }
+  }
+
+  private ConnectionsFolderNode asConnectionsFolderNode(Object object) {
+    return (ConnectionsFolderNode) object;
+  }
+
+  private DatabaseHostNode asDatabaseHostNode(Object object) {
+    return (DatabaseHostNode) object;
+  }
+
+  @SuppressWarnings("rawtypes")
+  public void sortConnections() {
+
+    if (hostNodeSorter == null) {
+
+      hostNodeSorter = new DatabaseHostNodeSorter();
     }
 
-    @SuppressWarnings("unchecked")
-    private void deleteFolder(ConnectionsFolderNode folder) {
+    boolean isRootNode = false;
+    DefaultMutableTreeNode selectedNode = getSelectedFolderNode();
+    if (selectedNode == null) {
 
-        int yesNo = GUIUtilities.displayConfirmCancelDialog(
-                "Are you sure you want to delete the folder " + folder + 
-                " ?\nAny connections within this folder will also be deleted.");
+      isRootNode = true;
+      selectedNode = tree.getConnectionsBranchNode();
+    }
 
-        if (yesNo != JOptionPane.YES_OPTION) {
-        
-            return;
+    hostNodeSorter.sort(selectedNode);
+    tree.nodeStructureChanged(selectedNode);
+
+    int count = 0;
+    for (Enumeration i = selectedNode.children(); i.hasMoreElements();) {
+
+      Object object = i.nextElement();
+      if (object instanceof DatabaseHostNode) {
+
+        DatabaseHostNode node = asDatabaseHostNode(object);
+        DatabaseConnection databaseConnection = node.getDatabaseConnection();
+        connections.remove(databaseConnection);
+        connections.add(count, databaseConnection);
+
+        count++;
+      }
+    }
+
+    if (isRootNode) {
+
+      connectionModified((DatabaseConnection) null);
+
+    } else {
+
+      ConnectionsFolderNode folderNode = (ConnectionsFolderNode) selectedNode;
+      ConnectionsFolder folder = folderNode.getConnectionsFolder();
+      folder.empty();
+
+      for (Enumeration<?> j = selectedNode.children(); j.hasMoreElements();) {
+
+        Object object = j.nextElement();
+        if (isADatabaseHostNode(object)) {
+
+          DatabaseHostNode child = asDatabaseHostNode(object);
+          DatabaseConnection databaseConnection = child.getDatabaseConnection();
+          folder.addConnection(databaseConnection.getId());
+          databaseConnection.setFolderId(folder.getId());
         }
-     
-        if (folder.getChildCount() > 0) {
 
-            for (Enumeration<DatabaseHostNode> i = folder.children(); i.hasMoreElements();) {
-                
-                connections.remove(i.nextElement().getDatabaseConnection());
-            }
-            
+      }
+
+      folderModified(folder);
+
+    }
+  }
+
+  public void rebuildConnectionsFromTree() {
+
+    DefaultMutableTreeNode root = tree.getConnectionsBranchNode();
+    connections.clear();
+    folders.clear();
+
+    for (Enumeration<?> i = root.children(); i.hasMoreElements(); ) {
+
+      DefaultMutableTreeNode _node = (DefaultMutableTreeNode) i.nextElement();
+      if (_node instanceof ConnectionsFolderNode) {
+
+        ConnectionsFolderNode folderNode = (ConnectionsFolderNode) _node;
+        ConnectionsFolder connectionsFolder = folderNode.getConnectionsFolder();
+        connectionsFolder.empty();
+
+        for (Enumeration<?> j = folderNode.children(); j.hasMoreElements(); ) {
+
+          Object object = j.nextElement();
+          if (isADatabaseHostNode(object)) {
+
+            DatabaseHostNode child = asDatabaseHostNode(object);
+            child.setParentFolder(folderNode);
+
+            DatabaseConnection databaseConnection = addConnectionFromNode(child);
+            connectionsFolder.addConnection(databaseConnection.getId());
+          }
+
         }
-        
+
+        folders.add(folderNode.getConnectionsFolder());
+
+      } else if (_node instanceof DatabaseHostNode) {
+
+        addConnectionFromNode(_node);
+      }
+
+    }
+
+    folderModified(null);
+  }
+
+  private void connectionModified(DatabaseConnection databaseConnection) {
+
+    EventMediator.fireEvent(
+        new DefaultConnectionRepositoryEvent(
+            this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, databaseConnection));
+  }
+
+  private void connectionAdded(DatabaseConnection databaseConnection) {
+
+    EventMediator.fireEvent(
+        new DefaultConnectionRepositoryEvent(
+            this, ConnectionRepositoryEvent.CONNECTION_ADDED, databaseConnection));
+  }
+
+  private void folderModified(ConnectionsFolder connectionsFolder) {
+
+    EventMediator.fireEvent(new DefaultConnectionsFolderRepositoryEvent(
+        this, ConnectionsFolderRepositoryEvent.FOLDER_MODIFIED, connectionsFolder));
+  }
+
+  private void folderAdded(ConnectionsFolder connectionsFolder) {
+
+    EventMediator.fireEvent(new DefaultConnectionsFolderRepositoryEvent(
+        this, ConnectionsFolderRepositoryEvent.FOLDER_ADDED, connectionsFolder));
+  }
+
+  private void folderRemoved(ConnectionsFolder connectionsFolder) {
+
+    EventMediator.fireEvent(new DefaultConnectionsFolderRepositoryEvent(
+        this, ConnectionsFolderRepositoryEvent.FOLDER_REMOVED, connectionsFolder));
+  }
+
+
+  private DatabaseConnection addConnectionFromNode(DefaultMutableTreeNode node) {
+
+    Object userObject = node.getUserObject();
+    DatabaseHost object = (DatabaseHost) userObject;
+
+    DatabaseConnection databaseConnection = object.getDatabaseConnection();
+    connections.add(databaseConnection);
+    return databaseConnection;
+  }
+
+  /**
+   * Selectes and scrolls the tree to the specified path.
+   *
+   * @param path the tree path
+   */
+  protected void selectTreePath(TreePath path) {
+
+    try {
+
+      removeTreeSelectionListener();
+
+      tree.scrollPathToVisible(path);
+      tree.setSelectionPath(path);
+
+    } finally {
+
+      addTreeSelectionListener();
+    }
+
+  }
+
+  /**
+   * Sets the selected connection tree node to the
+   * specified database connection.
+   *
+   * @param dc - the database connection to select
+   */
+  public void setSelectedConnection(DatabaseConnection dc) {
+
+    DefaultMutableTreeNode node = getHostNode(dc);
+    if (node != null) {
+
+      selectTreePath(new TreePath(node.getPath()));
+      Object object = tree.getLastPathComponent();
+      if (isADatabaseHostNode(object)) {
+
+        controller.valueChanged_(asDatabaseHostNode(object), null);
+      }
+
+    }
+  }
+
+  /**
+   * Deletes the selected connection (host node) from the list.
+   */
+  public void deleteConnection() {
+
+    Object object = tree.getLastPathComponent();
+    if (isADatabaseHostNode(object)) {
+
+      deleteConnection(asDatabaseHostNode(object));
+
+    } else if (isAConnectionsFolderNode(object)) {
+
+      deleteFolder(asConnectionsFolderNode(object));
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private void deleteFolder(ConnectionsFolderNode folder) {
+
+    int yesNo = GUIUtilities.displayConfirmCancelDialog(
+        bundleString("message.confirm-delete-folder", folder));
+
+    if (yesNo != JOptionPane.YES_OPTION) {
+
+      return;
+    }
+
+    if (folder.getChildCount() > 0) {
+
+      for (Enumeration<TreeNode> i = folder.children(); i.hasMoreElements();) {
+
+        connections.remove(((DatabaseHostNode) i.nextElement()).getDatabaseConnection());
+      }
+
+    }
+
         ConnectionsFolder connectionsFolder = folder.getConnectionsFolder();
         folders.remove(connectionsFolder);
         tree.removeNode(folder);
-        connectionModified(null);
+        connectionModified((DatabaseConnection) null);
         folderRemoved(connectionsFolder);
+  }
+
+  /**
+   * Deletes the specified connection (host node) from the list.
+   *
+   * @param the node representing the connection to be removed
+   */
+  public void deleteConnection(DatabaseHostNode node) {
+
+    int yesNo = GUIUtilities.displayYesNoDialog(bundleString("message.confirm-delete-connection", node), bundleString("title.confirm-delete-connection"));
+
+    if (yesNo != JOptionPane.YES_OPTION) {
+
+      return;
     }
 
-    /**
-     * Deletes the specified connection (host node) from the list.
-     *
-     * @param the node representing the connection to be removed
-     */
-    public void deleteConnection(DatabaseHostNode node) {
+    DatabaseConnection dc = node.getDatabaseConnection();
 
-        int yesNo = GUIUtilities.displayConfirmCancelDialog(
-                        "Are you sure you want to delete the connection " +
-                        node + " ?");
+    // check that we're not connected
+    if (dc.isConnected()) {
 
-        if (yesNo != JOptionPane.YES_OPTION) {
+      try {
 
-            return;
-        }
+        ConnectionMediator.getInstance().disconnect(dc);
 
-        DatabaseConnection dc = node.getDatabaseConnection();
+      } catch (DataSourceException e) {
+      }
 
-        // check that we're not connected
-        if (dc.isConnected()) {
-
-            try {
-
-                ConnectionMediator.getInstance().disconnect(dc);
-
-            } catch (DataSourceException e) {}
-
-        }
-
-        // the next selection index will be the index of
-        // the one being removed - (index - 1)
-        int index = connections.indexOf(dc);
-        if (index == -1) {
-
-            return;
-        }
-
-        DatabaseHostNode nextSelectableHostNode = nextSelectableHostNode(node);
-        
-        // remove the node from the tree
-        tree.removeNode(node);
-
-        // remove from folder
-        node.removeFromFolder();
-
-        
-        // remove from the connections
-        connections.remove(index);
-
-        connectionModified(dc);
-        folderModified(null);
-        
-        if (nextSelectableHostNode != null) {
-         
-            setNodeSelected(nextSelectableHostNode);
-        
-        } else {
-            
-            GUIUtils.invokeLater(new Runnable() {
-                public void run() {
-                    controller.selectionChanging();
-                    enableButtons(false, false, false, false);
-                    tree.setSelectionRow(0);
-                }
-            });
-
-        }
-        
     }
 
-    private DatabaseHostNode nextSelectableHostNode(DatabaseHostNode node) {
-        
-        List<DatabaseHostNode> hostNodes = databaseHostNodes();
-        
-        int size = hostNodes.size();
-        if (size > 1) {
-            
-            for (int i = 0; i < size; i++) {
-                
-                DatabaseHostNode databaseHostNode = hostNodes.get(i);
-                if (databaseHostNode == node) {
-                    
-                    if (i == 0) {
-                        
-                        return hostNodes.get(i + 1);
-                    
-                    } else {
-                        
-                        return hostNodes.get(i - 1);
-                    }
-                    
-                }
-                
-            }
+    // the next selection index will be the index of
+    // the one being removed - (index - 1)
+    int index = connections.indexOf(dc);
+    if (index == -1) {
+
+      return;
+    }
+
+    DatabaseHostNode nextSelectableHostNode = nextSelectableHostNode(node);
+
+    // remove the node from the tree
+    tree.removeNode(node);
+
+    // remove from folder
+    node.removeFromFolder();
+
+
+    // remove from the connections
+    connections.remove(index);
+
+    connectionModified(dc);
+    folderModified(null);
+
+    if (nextSelectableHostNode != null) {
+
+      setNodeSelected(nextSelectableHostNode);
+
+    } else {
+
+      GUIUtils.invokeLater(new Runnable() {
+        public void run() {
+          controller.selectionChanging();
+          enableButtons(false, false, false, false, false);
+          tree.setSelectionRow(0);
         }
+      });
 
-        return null;
     }
 
-    /**
-     * Returns the database connection at the specified point.
-     *
-     * @return the connection properties object
-     */
-    protected DatabaseConnection getConnectionAt(Point point) {
-        return getConnectionAt(tree.getPathForLocation(point.x, point.y));
-    }
+  }
 
-    /**
-     * Returns the database connection associated with the specified path.
-     *
-     * @return the connection properties object
-     */
-    protected DatabaseConnection getConnectionAt(TreePath path) {
-        if (path != null) {
-            Object object = path.getLastPathComponent();
-            if (isADatabaseObjectNode(object)) {
-                return getDatabaseConnection((DatabaseObjectNode)object);
-            }
-        }
-        return null;
-    }
+  private DatabaseHostNode nextSelectableHostNode(DatabaseHostNode node) {
 
-    /**
-     * Removes the tree listener.
-     */
-    protected void removeTreeSelectionListener() {
-        tree.removeTreeSelectionListener();
-    }
+    List<DatabaseHostNode> hostNodes = databaseHostNodes();
 
-    /**
-     * Adds the tree listener.
-     */
-    protected void addTreeSelectionListener() {
-        tree.addTreeSelectionListener();
-    }
+    int size = hostNodes.size();
+    if (size > 1) {
 
-    /**
-     * Selects the specified node.
-     */
-    protected void setNodeSelected(DefaultMutableTreeNode node) {
-        if (node != null) {
-            TreePath path = new TreePath(node.getPath());
-            tree.setSelectionPath(path);
-        }
-    }
+      for (int i = 0; i < size; i++) {
 
+        DatabaseHostNode databaseHostNode = hostNodes.get(i);
+        if (databaseHostNode == node) {
 
-    /**
-     * Removes the selected tree node (database object) from the tree.
-     */
-    public void removeSelectedNode() {
-        int row = -1;
-        try {
-            // remove the listener
-            removeTreeSelectionListener();
+          if (i == 0) {
 
-            // store the current row
-            row = tree.getSelectionRows()[0];
+            return hostNodes.get(i + 1);
 
-            // retrieve the current selection node
-            BrowserTreeNode node = (BrowserTreeNode)tree.getLastPathComponent();
-            tree.removeNode(node);
-        }
-        finally {
-            // add listener and select row above
-            addTreeSelectionListener();
-            if (row >= 0) {
-                row = (row == 0 ? 1 : row - 1);
-                tree.setSelectionRow(row);
-            }
-        }
-    }
+          } else {
 
-    public void connectAll() {
-
-        List<DatabaseHost> hosts = databaseHosts();
-        for (DatabaseHost databaseHost : hosts) {
-
-            if (!databaseHost.isConnected()) {
-
-                databaseHost.connect();
-            }
+            return hostNodes.get(i - 1);
+          }
 
         }
 
+      }
     }
 
-    public void disconnectAll() {
+    return null;
+  }
 
-        List<DatabaseHost> hosts = databaseHosts();
-        for (DatabaseHost databaseHost : hosts) {
+  /**
+   * Returns the database connection at the specified point.
+   *
+   * @return the connection properties object
+   */
+  protected DatabaseConnection getConnectionAt(Point point) {
+    return getConnectionAt(tree.getPathForLocation(point.x, point.y));
+  }
 
-            if (databaseHost.isConnected()) {
+  /**
+   * Returns the database connection associated with the specified path.
+   *
+   * @return the connection properties object
+   */
+  protected DatabaseConnection getConnectionAt(TreePath path) {
+    if (path != null) {
+      Object object = path.getLastPathComponent();
+      if (isADatabaseObjectNode(object)) {
+        return getDatabaseConnection((DatabaseObjectNode) object);
+      }
+    }
+    return null;
+  }
 
-                databaseHost.disconnect();
-            }
+  /**
+   * Removes the tree listener.
+   */
+  protected void removeTreeSelectionListener() {
+    tree.removeTreeSelectionListener();
+  }
 
-        }
+  /**
+   * Adds the tree listener.
+   */
+  protected void addTreeSelectionListener() {
+    tree.addTreeSelectionListener();
+  }
+
+  /**
+   * Selects the specified node.
+   */
+  protected void setNodeSelected(DefaultMutableTreeNode node) {
+    if (node != null) {
+      TreePath path = new TreePath(node.getPath());
+      tree.setSelectionPath(path);
+    }
+  }
+
+
+  /**
+   * Removes the selected tree node (database object) from the tree.
+   */
+  public void removeSelectedNode() {
+    int row = -1;
+    try {
+      // remove the listener
+      removeTreeSelectionListener();
+
+      // store the current row
+      row = tree.getSelectionRows()[0];
+
+      // retrieve the current selection node
+      BrowserTreeNode node = (BrowserTreeNode) tree.getLastPathComponent();
+      tree.removeNode(node);
+    } finally {
+      // add listener and select row above
+      addTreeSelectionListener();
+      if (row >= 0) {
+        row = (row == 0 ? 1 : row - 1);
+        tree.setSelectionRow(row);
+      }
+    }
+  }
+
+  public void connectAll() {
+
+    List<DatabaseHost> hosts = databaseHosts();
+    for (DatabaseHost databaseHost : hosts) {
+
+      if (!databaseHost.isConnected()) {
+
+        databaseHost.connect();
+      }
 
     }
 
-    public void searchNodes() {
+  }
 
-        getTreeFindAction().actionPerformed(new ActionEvent(this, 0, "searchNodes"));
+  public void disconnectAll() {
+
+    List<DatabaseHost> hosts = databaseHosts();
+    for (DatabaseHost databaseHost : hosts) {
+
+      if (databaseHost.isConnected()) {
+
+        databaseHost.disconnect();
+      }
+
     }
 
-    private List<DatabaseHostNode> databaseHostNodes() {
+  }
 
-        DefaultMutableTreeNode root = tree.getConnectionsBranchNode();
-        List<DatabaseHostNode> hosts = new ArrayList<DatabaseHostNode>();
-    
-        for (Enumeration<?> i = root.children(); i.hasMoreElements();) {
+  public void searchNodes() {
 
-            Object object = i.nextElement();
-            if (isAConnectionsFolderNode(object)) {
+    getTreeFindAction().actionPerformed(new ActionEvent(this, 0, "searchNodes"));
+  }
 
-                ConnectionsFolderNode node = asConnectionsFolderNode(object);
-                hosts.addAll(node.getDatabaseHostNodes());
-                
-            } else if (isADatabaseHostNode(object)) {
+  private List<DatabaseHostNode> databaseHostNodes() {
 
-                hosts.add(asDatabaseHostNode(object));
-            }
+    DefaultMutableTreeNode root = tree.getConnectionsBranchNode();
+    List<DatabaseHostNode> hosts = new ArrayList<DatabaseHostNode>();
 
-        }
-        
-        return hosts;
+    for (Enumeration<?> i = root.children(); i.hasMoreElements(); ) {
+
+      Object object = i.nextElement();
+      if (isAConnectionsFolderNode(object)) {
+
+        ConnectionsFolderNode node = asConnectionsFolderNode(object);
+        hosts.addAll(node.getDatabaseHostNodes());
+
+      } else if (isADatabaseHostNode(object)) {
+
+        hosts.add(asDatabaseHostNode(object));
+      }
+
     }
 
-    private List<DatabaseHost> databaseHosts() {
-        
-        DefaultMutableTreeNode parent = getSelectedFolderNode();
-        if (parent == null) {
-            
-            parent = tree.getConnectionsBranchNode();
-        }
-        
-        List<DatabaseHost> hosts = new ArrayList<DatabaseHost>();
-        for (Enumeration<?> i = parent.children(); i.hasMoreElements();) {
-            
-            Object object = i.nextElement();
-            if (isAConnectionsFolderNode(object)) {
-                
-                ConnectionsFolderNode node = asConnectionsFolderNode(object);
-                hosts.addAll(node.getDatabaseHosts());
-                
-            } else if (isADatabaseHostNode(object)) {
-                
-                DatabaseHostNode node = asDatabaseHostNode(object);
-                DatabaseHost host = (DatabaseHost) node.getDatabaseObject();
-                hosts.add(host);
-                
-            }
-            
-        }
-        
-        return hosts;
-    }
-    
-    /**
-     * Creates a new folder and adds it to the bottom of the list.
-     * @return 
-     */
-    public ConnectionsFolder newFolder() {
+    return hosts;
+  }
 
-        String name = GUIUtilities.displayInputMessage("New Folder", "Folder Name:");
-        if (!JOptionPane.UNINITIALIZED_VALUE.equals(name)) {
-         
-            ConnectionsFolder folder = new ConnectionsFolder(name);
-            folders.add(folder);
+  private List<DatabaseHost> databaseHosts() {
 
-            ConnectionsFolderNode lastFolder = null;
-            DefaultMutableTreeNode root = tree.getConnectionsBranchNode();
-            for (Enumeration<?> i = root.children(); i.hasMoreElements();) {
-                
-                Object object = i.nextElement();
-                if (isAConnectionsFolderNode(object)) {
+    DefaultMutableTreeNode parent = getSelectedFolderNode();
+    if (parent == null) {
 
-                    lastFolder = asConnectionsFolderNode(object);
-
-                } else {
-                    
-                    break;
-                }
-
-            }
-
-            int insertIndex = 0;
-            ConnectionsFolderNode folderNode = new ConnectionsFolderNode(folder);
-            if (lastFolder != null) {
-                
-                insertIndex = root.getIndex(lastFolder) + 1;
-            } 
-            
-            root.insert(folderNode, insertIndex);
-            tree.nodesWereInserted(root, new int[]{insertIndex});
-            
-            folderAdded(folder);
-            return folder;
-        }
-
-        return null;
+      parent = tree.getConnectionsBranchNode();
     }
 
-    /**
-     * Creates a new connection and adds it to the bottom of the list.
-     */
-    public void newConnection() {
-        
-        String name = buildConnectionName("New Connection");
-        newConnection(databaseConnectionFactory().create(name));
+    List<DatabaseHost> hosts = new ArrayList<DatabaseHost>();
+    for (Enumeration<?> i = parent.children(); i.hasMoreElements(); ) {
+
+      Object object = i.nextElement();
+      if (isAConnectionsFolderNode(object)) {
+
+        ConnectionsFolderNode node = asConnectionsFolderNode(object);
+        hosts.addAll(node.getDatabaseHosts());
+
+      } else if (isADatabaseHostNode(object)) {
+
+        DatabaseHostNode node = asDatabaseHostNode(object);
+        DatabaseHost host = (DatabaseHost) node.getDatabaseObject();
+        hosts.add(host);
+
+      }
+
     }
-    
-    /**
-     * Creates a new connection based on the specified connection.
-     *
-     * @param dc - the connection the new one is to be based on
-     */
-    public void newConnection(DatabaseConnection dc) {
 
-        DatabaseHost host = databaseObjectFactory().createDatabaseHost(dc);
-        connections.add(dc);
+    return hosts;
+  }
 
-        ConnectionsFolderNode folderNode = getSelectedFolderNode();
-        if (folderNode != null) {
-            
-            DatabaseHostNode hostNode = new DatabaseHostNode(host, folderNode);
-            folderNode.addNewHostNode(hostNode);
-            
-            tree.nodesWereInserted(folderNode, new int[]{folderNode.getChildCount() - 1});
-            tree.selectNode(hostNode);
+  /**
+   * Creates a new folder and adds it to the bottom of the list.
+   *
+   * @return
+   */
+  public ConnectionsFolder newFolder() {
 
-            folderModified(folderNode.getConnectionsFolder());
+    String name = GUIUtilities.displayInputMessage(bundleString("NewFolder"), bundleString("FolderName"));
+    if (!JOptionPane.UNINITIALIZED_VALUE.equals(name)) {
+
+      ConnectionsFolder folder = new ConnectionsFolder(name);
+      folders.add(folder);
+
+      ConnectionsFolderNode lastFolder = null;
+      DefaultMutableTreeNode root = tree.getConnectionsBranchNode();
+      for (Enumeration<?> i = root.children(); i.hasMoreElements(); ) {
+
+        Object object = i.nextElement();
+        if (isAConnectionsFolderNode(object)) {
+
+          lastFolder = asConnectionsFolderNode(object);
 
         } else {
-            
-            tree.addToRoot(new DatabaseHostNode(host, null));
+
+          break;
         }
 
-        connectionAdded(dc);
+      }
+
+      int insertIndex = 0;
+      ConnectionsFolderNode folderNode = new ConnectionsFolderNode(folder);
+      if (lastFolder != null) {
+
+        insertIndex = root.getIndex(lastFolder) + 1;
+      }
+
+      root.insert(folderNode, insertIndex);
+      tree.nodesWereInserted(root, new int[]{insertIndex});
+
+      folderAdded(folder);
+      return folder;
     }
+
+    return null;
+  }
+
+  /**
+   * Creates a new connection and adds it to the bottom of the list.
+   */
+  public void newConnection() {
+
+    String name = buildConnectionName(Bundles.getCommon("newConnection.button"));
+    newConnection(databaseConnectionFactory().create(name));
+  }
+
+  /**
+   * Creates a new connection based on the specified connection.
+   *
+   * @param dc - the connection the new one is to be based on
+   */
+  public void newConnection(DatabaseConnection dc) {
+
+    DatabaseHost host = databaseObjectFactory().createDatabaseHost(dc);
+    connections.add(dc);
+
+    ConnectionsFolderNode folderNode = getSelectedFolderNode();
+    if (folderNode != null) {
+
+      final DatabaseHostNode hostNode = new DatabaseHostNode(host, folderNode);
+      folderNode.addNewHostNode(hostNode);
+
+      tree.nodesWereInserted(folderNode, new int[]{folderNode.getChildCount() - 1});
+//            tree.insertNode(folderNode, hostNode);
+
+      tree.selectNode(hostNode);
+//            tree.expandSelectedRow();
+
+      folderModified(folderNode.getConnectionsFolder());
+
+    } else {
+
+      tree.addToRoot(new DatabaseHostNode(host, null));
+    }
+
+    connectionAdded(dc);
+  }
 
     /*
     public void nodeMoved(DatabaseHostNode node, int newIndex) {
@@ -883,1057 +862,1170 @@ public class ConnectionsTreePanel extends AbstractDockedTabActionPanel
         connections.add(newIndex, dc);
     }
     */
-    
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    private void moveNode(List list, Object object, int direction) {
 
-        int currentIndex = list.indexOf(object);
-        if (currentIndex == 0 && direction == DynamicTree.MOVE_UP) {
-            return;
-        }
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private void moveNode(List list, Object object, int direction) {
 
-        int newIndex = -1;
-        if (direction == DynamicTree.MOVE_UP) {
-            newIndex = currentIndex - 1;
-        } else {
-            newIndex = currentIndex + 1;
-            if (newIndex > (list.size() - 1)) {
-                return;
-            }
-        }
-
-        list.remove(currentIndex);
-        list.add(newIndex, object);
+    int currentIndex = list.indexOf(object);
+    if (currentIndex == 0 && direction == DynamicTree.MOVE_UP) {
+      return;
     }
 
-    /**
-     * Indicates that a node name has changed and fires a call
-     * to repaint the tree display.
-     */
-    protected void nodeNameValueChanged(Object nodeObject) {
-        TreeNode node = tree.getNodeFromRoot(nodeObject);
-        if (node != null) {
-            tree.nodeChanged(node);
-        }
+    int newIndex = -1;
+    if (direction == DynamicTree.MOVE_UP) {
+      newIndex = currentIndex - 1;
+    } else {
+      newIndex = currentIndex + 1;
+      if (newIndex > (list.size() - 1)) {
+        return;
+      }
     }
 
-    /**
-     * Returns the currently selected node's user object where the
-     * node is a BrowserTreeNode and the user object is a BaseDatabaseObject.
-     * If the above is not met, null is returned.
-     *
-     * @return the user object of the selected node where the
-     *         user object is a DBaseDatabaseObject
-     */
-    protected BrowserTreeNode getSelectedBrowserNode() {
-        // if path is null return null
-        if (tree.isSelectionEmpty()) {
-            return null;
-        }
+    list.remove(currentIndex);
+    list.add(newIndex, object);
+  }
 
-        // make sure we have a BrowserTreeNode
-        Object object = tree.getLastPathComponent();
-        if (!isABrowserTreeNode(object)) {
-            return null;
-        }
+  /**
+   * Indicates that a node name has changed and fires a call
+   * to repaint the tree display.
+   */
+  protected void nodeNameValueChanged(Object nodeObject) {
+    TreeNode node = tree.getNodeFromRoot(nodeObject);
+    if (node != null) {
+      tree.nodeChanged(node);
+    }
+  }
 
-        return (BrowserTreeNode)object;
+  /**
+   * Returns the currently selected node's user object where the
+   * node is a BrowserTreeNode and the user object is a BaseDatabaseObject.
+   * If the above is not met, null is returned.
+   *
+   * @return the user object of the selected node where the
+   * user object is a DBaseDatabaseObject
+   */
+  protected BrowserTreeNode getSelectedBrowserNode() {
+    // if path is null return null
+    if (tree.isSelectionEmpty()) {
+      return null;
     }
 
-    /**
-     * Returns the whether the currently selected node's user object
-     * is a parent type where the node is a BrowserTreeNode and the
-     * user object is a BaseDatabaseObject. If the above is not met, false is
-     * returned, otherwise the object is evaluated.
-     *
-     * @return true | false
-     */
-    protected boolean isTypeParentSelected() {
-        // if path is null return null
-        if (tree.isSelectionEmpty()) {
-            return false;
-        }
-
-        // make sure we have a BrowserTreeNode
-        Object object = tree.getLastPathComponent();
-        if (!isABrowserTreeNode(object)) {
-            return false;
-        }
-
-        // return the parent connection meta object
-        return ((BrowserTreeNode)object).isTypeParent();
+    // make sure we have a BrowserTreeNode
+    Object object = tree.getLastPathComponent();
+    if (!isABrowserTreeNode(object)) {
+      return null;
     }
 
-    /**
-     * Returns the currently selected node's user object where the
-     * node is a BrowserTreeNode and the user object is a BaseDatabaseObject.
-     * If the above is not met, null is returned.
-     *
-     * @return the user object of the selected node where the
-     *         user object is a DBaseDatabaseObject
-     */
-    protected NamedObject getSelectedNamedObject() {
+    return (BrowserTreeNode) object;
+  }
 
-        if (tree.isSelectionEmpty()) {
-
-            return null;
-        }
-
-        // make sure we have a BrowserTreeNode
-        Object object = tree.getLastPathComponent();
-        if (!isADatabaseObjectNode(object)) {
-            return null;
-        }
-
-        DatabaseObjectNode node = (DatabaseObjectNode)object;
-        return node.getDatabaseObject();
+  /**
+   * Returns the whether the currently selected node's user object
+   * is a parent type where the node is a BrowserTreeNode and the
+   * user object is a BaseDatabaseObject. If the above is not met, false is
+   * returned, otherwise the object is evaluated.
+   *
+   * @return true | false
+   */
+  protected boolean isTypeParentSelected() {
+    // if path is null return null
+    if (tree.isSelectionEmpty()) {
+      return false;
     }
 
-    protected List<ConnectionsFolderNode> getFolderNodes() {
-        
-        List<ConnectionsFolderNode> folders = new ArrayList<ConnectionsFolderNode>();
-        Enumeration<?> children = tree.getRootNode().children();
-        while (children.hasMoreElements()) {
-            
-            Object child = children.nextElement();
-            if (isAConnectionsFolderNode(child)) {
-                
-                folders.add((ConnectionsFolderNode) child);
-            }
-            
-        }
-        return folders;
-    }
-    
-    protected ConnectionsFolderNode getSelectedFolderNode() {
-
-        if (tree.isSelectionEmpty()) {
-        
-            return null;
-        }
-        
-        Object object = tree.getLastPathComponent();
-        if (isAConnectionsFolderNode(object)) {
-            
-            return asConnectionsFolderNode(object);
-        
-        } else if (isADatabaseHostNode(object)) {
-
-            DatabaseHostNode databaseHostNode = asDatabaseHostNode(object);
-            return databaseHostNode.getParentFolder();
-        }
-        
-        return null;
+    // make sure we have a BrowserTreeNode
+    Object object = tree.getLastPathComponent();
+    if (!isABrowserTreeNode(object)) {
+      return false;
     }
 
-    private boolean isRootNode(Object object) {
-        return object instanceof RootDatabaseObjectNode;
+    // return the parent connection meta object
+    return ((BrowserTreeNode) object).isTypeParent();
+  }
+
+  /**
+   * Returns the currently selected node's user object where the
+   * node is a BrowserTreeNode and the user object is a BaseDatabaseObject.
+   * If the above is not met, null is returned.
+   *
+   * @return the user object of the selected node where the
+   * user object is a DBaseDatabaseObject
+   */
+  protected NamedObject getSelectedNamedObject() {
+
+    if (tree.isSelectionEmpty()) {
+
+      return null;
     }
 
-    private boolean isADatabaseHostNode(Object object) {
-        return object instanceof DatabaseHostNode;
-    }
-    
-    private boolean isADatabaseObjectNode(Object object) {
-        return object instanceof DatabaseObjectNode;
+    // make sure we have a BrowserTreeNode
+    Object object = tree.getLastPathComponent();
+    if (!isADatabaseObjectNode(object)) {
+      return null;
     }
 
-    private boolean isAConnectionsFolderNode(Object object) {
-        return object instanceof ConnectionsFolderNode;
+    DatabaseObjectNode node = (DatabaseObjectNode) object;
+    return node.getDatabaseObject();
+  }
+
+  protected List<ConnectionsFolderNode> getFolderNodes() {
+
+    List<ConnectionsFolderNode> folders = new ArrayList<ConnectionsFolderNode>();
+    Enumeration<?> children = tree.getRootNode().children();
+    while (children.hasMoreElements()) {
+
+      Object child = children.nextElement();
+      if (isAConnectionsFolderNode(child)) {
+
+        folders.add((ConnectionsFolderNode) child);
+      }
+
     }
-    
-    private boolean isABrowserTreeNode(Object object) {
-        return object instanceof BrowserTreeNode;
-    }
+    return folders;
+  }
 
-    /**
-     * Returns the selected meta object host node.
-     *
-     * @return the selected host node meta object
-     */
-    protected DatabaseHost getSelectedMetaObject() {
-        // if path is null return null
-        if (tree.isSelectionEmpty()) {
-            return null;
-        }
+  protected ConnectionsFolderNode getSelectedFolderNode() {
 
-        // make sure we have a DatabaseObjectNode
-        Object object = tree.getLastPathComponent();
-        if (!isADatabaseObjectNode(object)) {
-            return null;
-        }
+    if (tree.isSelectionEmpty()) {
 
-        // return the parent connection meta object
-        DatabaseObjectNode node = (DatabaseObjectNode)object;
-        DatabaseObjectNode parent = getParentNode(node);
-        return ((DatabaseHost)parent.getDatabaseObject());
+      return null;
     }
 
-    /**
-     * Returns the selected database connection.
-     *
-     * @return the selected connection properties object
-     */
-    public DatabaseConnection getSelectedDatabaseConnection() {
-        DatabaseHost object = getSelectedMetaObject();
-        if (object != null) {
-            return object.getDatabaseConnection();
-        }
-        return null;
+    Object object = tree.getLastPathComponent();
+    if (isAConnectionsFolderNode(object)) {
+
+      return asConnectionsFolderNode(object);
+
+    } else if (isADatabaseHostNode(object)) {
+
+      DatabaseHostNode databaseHostNode = asDatabaseHostNode(object);
+      return databaseHostNode.getParentFolder();
     }
 
-    // ------------------------------------------
-    // ConnectionListner implementation
-    // ------------------------------------------
+    return null;
+  }
 
-    /**
-     * Indicates a connection has been established.
-     *
-     * @param the encapsulating event
-     */
-    public void connected(ConnectionEvent connectionEvent) {
+  private boolean isRootNode(Object object) {
+    return object instanceof RootDatabaseObjectNode;
+  }
 
-        DatabaseConnection dc = connectionEvent.getDatabaseConnection();
-        DatabaseObjectNode node = getHostNode(dc);
+  private boolean isADatabaseHostNode(Object object) {
+    return object instanceof DatabaseHostNode;
+  }
 
-        // if the host node itself is selected - enable/disable buttons
-        TreePath selectionPath = tree.getSelectionPath();
-        if (selectionPath != null && selectionPath.getLastPathComponent() == node) {
+  private boolean isADatabaseObjectNode(Object object) {
+    return object instanceof DatabaseObjectNode;
+  }
 
-            enableButtons(true, true, true, false);
-        }
+  private boolean isAConnectionsFolderNode(Object object) {
+    return object instanceof ConnectionsFolderNode;
+  }
 
-        nodeStructureChanged(node);
+  private boolean isABrowserTreeNode(Object object) {
+    return object instanceof BrowserTreeNode;
+  }
+
+  /**
+   * Returns the selected meta object host node.
+   *
+   * @return the selected host node meta object
+   */
+  protected DatabaseHost getSelectedMetaObject() {
+    // if path is null return null
+    if (tree.isSelectionEmpty()) {
+      return null;
     }
 
-    /**
-     * Indicates a connection has been closed.
-     *
-     * @param the encapsulating event
-     */
-    public void disconnected(ConnectionEvent connectionEvent) {
-
-        DatabaseConnection dc = connectionEvent.getDatabaseConnection();
-
-        DatabaseHostNode host = (DatabaseHostNode)getHostNode(dc);
-        host.disconnected();
-
-        // check if we select the root node
-        if (rootSelectOnDisconnect) {
-
-            tree.setSelectionRow(0);
-
-        } else { // otherwise select the host node if not already selected
-
-//            if (tree.getSelectionPath().getLastPathComponent() != host) {
-//
-//                // change below to not reselect after disconnect
-//
-//                tree.setSelectionPath(new TreePath(host.getPath()));
-//            }
-
-            if (tree.getSelectionPath().getLastPathComponent() == host) {
-
-                enableButtons(true, true, false, true);
-                controller.valueChanged_(host);
-            }
-
-        }
-
-        nodeStructureChanged(host);
+    // make sure we have a DatabaseObjectNode
+    Object object = tree.getLastPathComponent();
+    if (!isADatabaseObjectNode(object)) {
+      return null;
     }
 
-    public boolean canHandleEvent(ApplicationEvent event) {
-        return (event instanceof ConnectionEvent) ||
-            (event instanceof UserPreferenceEvent);
+    // return the parent connection meta object
+    DatabaseObjectNode node = (DatabaseObjectNode) object;
+    DatabaseObjectNode parent = getParentNode(node);
+    if (parent == null)
+      return null;
+    return ((DatabaseHost) parent.getDatabaseObject());
+  }
+
+  /**
+   * Returns the selected database connection.
+   *
+   * @return the selected connection properties object
+   */
+  public DatabaseConnection getSelectedDatabaseConnection() {
+    DatabaseHost object = getSelectedMetaObject();
+    if (object != null) {
+      return object.getDatabaseConnection();
+    }
+    return null;
+  }
+
+  // ------------------------------------------
+  // ConnectionListner implementation
+  // ------------------------------------------
+
+  /**
+   * Indicates a connection has been established.
+   *
+   * @param the encapsulating event
+   */
+  public void connected(ConnectionEvent connectionEvent) {
+
+    DatabaseConnection dc = connectionEvent.getDatabaseConnection();
+    DatabaseObjectNode node = getHostNode(dc);
+
+    // if the host node itself is selected - enable/disable buttons
+    TreePath selectionPath = tree.getSelectionPath();
+    if (selectionPath != null && selectionPath.getLastPathComponent() == node) {
+
+      enableButtons(true, true, true, false, true);
     }
 
-    // ------------------------------------------
+    nodeStructureChanged(node);
+  }
 
-    /**
-     * Returns the previously selected path before the current
-     * selection.
-     *
-     * @return the previous path
-     */
-    protected TreePath getOldSelectionPath() {
-        return oldSelectionPath;
-    }
+  /**
+   * Indicates a connection has been closed.
+   *
+   * @param the encapsulating event
+   */
+  public void disconnected(ConnectionEvent connectionEvent) {
 
-    /**
-     * Returns the previously selected browse node before the
-     * current selection.
-     *
-     * @return the previous node selection
-     */
-    protected BrowserTreeNode getOldBrowserNodeSelection() {
-        Object object = getOldSelectionPath().getLastPathComponent();
-        if (object != null && isABrowserTreeNode(object)) {
-            return (BrowserTreeNode)object;
-        }
-        return null;
-    }
+    DatabaseConnection dc = connectionEvent.getDatabaseConnection();
 
-    protected BrowserTreeNode getParentConnectionNode(DatabaseConnection dc) {
-        return null;
-    }
+    DatabaseHostNode host = (DatabaseHostNode) getHostNode(dc);
+    host.disconnected();
+    nodeStructureChanged(host);
+    // check if we select the root node
+    if (rootSelectOnDisconnect) {
 
-    protected ConnectionsFolderNode getFolderNode(ConnectionsFolder folder) {
+      tree.setSelectionRow(0);
 
-        for (Enumeration<?> i = tree.getConnectionsBranchNode().children(); i.hasMoreElements();) {
+    } else {
+      if (tree.getSelectionPath() != null) {
 
-            Object object = i.nextElement();
-            if (isAConnectionsFolderNode(object)) {
+        if (tree.getSelectionPath().getLastPathComponent() == host) {
 
-                ConnectionsFolderNode folderNode = (ConnectionsFolderNode) object;
-                if (folderNode.getConnectionsFolder() == folder) {
-                    
-                    return folderNode;
-                }
-            }
-            
-        }
-        
-        return null;
-    }
-    
-    protected DatabaseObjectNode getHostNode(DatabaseConnection dc) {
-
-        for (Enumeration<?> i = tree.getConnectionsBranchNode().children(); i.hasMoreElements();) {
-
-            Object object = i.nextElement();
-            if (isAConnectionsFolderNode(object)) {
-
-                ConnectionsFolderNode node = asConnectionsFolderNode(object);
-                DatabaseObjectNode hostNode = node.getHostNode(dc);
-                if (hostNode != null) {
-                    
-                    return hostNode;
-                }
-                
-            } else if (isADatabaseObjectNode(object)) {
-
-                DatabaseObjectNode node = (DatabaseObjectNode)object;
-
-                if (node.getType() == NamedObject.HOST) {
-
-                    DatabaseHost host = (DatabaseHost)node.getDatabaseObject();
-                    if (host.getDatabaseConnection() == dc) {
-
-                        return node;
-                    }
-
-                }
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Notification that the currently selected node (a host)
-     * has had their associated db connection closed.
-     */
-    protected void selectedNodeDisconnected() {
-        Object object = tree.getLastPathComponent();
-        if (!isADatabaseObjectNode(object)) {
-            return;
-        }
-
-        // remove all choldren from the host node
-        // of the current path
-        DatabaseObjectNode node = (DatabaseObjectNode)object;
-        if (!(node.getUserObject() instanceof DatabaseHost)) {
-            node = getParentNode(node);
-        }
-
-        //node.setExpanded(false);
-        DatabaseObjectNode parent = getParentNode(node);
-        parent.removeAllChildren();
-        nodeStructureChanged(parent);
-    }
-
-    /**
-     * Notification that the currently selected node (a host)
-     * has had their associated db connection created.
-     */
-    protected void selectedNodeConnected() {
-
-        if (tree.isSelectionEmpty()) {
-
-            return;
-        }
-
-        Object object = tree.getLastPathComponent();
-        if (!isADatabaseObjectNode(object)) {
-
-            return;
-        }
-
-        // ensure node is expandable
-        DatabaseObjectNode node = (DatabaseObjectNode)object;
-        if (node.isLeaf() && node instanceof DatabaseHostNode) {
-
-            pathExpanded(tree.getSelectionPath());
-            nodeStructureChanged(node);
-        }
+          enableButtons(true, true, false, true, true);
+          controller.valueChanged_(host, null);
+        } else
+          enableButtons(false, false, false, false, false);
+      } else {
+        enableButtons(false, false, false, false, false);
+      }
 
     }
 
-    public void pathChanged(TreePath newPath) {
 
-        pathChanged(oldSelectionPath, newPath);
+  }
+
+  public boolean canHandleEvent(ApplicationEvent event) {
+    return (event instanceof ConnectionEvent)
+        || (event instanceof UserPreferenceEvent)
+        || (event instanceof ConnectionRepositoryEvent
+            && "connectionImported".equals(event.getMethod()));
+  }
+
+  // ------------------------------------------
+
+  /**
+   * Returns the previously selected path before the current
+   * selection.
+   *
+   * @return the previous path
+   */
+  protected TreePath getOldSelectionPath() {
+    return oldSelectionPath;
+  }
+
+  /**
+   * Returns the previously selected browse node before the
+   * current selection.
+   *
+   * @return the previous node selection
+   */
+  protected BrowserTreeNode getOldBrowserNodeSelection() {
+    Object object = getOldSelectionPath().getLastPathComponent();
+    if (object != null && isABrowserTreeNode(object)) {
+      return (BrowserTreeNode) object;
+    }
+    return null;
+  }
+
+  protected BrowserTreeNode getParentConnectionNode(DatabaseConnection dc) {
+    return null;
+  }
+
+  protected ConnectionsFolderNode getFolderNode(ConnectionsFolder folder) {
+
+    for (Enumeration<?> i = tree.getConnectionsBranchNode().children(); i.hasMoreElements(); ) {
+
+      Object object = i.nextElement();
+      if (isAConnectionsFolderNode(object)) {
+
+        ConnectionsFolderNode folderNode = (ConnectionsFolderNode) object;
+        if (folderNode.getConnectionsFolder() == folder) {
+
+          return folderNode;
+        }
+      }
+
     }
 
-    public void pathChanged(TreePath oldPath, TreePath newPath) {
+    return null;
+  }
 
-        // store the last position
-        oldSelectionPath = oldPath;
+  public DatabaseObjectNode getHostNode(DatabaseConnection dc) {
 
-        // examine the last selection
-        if (oldSelectionPath != null) {
+    for (Enumeration<?> i = tree.getConnectionsBranchNode().children(); i.hasMoreElements(); ) {
 
-            Object lastObject = oldSelectionPath.getLastPathComponent();
-            if (!canProceedWithChangesApplied(lastObject)) {
+      Object object = i.nextElement();
+      if (isAConnectionsFolderNode(object)) {
 
-                try {
-                
-                    removeTreeSelectionListener();
-                    tree.setSelectionPath(oldSelectionPath);
-                    return;
-                    
-                } finally {
-                    
-                    addTreeSelectionListener();
-                }
+        ConnectionsFolderNode node = asConnectionsFolderNode(object);
+        DatabaseObjectNode hostNode = node.getHostNode(dc);
+        if (hostNode != null) {
 
-            }
-            
+          return hostNode;
         }
 
-        Object object = newPath.getLastPathComponent();
-        if (object == null) {
+      } else if (isADatabaseObjectNode(object)) {
 
-            return;
+        DatabaseObjectNode node = (DatabaseObjectNode) object;
+
+        if (node.getType() == NamedObject.HOST) {
+
+          DatabaseHost host = (DatabaseHost) node.getDatabaseObject();
+          if (host.getDatabaseConnection() == dc) {
+
+            return node;
+          }
+
         }
-
-        controller.selectionChanging();
-
-        if (object == tree.getConnectionsBranchNode()) { // root node
-
-            controller.displayConnectionList();
-            enableButtons(false, false, false, false);
-            return;
-        }
-
-        final DatabaseObjectNode node = (DatabaseObjectNode) object;
-        if (node instanceof ConnectionsFolderNode) {
-          
-            controller.displayConnectionList(((ConnectionsFolderNode) node).getConnectionsFolder());
-            enableButtons(true, true, false, true);
-            return;
-            
-        } else if (node instanceof DatabaseHostNode) {
-
-            DatabaseHostNode hostNode = (DatabaseHostNode)node;
-
-            boolean hostConnected = hostNode.isConnected();
-            enableButtons(true, true, hostConnected, !hostConnected);
-
-        } else {
-
-            enableButtons(false, false, true, false);
-        }
-
-        worker = new SwingWorker() {
-            public Object construct() {
-                try {
-
-                    tree.startLoadingNode();
-                    treeExpanding = true;
-                    valueChanged(node);
-
-                } finally {
-
-                    treeExpanding = false;
-                }
-                return null;
-            }
-            public void finished() {
-                tree.finishedLoadingNode();
-                treeExpanding = false;
-            }
-        };
-        worker.start();
+      }
     }
 
-    private boolean canProceedWithChangesApplied(Object selectedNode) {
-        
-        if (isADatabaseObjectNode(selectedNode)) {
+    return null;
+  }
 
-            try {
-            
-                DatabaseObjectNode databaseObjectNode = (DatabaseObjectNode) selectedNode;
-                boolean applyChanges = databaseObjectChangeProvider(databaseObjectNode.getDatabaseObject()).applyChanges(true);
-                
-                if (!applyChanges) {
-                    
-                    return false;
-                }
-                
-            } catch (DataSourceException e) {
-                
-                GUIUtilities.displayExceptionErrorDialog(e.getMessage(), e);
-                return false;
-            }
-             
+  /**
+   * Notification that the currently selected node (a host)
+   * has had their associated db connection closed.
+   */
+  protected void selectedNodeDisconnected() {
+    Object object = tree.getLastPathComponent();
+    if (!isADatabaseObjectNode(object)) {
+      return;
+    }
+
+    // remove all choldren from the host node
+    // of the current path
+    DatabaseObjectNode node = (DatabaseObjectNode) object;
+    if (!(node.getUserObject() instanceof DatabaseHost)) {
+      node = getParentNode(node);
+    }
+
+    //node.setExpanded(false);
+    DatabaseObjectNode parent = getParentNode(node);
+    parent.removeAllChildren();
+    nodeStructureChanged(parent);
+  }
+
+  /**
+   * Notification that the currently selected node (a host)
+   * has had their associated db connection created.
+   */
+  protected void selectedNodeConnected() {
+
+    if (tree.isSelectionEmpty()) {
+
+      return;
+    }
+
+    Object object = tree.getLastPathComponent();
+    if (!isADatabaseObjectNode(object)) {
+
+      return;
+    }
+
+    // ensure node is expandable
+    DatabaseObjectNode node = (DatabaseObjectNode) object;
+    if (node.isLeaf() && node instanceof DatabaseHostNode) {
+
+      pathExpanded(tree.getSelectionPath());
+      nodeStructureChanged(node);
+    }
+
+  }
+
+  public void pathChanged(TreePath newPath) {
+
+    pathChanged(oldSelectionPath, newPath);
+  }
+
+  private boolean moveScrollAfterExpansion = false;
+
+  private boolean canProceedWithChangesApplied(Object selectedNode) {
+
+    if (isADatabaseObjectNode(selectedNode)) {
+
+      try {
+
+        DatabaseObjectNode databaseObjectNode = (DatabaseObjectNode) selectedNode;
+        boolean applyChanges = databaseObjectChangeProvider(databaseObjectNode.getDatabaseObject()).applyChanges(true);
+
+        if (!applyChanges) {
+
+          return false;
         }
-        return true;
-    }
-    
-    private DatabaseObjectChangeProvider databaseObjectChangeProvider(NamedObject namedObject) {
 
-        return new DatabaseObjectChangeProvider(namedObject); 
-    }
+      } catch (DataSourceException e) {
 
-    private synchronized void doNodeExpansion(DatabaseObjectNode node) {
-        try {
+        GUIUtilities.displayExceptionErrorDialog(e.getMessage(), e);
+        return false;
+      }
+
+    }
+    return true;
+  }
+
+  private DatabaseObjectChangeProvider databaseObjectChangeProvider(NamedObject namedObject) {
+
+    return new DatabaseObjectChangeProvider(namedObject);
+  }
+
+  private synchronized void doNodeExpansion(DatabaseObjectNode node) {
+    try {
+        if (node.getChildCount() == 0) {
             node.populateChildren();
             nodeStructureChanged(node);
-        } catch (DataSourceException e) {
-            controller.handleException(e);
         }
+    } catch (DataSourceException e) {
+      controller.handleException(e);
     }
+  }
 
-    private synchronized void valueChanged(DatabaseObjectNode node) {
-        controller.valueChanged_(node);
+  public synchronized void valueChanged(DatabaseObjectNode node) {
+    controller.valueChanged_(node, null);
+  }
+
+  public synchronized void valueChanged(DatabaseObjectNode node, DatabaseConnection connection) {
+    controller.valueChanged_(node, connection);
+  }
+
+  /**
+   * Reloads the currently selected node.
+   */
+  public void reloadSelection() {
+    reloadPath(tree.getSelectionPath());
+  }
+
+  /**
+   * Reloads the specified tree path.
+   */
+  public void reloadPath(TreePath path) {
+
+    try {
+
+      if (treeExpanding || path == null) {
+
+        return;
+      }
+
+      Object object = path.getLastPathComponent();
+      if (!isADatabaseObjectNode(object)) {
+
+        return;
+      }
+
+      GUIUtilities.showWaitCursor();
+
+      boolean expanded = tree.isExpanded(path);
+      if (expanded) {
+
+        tree.collapsePath(path);
+      }
+
+      DatabaseObjectNode node = (DatabaseObjectNode) object;
+      node.reset();
+
+      nodeStructureChanged(node);
+      pathExpanded(path);
+
+      if (expanded) {
+
+        tree.expandPath(path);
+      }
+
+      pathChanged(oldSelectionPath, path);
+
+    } finally {
+
+      GUIUtilities.showNormalCursor();
     }
+  }
 
-    /** Reloads the currently selected node. */
-    public void reloadSelection() {
-        reloadPath(tree.getSelectionPath());
-    }
+  protected void nodeStructureChanged(TreeNode node) {
+    tree.nodeStructureChanged(node);
+  }
 
-    /** Reloads the specified tree path. */
-    public void reloadPath(TreePath path) {
+  private void init() {
+
+    // default to not select the root node after a disconnection
+    rootSelectOnDisconnect = false;
+
+    controller = new BrowserController(this);
+    tree = new SchemaTree(createTreeStructure(), this);
+
+    MouseHandler mouseHandler = new MouseHandler();
+    tree.addMouseListener(mouseHandler);
+
+    treeFindAction = new TreeFindAction();
+    treeFindAction.install(tree);
+
+    // add the tools and tree to the panel
+    add(createToolBar(), BorderLayout.NORTH);
+    scrollPane = new JScrollPane(tree);
+    add(scrollPane, BorderLayout.CENTER);
+
+    // register with the event listener
+    EventMediator.registerListener(this);
+
+    enableButtons(false, false, false, false, false);
+    tree.setSelectionRow(0);
+    tree.setToggleClickCount(-1);
+  }
+
+  public void reloadRowHeight() {
+    tree.setRowHeight(Integer.parseInt(SystemProperties.getProperty("user", "treeconnection.row.height")));
+  }
+
+  public void pathChanged(TreePath oldPath, TreePath newPath) {
+
+    // store the last position
+    oldSelectionPath = oldPath;
+
+
+    // examine the last selection
+    if (oldSelectionPath != null) {
+
+      Object lastObject = oldSelectionPath.getLastPathComponent();
+      if (!canProceedWithChangesApplied(lastObject)) {
 
         try {
 
-            if (treeExpanding || path == null) {
-
-                return;
-            }
-
-            Object object = path.getLastPathComponent();
-            if (!isADatabaseObjectNode(object)) {
-
-                return;
-            }
-
-            GUIUtilities.showWaitCursor();
-
-            boolean expanded = tree.isExpanded(path);
-            if (expanded) {
-
-                tree.collapsePath(path);
-            }
-
-            DatabaseObjectNode node = (DatabaseObjectNode)object;
-            node.reset();
-
-            nodeStructureChanged(node);
-            pathExpanded(path);
-
-            if (expanded) {
-
-                tree.expandPath(path);
-            }
-
-            pathChanged(oldSelectionPath, path);
+          removeTreeSelectionListener();
+          tree.setSelectionPath(oldSelectionPath);
+          return;
 
         } finally {
 
-            GUIUtilities.showNormalCursor();
+          addTreeSelectionListener();
         }
+
+      }
+
     }
 
-    protected void nodeStructureChanged(TreeNode node) {
-        tree.nodeStructureChanged(node);
+    Object object = newPath.getLastPathComponent();
+    if (object == null) {
+
+      return;
     }
 
-    public void pathExpanded(TreePath path) {
+    controller.selectionChanging();
 
-        Object object = path.getLastPathComponent();
+    if (object == tree.getConnectionsBranchNode()) { // root node
 
-        if (!isADatabaseObjectNode(object)) {
-            return;
-        }
-
-        final DatabaseObjectNode node = (DatabaseObjectNode)object;
-        worker = new SwingWorker() {
-            public Object construct() {
-                GUIUtilities.showWaitCursor();
-                doNodeExpansion(node);
-                return null;
-            }
-            public void finished() {
-                GUIUtilities.showNormalCursor();
-            }
-
-        };
-        worker.start();
+      controller.displayConnectionList();
+      enableButtons(false, false, false, false, false);
+      return;
     }
 
-    /** provides an indicator that an expansion is in progress */
-    private boolean treeExpanding = false;
+    final DatabaseObjectNode node = (DatabaseObjectNode) object;
+    if (node instanceof ConnectionsFolderNode) {
 
-    private BrowserTreeRootPopupMenu rootPopupMenu;
+      controller.displayConnectionList(((ConnectionsFolderNode) node).getConnectionsFolder());
+      enableButtons(true, true, false, true, false);
+      return;
 
-    private BrowserTreeFolderPopupMenu folderPopupMenu;
+    } else if (node instanceof DatabaseHostNode) {
 
-    protected DatabaseObjectNode getParentNode(DatabaseObjectNode child) {
+      DatabaseHostNode hostNode = (DatabaseHostNode) node;
 
-        if (child instanceof DatabaseHostNode) {
+      boolean hostConnected = hostNode.isConnected();
+      enableButtons(true, true, hostConnected, !hostConnected, true);
 
-            return child;
+    } else {
+
+      enableButtons(false, false, true, false, true);
+    }
+
+    if (node.isHostNode()) {
+
+      final ConnectionsTreePanel c = this;
+
+      c.setInProcess(true);
+
+      worker = new SwingWorker() {
+        public Object construct() {
+          try {
+
+            tree.startLoadingNode();
+            treeExpanding = true;
+            valueChanged(node);
+
+          } finally {
+
+            treeExpanding = false;
+          }
+          return null;
         }
 
-        TreeNode parent = child.getParent();
-        while (parent != null) {
-
-            if (parent instanceof DatabaseHostNode) {
-
-                return (DatabaseObjectNode)parent;
-            }
-            parent = parent.getParent();
+        public void finished() {
+          tree.finishedLoadingNode();
+          treeExpanding = false;
+          c.setInProcess(false);
         }
+      };
+      worker.start();
+    }
+    if (isMoveScroll()) {
+      moveScrollToSelection();
+      setMoveScroll(false);
+    }
+  }
+
+  public void pathExpanded(TreePath path) {
+
+    Object object = path.getLastPathComponent();
+
+    if (!isADatabaseObjectNode(object)) {
+      return;
+    }
+
+    final DatabaseObjectNode node = (DatabaseObjectNode) object;
+    worker = new SwingWorker() {
+      public Object construct() {
+        GUIUtilities.showWaitCursor();
+        doNodeExpansion(node);
         return null;
+      }
+
+      public void finished() {
+        if (isMoveScrollAfterExpansion()) {
+          moveScrollToSelection();
+          setMoveScrollAfterExpansion(false);
+        }
+        GUIUtilities.showNormalCursor();
+      }
+
+    };
+    worker.start();
+  }
+
+  public boolean isMoveScroll() {
+    return moveScroll;
+  }
+
+  public void setMoveScroll(boolean moveScroll) {
+    this.moveScroll = moveScroll;
+  }
+
+  public boolean isMoveScrollAfterExpansion() {
+    return moveScrollAfterExpansion;
+  }
+
+  public void setMoveScrollAfterExpansion(boolean moveScroll) {
+    this.moveScrollAfterExpansion = moveScroll;
+  }
+
+  /**
+   * provides an indicator that an expansion is in progress
+   */
+  private boolean treeExpanding = false;
+
+  private BrowserTreeRootPopupMenu rootPopupMenu;
+
+  private BrowserTreeFolderPopupMenu folderPopupMenu;
+
+  protected DatabaseObjectNode getParentNode(DatabaseObjectNode child) {
+
+    if (child instanceof DatabaseHostNode) {
+
+      return child;
     }
 
-    /**
-     * Selects the node that matches the specified prefix forward
-     * from the currently selected node.
-     *
-     * @param prefix - the prefix of the node to select
-     */
-    protected void selectBrowserNode(final String prefix) {
-        // make sure it has its children
-        DefaultMutableTreeNode node =
-                (DefaultMutableTreeNode)tree.getSelectionPath().getLastPathComponent();
+    TreeNode parent = child.getParent();
+    while (parent != null) {
 
-        if (node.getChildCount() == 0) {
-            doNodeExpansion((DatabaseObjectNode)node);
-        }
+      if (parent instanceof DatabaseHostNode) {
+
+        return (DatabaseObjectNode) parent;
+      }
+      parent = parent.getParent();
+    }
+    return null;
+  }
+
+  /**
+   * Selects the node that matches the specified prefix forward
+   * from the currently selected node.
+   *
+   * @param prefix - the prefix of the node to select
+   */
+  protected void selectBrowserNode(final String prefix) {
+    // make sure it has its children
+    DefaultMutableTreeNode node =
+        (DefaultMutableTreeNode) tree.getSelectionPath().getLastPathComponent();
+
+    if (node.getChildCount() == 0) {
+      doNodeExpansion((DatabaseObjectNode) node);
+    }
 
 
 //        SwingUtilities.invokeLater(new Runnable() {
 //            public void run() {
-                tree.expandSelectedRow();
-                tree.selectNextNode(prefix);
+    tree.expandSelectedRow();
+    tree.selectNextNode(prefix);
 //            }
 //        });
+  }
+
+  /**
+   * Returns the connection properties object associated with
+   * the specified child node.
+   */
+  protected DatabaseConnection getDatabaseConnection(DatabaseObjectNode child) {
+
+    DatabaseHost databaseHost = getConnectionObject(child);
+
+    if (databaseHost != null) {
+
+      return databaseHost.getDatabaseConnection();
     }
 
-    /**
-     * Returns the connection properties object associated with
-     * the specified child node.
-     */
-    protected DatabaseConnection getDatabaseConnection(DatabaseObjectNode child) {
+    return null;
+  }
 
-        DatabaseHost databaseHost = getConnectionObject(child);
+  /**
+   * Returns the DatabaseHost (host node) associated with
+   * the specified child node.
+   */
+  protected DatabaseHost getConnectionObject(DatabaseObjectNode child) {
+    // get the host node for this path
+    DatabaseObjectNode parent = getParentNode(child);
+    if (parent != null) {
+      return (DatabaseHost) parent.getDatabaseObject();
+    }
+    return null;
+  }
 
-        if (databaseHost != null) {
+  /**
+   * Removes the selected node.<br>
+   * <p>
+   * This will attempt to propagate the call to the connected
+   * database object using a DROP statement.
+   */
+  public void removeTreeNode() {
+    TreePath selection = tree.getSelectionPath();
 
-            return databaseHost.getDatabaseConnection();
+    if (selection != null) {
+
+      Object object = selection.getLastPathComponent();
+
+      if (isADatabaseObjectNode(object)) {
+
+        DatabaseObjectNode dbObject = (DatabaseObjectNode) object;
+
+        if (!dbObject.isDroppable()) {
+
+          return;
         }
 
-        return null;
-    }
+        int yesNo = GUIUtilities.displayConfirmDialog(
+            bundleString("message.confirm-delete-object"));
 
-    /**
-     * Returns the DatabaseHost (host node) associated with
-     * the specified child node.
-     */
-    protected DatabaseHost getConnectionObject(DatabaseObjectNode child) {
-        // get the host node for this path
-        DatabaseObjectNode parent = getParentNode(child);
-        if (parent != null) {
-            return (DatabaseHost)parent.getDatabaseObject();
+        if (yesNo == JOptionPane.NO_OPTION) {
+
+          return;
         }
-        return null;
-    }
 
-    /**
-     * Removes the selected node.<br>
-     *
-     * This will attempt to propagate the call to the connected
-     * database object using a DROP statement.
-     */
-    public void removeTreeNode() {
-        TreePath selection = tree.getSelectionPath();
+        removeTreeSelectionListener();
+        int row = tree.getSelectionRows()[0];
 
-        if (selection != null) {
+        try {
 
-            Object object = selection.getLastPathComponent();
+          dbObject.drop(); // quoted cases
+          tree.removeNode(dbObject);
 
-            if (isADatabaseObjectNode(object)) {
+        } catch (DataSourceException e) {
 
-                DatabaseObjectNode dbObject = (DatabaseObjectNode)object;
+          StringBuilder sb = new StringBuilder();
+          sb.append(bundleString("error.delete-object")).
+              append(e.getExtendedMessage());
 
-                if (!dbObject.isDroppable()) {
+          GUIUtilities.displayExceptionErrorDialog(sb.toString(), e);
 
-                    return;
-                }
+        } finally {
 
-                int yesNo = GUIUtilities.displayConfirmDialog(
-                                   "Are you sure you want to drop " + dbObject + "?");
+          addTreeSelectionListener();
 
-                if (yesNo == JOptionPane.NO_OPTION) {
-
-                    return;
-                }
-
-                removeTreeSelectionListener();
-                int row = tree.getSelectionRows()[0];
-
-                try {
-
-                    dbObject.drop(); // quoted cases
-                    tree.removeNode(dbObject);
-
-                } catch (DataSourceException e) {
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.append("An error occurred removing the selected object.").
-                       append("\n\nThe system returned:\n").
-                       append(e.getExtendedMessage());
-
-                    GUIUtilities.displayExceptionErrorDialog(sb.toString(), e);
-
-                } finally {
-
-                    addTreeSelectionListener();
-
-                    if (row >= 0) {
-                        row = (row == 0 ? 1 : row - 1);
-                        tree.setSelectionRow(row);
-                    }
-
-                }
-
-            }
+          if (row >= 0) {
+            row = (row == 0 ? 1 : row - 1);
+            tree.setSelectionRow(row);
+          }
 
         }
 
+      }
+
     }
 
-    /**
-     * Returns the name of a new connection to be added where
-     * the name of the connection may already exist.
-     *
-     * @param name - the name of the connection
-     */
-    protected String buildConnectionName(String name) {
-        int count = 0;
-        for (int i = 0, n = connections.size(); i < n; i++) {
-            DatabaseConnection _dc = connections.get(i);
-            if (_dc.getName().startsWith(name)) {
-                count++;
-            }
-        }
+  }
 
-        if (count > 0) {
-            count++;
-            name += " " + count;
-        }
-        return name;
+  /**
+   * Returns the name of a new connection to be added where
+   * the name of the connection may already exist.
+   *
+   * @param name - the name of the connection
+   */
+  protected String buildConnectionName(String name) {
+    int count = 0;
+    for (int i = 0, n = connections.size(); i < n; i++) {
+      DatabaseConnection _dc = connections.get(i);
+      if (_dc.getName().startsWith(name)) {
+        count++;
+      }
     }
 
-    public boolean isRootSelectOnDisconnect() {
-        return rootSelectOnDisconnect;
+    if (count > 0) {
+      count++;
+      name += " " + count;
+    }
+    return name;
+  }
+
+  public boolean isRootSelectOnDisconnect() {
+    return rootSelectOnDisconnect;
+  }
+
+  public void setRootSelectOnDisconnect(boolean rootSelectOnDisconnect) {
+    this.rootSelectOnDisconnect = rootSelectOnDisconnect;
+  }
+
+  public String toString() {
+    return TITLE;
+  }
+
+  public static final String MENU_ITEM_KEY = "viewConnections";
+
+  public static final String PROPERTY_KEY = "system.display.connections";
+
+  private List<ConnectionsFolder> folders;
+
+  // ----------------------------------------
+  // DockedTabView Implementation
+  // ----------------------------------------
+
+  /**
+   * Returns the display title for this view.
+   *
+   * @return the title displayed for this view
+   */
+  public String getTitle() {
+    return TITLE;
+  }
+
+  /**
+   * Returns the name defining the property name for this docked tab view.
+   *
+   * @return the key
+   */
+  public String getPropertyKey() {
+    return PROPERTY_KEY;
+  }
+
+  /**
+   * Returns the name defining the menu cache property
+   * for this docked tab view.
+   *
+   * @return the preferences key
+   */
+  public String getMenuItemKey() {
+    return MENU_ITEM_KEY;
+  }
+
+
+  protected void handleException(Throwable e) {
+    controller.handleException(e);
+  }
+
+  protected void disconnect(DatabaseConnection dc) {
+
+    if (canProceedWithChangesApplied(tree.getLastPathComponent())) {
+
+      setSelectedConnection(dc);
+      controller.disconnect(dc);
     }
 
-    public void setRootSelectOnDisconnect(boolean rootSelectOnDisconnect) {
-        this.rootSelectOnDisconnect = rootSelectOnDisconnect;
+  }
+
+  protected void connect(DatabaseConnection dc) {
+    controller.connect(dc);
+  }
+
+  public void connectDisconnect() {
+
+    if (!getSelectedDatabaseConnection().isConnected())
+      connect(getSelectedDatabaseConnection());
+    else GUIUtilities.closeSelectedConnection();
+  }
+
+  protected void setTreeSelectionPath(TreePath treePath) {
+    tree.setSelectionPath(treePath);
+  }
+
+  protected TreePath getTreeSelectionPath() {
+    return tree.getSelectionPath();
+  }
+
+  protected TreePath getTreePathForLocation(int x, int y) {
+    return tree.getPathForLocation(x, y);
+  }
+
+  private BrowserTreePopupMenu getBrowserTreePopupMenu() {
+    if (popupMenu == null) {
+      popupMenu = new BrowserTreePopupMenu(
+          new BrowserTreePopupMenuActionListener(this));
+    }
+    return popupMenu;
+  }
+
+  private BrowserTreeRootPopupMenu getBrowserRootTreePopupMenu() {
+    if (rootPopupMenu == null) {
+      rootPopupMenu = new BrowserTreeRootPopupMenu(this);
+    }
+    return rootPopupMenu;
+  }
+
+  private BrowserTreeFolderPopupMenu getBrowserTreeFolderPopupMenu() {
+    if (folderPopupMenu == null) {
+      folderPopupMenu = new BrowserTreeFolderPopupMenu(this);
+    }
+    return folderPopupMenu;
+  }
+
+  private class MouseHandler extends MouseAdapter {
+
+    public MouseHandler() {
     }
 
-    public String toString() {
-        return TITLE;
+    public void mouseClicked(MouseEvent e) {
+
+      if (e.getClickCount() < 2) {
+
+        return;
+      }
+      twoClicks(e);
     }
 
-    public static final String MENU_ITEM_KEY = "viewConnections";
+    public void mousePressed(MouseEvent e) {
 
-    public static final String PROPERTY_KEY = "system.display.connections";
+      if (e.getClickCount() < 2) {
 
-    private List<ConnectionsFolder> folders;
-
-    // ----------------------------------------
-    // DockedTabView Implementation
-    // ----------------------------------------
-
-    /**
-     * Returns the display title for this view.
-     *
-     * @return the title displayed for this view
-     */
-    public String getTitle() {
-        return TITLE;
+        maybeShowPopup(e);
+        return;
+      }
+      twoClicks(e);
     }
 
-    /**
-     * Returns the name defining the property name for this docked tab view.
-     *
-     * @return the key
-     */
-    public String getPropertyKey() {
-        return PROPERTY_KEY;
-    }
+    private void twoClicks(MouseEvent e) {
 
-    /**
-     * Returns the name defining the menu cache property
-     * for this docked tab view.
-     *
-     * @return the preferences key
-     */
-    public String getMenuItemKey() {
-        return MENU_ITEM_KEY;
-    }
+      TreePath path = pathFromMouseEvent(e);
+      if (path != null && path == getTreeSelectionPath()) {
 
-
-    protected void handleException(Throwable e) {
-        controller.handleException(e);
-    }
-
-    protected void disconnect(DatabaseConnection dc) {
-        
-        if (canProceedWithChangesApplied(tree.getLastPathComponent())) {
-
-            setSelectedConnection(dc);            
-            controller.disconnect(dc);            
-        }
-        
-    }
-
-    protected void connect(DatabaseConnection dc) {
-        controller.connect(dc);
-    }
-
-    protected void setTreeSelectionPath(TreePath treePath) {
-        tree.setSelectionPath(treePath);
-    }
-
-    protected TreePath getTreeSelectionPath() {
-        return tree.getSelectionPath();
-    }
-
-    protected TreePath getTreePathForLocation(int x, int y) {
-        return tree.getPathForLocation(x, y);
-    }
-
-    private BrowserTreePopupMenu getBrowserTreePopupMenu() {
-        if (popupMenu == null) {
-            popupMenu = new BrowserTreePopupMenu(
-                    new BrowserTreePopupMenuActionListener(this));
-        }
-        return popupMenu;
-    }
-
-    private BrowserTreeRootPopupMenu getBrowserRootTreePopupMenu() {
-        if (rootPopupMenu == null) {
-            rootPopupMenu = new BrowserTreeRootPopupMenu(this);
-        }
-        return rootPopupMenu;
-    }
-
-    private BrowserTreeFolderPopupMenu getBrowserTreeFolderPopupMenu() {
-        if (folderPopupMenu == null) {
-            folderPopupMenu = new BrowserTreeFolderPopupMenu(this);
-        }
-        return folderPopupMenu;
-    }
-    
-    private class MouseHandler extends MouseAdapter {
-
-        public MouseHandler() {}
-
-        public void mouseClicked(MouseEvent e) {
-
-            if (e.getClickCount() < 2) {
-
-                return;
-            }
-            twoClicks(e);
-        }
-
-        public void mousePressed(MouseEvent e) {
-
-            if (e.getClickCount() < 2) {
-
-                maybeShowPopup(e);
-                return;
-            }
-            twoClicks(e);
-        }
-
-        private void twoClicks(MouseEvent e) {
-
-            TreePath path = pathFromMouseEvent(e);
-            if (path != null && path == getTreeSelectionPath()) {
-
-                connectOnDoubleClick(path);
+        connectOnDoubleClick(path);
 //                pathChanged(path);
+      }
+    }
+
+    public void mouseReleased(MouseEvent e) {
+
+      maybeShowPopup(e);
+    }
+
+    private void maybeShowPopup(MouseEvent e) {
+
+      if (e.isPopupTrigger()) {
+
+        Point point = new Point(e.getX(), e.getY());
+        TreePath treePathForLocation = getTreePathForLocation(point.x, point.y);
+        try {
+
+          removeTreeSelectionListener();
+          setTreeSelectionPath(treePathForLocation);
+
+        } finally {
+
+          addTreeSelectionListener();
+        }
+
+        if (treePathForLocation != null) {
+
+          JPopupMenu popupMenu = null;
+          Object object = treePathForLocation.getLastPathComponent();
+          if (isAConnectionsFolderNode(object)) {
+
+            popupMenu = getBrowserTreeFolderPopupMenu();
+
+          } else if (isRootNode(object)) {
+
+            popupMenu = getBrowserRootTreePopupMenu();
+
+          } else {
+
+            popupMenu = getBrowserTreePopupMenu();
+            BrowserTreePopupMenu browserPopup = (BrowserTreePopupMenu) popupMenu;
+            browserPopup.setCurrentPath(treePathForLocation);
+
+            DatabaseConnection connection = getConnectionAt(point);
+            if (connection == null) {
+              return;
             }
+
+            browserPopup.setCurrentSelection(connection);
+          }
+
+          popupMenu.show(e.getComponent(), point.x, point.y);
         }
 
-        public void mouseReleased(MouseEvent e) {
+      }
+    }
 
-            maybeShowPopup(e);
+    private TreePath pathFromMouseEvent(MouseEvent e) {
+
+      return getTreePathForLocation(e.getX(), e.getY());
+    }
+
+    private void connectOnDoubleClick(TreePath path) {
+
+      if (doubleClickHostToConnect()) {
+
+        Object node = path.getLastPathComponent();
+        if (node instanceof DatabaseHostNode) {
+
+          DatabaseHostNode hostNode = (DatabaseHostNode) node;
+          DatabaseConnection databaseConnection = hostNode.getDatabaseConnection();
+          if (!databaseConnection.isConnected()) {
+
+            connect(databaseConnection);
+          } else {
+              disconnect(databaseConnection);
+          }
+
         }
 
-        private void maybeShowPopup(MouseEvent e) {
+      }
+    }
 
-            if (e.isPopupTrigger()) {
 
-                Point point = new Point(e.getX(), e.getY());
-                TreePath treePathForLocation = getTreePathForLocation(point.x, point.y);
-                try {
+  }
 
-                    removeTreeSelectionListener();
-                    setTreeSelectionPath(treePathForLocation);
+  private boolean doubleClickHostToConnect() {
 
-                } finally {
+    return SystemProperties.getBooleanProperty("user", "browser.double-click.to.connect");
+  }
 
-                    addTreeSelectionListener();
-                }
+  public void preferencesChanged(UserPreferenceEvent event) {
 
-                if (treePathForLocation != null) {
+    if (event.getEventType() == UserPreferenceEvent.ALL) {
 
-                    JPopupMenu popupMenu = null;
-                    Object object = treePathForLocation.getLastPathComponent();
-                    if (isAConnectionsFolderNode(object)) {
-                        
-                        popupMenu = getBrowserTreeFolderPopupMenu();                
-                    
-                    } else if (isRootNode(object)) {
-    
-                        popupMenu = getBrowserRootTreePopupMenu();
-    
-                    } else {
-    
-                        popupMenu = getBrowserTreePopupMenu();
-                        BrowserTreePopupMenu browserPopup = (BrowserTreePopupMenu) popupMenu; 
-                        browserPopup.setCurrentPath(treePathForLocation);
-        
-                        DatabaseConnection connection = getConnectionAt(point);
-                        if (connection == null) {
-                            return;
-                        }
-        
-                        browserPopup.setCurrentSelection(connection);
-                    }
+      RootDatabaseObjectNode root = (RootDatabaseObjectNode) tree.getConnectionsBranchNode();
+      List<DatabaseHostNode> hosts = root.getHostNodes();
 
-                    popupMenu.show(e.getComponent(), point.x, point.y);
-                }
+      for (DatabaseHostNode host : hosts) {
 
-            }
-        }
-
-        private TreePath pathFromMouseEvent(MouseEvent e) {
-
-            return getTreePathForLocation(e.getX(), e.getY());
-        }
-
-        private void connectOnDoubleClick(TreePath path) {
-
-            if (doubleClickHostToConnect()) {
-
-                Object node = path.getLastPathComponent();
-                if (node instanceof DatabaseHostNode) {
-
-                    DatabaseHostNode hostNode = (DatabaseHostNode) node;
-                    DatabaseConnection databaseConnection = hostNode.getDatabaseConnection();
-                    if (!databaseConnection.isConnected()) {
-
-                        connect(databaseConnection);
-                    }
-
-                }
-
-            }
-        }
-
+        host.applyUserPreferences();
+      }
 
     }
 
-    private boolean doubleClickHostToConnect() {
-
-        return SystemProperties.getBooleanProperty("user", "browser.double-click.to.connect");
-    }
-
-    public void preferencesChanged(UserPreferenceEvent event) {
-
-        if (event.getEventType() == UserPreferenceEvent.ALL) {
-
-            RootDatabaseObjectNode root = (RootDatabaseObjectNode)tree.getConnectionsBranchNode();
-            List<DatabaseHostNode> hosts = root.getHostNodes();
-
-            for (DatabaseHostNode host : hosts) {
-
-                host.applyUserPreferences();
-            }
-
-        }
-
-    }
+  }
 
 //    private boolean shouldChangeView = true;
 
-    public void schemaTreeMouseEvent(MouseEvent e) {
 
-        /*
 
-        shouldChangeView = true;
-        int clickCount = e.getClickCount();
+  public void connectionNameChanged(String name) {
 
-        System.out.println("schemaTreeMouseEvent clicks : " + clickCount);
+    controller.connectionNameChanged(name);
+  }
 
-        if (clickCount >= 2 && doubleClickHostToConnect()) {
+  public void moveToFolder(DatabaseConnection databaseConnection) {
 
-            shouldChangeView = false;
-        }
-        */
-    }
+    new MoveConnectionToFolderDialog(databaseConnection, this);
+  }
 
-    public void connectionNameChanged(String name) {
+  public void moveToFolder(DatabaseConnection databaseConnection, ConnectionsFolderNode folder) {
 
-        controller.connectionNameChanged(name);
-    }
+    ConnectionsFolder connectionsFolder = folder.getConnectionsFolder();
+    databaseConnection.setFolderId(connectionsFolder.getId());
+    connectionsFolder.addConnection(databaseConnection.getId());
 
-    public void moveToFolder(DatabaseConnection databaseConnection) {
+    DatabaseObjectNode node = getHostNode(databaseConnection);
+    tree.removeNode(node);
+    folder.add(node);
+    tree.nodeStructureChanged(folder);
+    tree.expandPath(new TreePath(folder.getPath()));
 
-        new MoveConnectionToFolderDialog(databaseConnection, this);
-    }
+    EventMediator.fireEvent(
+        new DefaultConnectionRepositoryEvent(
+            this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, databaseConnection));
 
-    public void moveToFolder(DatabaseConnection databaseConnection, ConnectionsFolderNode folder) {
+    EventMediator.fireEvent(
+        new DefaultConnectionsFolderRepositoryEvent(
+            this, ConnectionsFolderRepositoryEvent.FOLDER_MODIFIED, connectionsFolder));
+  }
 
-        ConnectionsFolder connectionsFolder = folder.getConnectionsFolder();
-        databaseConnection.setFolderId(connectionsFolder.getId());
-        connectionsFolder.addConnection(databaseConnection.getId());
+  public void moveScrollToSelection() {
+    JScrollBar bar = scrollPane.getVerticalScrollBar();
+    int max_bar = bar.getMaximum();
+    int max_tree = tree.getRowCount();
+    int value = tree.getMaxSelectionRow() * (max_bar / max_tree);
+    bar.setValue(value);
+  }
 
-        DatabaseObjectNode node = getHostNode(databaseConnection);
-        tree.removeNode(node);
-        folder.add(node);
-        tree.nodeStructureChanged(folder);        
-        tree.expandPath(new TreePath(folder.getPath()));
+  @Override
+  public void connectionImported(ConnectionRepositoryEvent connectionRepositoryEvent) {
 
-        EventMediator.fireEvent(
-                new DefaultConnectionRepositoryEvent(
-                        this, ConnectionRepositoryEvent.CONNECTION_MODIFIED, databaseConnection));
+    // nothing to see here
 
-        EventMediator.fireEvent(
-                new DefaultConnectionsFolderRepositoryEvent(
-                        this, ConnectionsFolderRepositoryEvent.FOLDER_MODIFIED, connectionsFolder));
-    }
-    
+  }
+
+  @Override
+  public void connectionAdded(ConnectionRepositoryEvent connectionRepositoryEvent) {
+
+    tree.reset(createTreeStructure());
+  }
+
+  @Override
+  public void connectionModified(ConnectionRepositoryEvent connectionRepositoryEvent) {
+
+    // nothing to see here
+
+  }
+
+  @Override
+  public void connectionRemoved(ConnectionRepositoryEvent connectionRepositoryEvent) {
+
+    // nothing to see here
+
+  }
+
 }
+
 

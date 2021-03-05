@@ -1,7 +1,7 @@
 /*
  * BasicPopupMenuListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,10 +20,9 @@
 
 package org.executequery.components;
 
+import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-
-import javax.swing.JPopupMenu;
 
 public class BasicPopupMenuListener extends MouseAdapter {
 
@@ -48,6 +47,7 @@ public class BasicPopupMenuListener extends MouseAdapter {
     }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * OpenCommand.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,34 +20,30 @@
 
 package org.executequery.actions.filecommands;
 
+import org.executequery.GUIUtilities;
+import org.executequery.components.OpenFileDialog;
+import org.executequery.util.FileLoader;
+import org.underworldlabs.swing.actions.BaseCommand;
+
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.io.File;
 
-import javax.swing.JFileChooser;
-
-import org.executequery.GUIUtilities;
-import org.executequery.components.OpenFileDialog;
-import org.underworldlabs.swing.actions.BaseCommand;
-
-import org.executequery.util.FileLoader;
-
-/** 
+/**
  * The File | Open command.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class OpenCommand implements BaseCommand {
-    
+
     public void execute(ActionEvent e) {
-    
+
         OpenFileDialog fileChooser = new OpenFileDialog();
 
         int result = fileChooser.showOpenDialog(GUIUtilities.getInFocusDialogOrWindow());
 
         if (result == JFileChooser.CANCEL_OPTION) {
-        
+
             return;
         }
 
@@ -57,17 +53,3 @@ public class OpenCommand implements BaseCommand {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-

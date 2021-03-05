@@ -1,7 +1,7 @@
 /*
  * DefaultToolBarManager.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,57 +20,61 @@
 
 package org.underworldlabs.swing.toolbar;
 
+import org.underworldlabs.Constants;
+import org.underworldlabs.swing.RolloverButton;
+import org.underworldlabs.swing.actions.ActionBuilder;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Vector;
 
-import org.underworldlabs.Constants;
-import org.underworldlabs.swing.RolloverButton;
-import org.underworldlabs.swing.actions.ActionBuilder;
-
 /**
  * Tool bar manager class for managing and creating
  * tool bars and associated components.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DefaultToolBarManager {
-    
-    /** All tool bars added */
+
+    /**
+     * All tool bars added
+     */
     private Map<String, ToolBar> toolBars;
 
-    /** The tool bar base panel */
+    /**
+     * The tool bar base panel
+     */
     private ToolBarBase toolBarBase;
 
-    /** The button comparator */
+    /**
+     * The button comparator
+     */
     private ButtonComparator buttonComparator;
 
     /**
      * Creates a new instance of DefaultToolBarManager.
      * The toolsConfigPath variable may be null and is usually
-     * a user defined/modified file system path differing from the 
+     * a user defined/modified file system path differing from the
      * defaults specified as a package resource XML path.
      *
-     * @param toolsConfigPath - the user XML conf file path
+     * @param toolsConfigPath          - the user XML conf file path
      * @param defaultToolsResourcePath - the default XML conf resource file
      */
-    public DefaultToolBarManager(String toolsConfigPath, 
+    public DefaultToolBarManager(String toolsConfigPath,
                                  String defaultToolsResourcePath) {
         ToolBarProperties.init(toolsConfigPath, defaultToolsResourcePath);
-        
+
         // initialise the tool bar cache
         toolBars = new HashMap<String, ToolBar>();
-        
+
         // initialise the tools base panel
         toolBarBase = new ToolBarBase(ToolBarProperties.getNextToolbarRow());
-        
+
         // button comparator for sorting
         buttonComparator = new ButtonComparator();
     }
-    
+
     /**
      * Returns the tool bar base panel.
      */
@@ -94,55 +98,53 @@ public class DefaultToolBarManager {
         toolBarBase.repaint();
         toolBarBase.revalidate();
     }
-    
+
     /**
      * Builds (or rebuilds) the tool bar with the specified name
      * and adds it to the tool bar base panel and local cache.
      *
-     * @param name - the name of the tool bar as it appears in the
-     *               XML tool bar conf file
+     * @param name    - the name of the tool bar as it appears in the
+     *                XML tool bar conf file
      * @param rebuild - whether this is a rebuild of an existing tool bar
      */
+    protected void initToolBar() {
+        toolBarBase.removeAll();
+        ToolBar toolBar = new ToolBar(toolBarBase, "Tool Bar");
+        //toolBar.setLayout(new GridBagLayout());
+        ToolBarWrapper eqtb = new ToolBarWrapper();
+        ToolBarConstraints tbc = new ToolBarConstraints();
+        tbc.setConstraints(0, 0);
+        eqtb.setConstraints(tbc);
+        toolBar.removeAllButtons();
+        toolBar.invalidate();
+        toolBars.put("Tool Bar", toolBar);
+        toolBarBase.addToolBar(toolBar, eqtb.getConstraints());
+    }
+
     protected void buildToolBar(String name, boolean rebuild) {
         ToolBarWrapper eqtb = ToolBarProperties.getToolBar(name);
-        
         if (!eqtb.isVisible() || !eqtb.hasButtons()) {
             return;
         }
-        
-        ToolBar toolBar = null;
-        if (rebuild) {
-            toolBar = (ToolBar)toolBars.get(name);
+        toolBarBase.removeAll();
 
-            if (toolBar != null) {
-                toolBar.removeAllButtons();
-                toolBar.invalidate();
-            }
-            else {
-                toolBar = new ToolBar(toolBarBase, name);
-                toolBars.put(name, toolBar);
-            }
-            
-        }
-        else {
-            toolBar = new ToolBar(toolBarBase, name);
-            toolBars.put(name, toolBar);
-        }
-        
+
+        ToolBar toolBar = (ToolBar) toolBars.get("Tool Bar");
+
         Vector buttons = eqtb.getButtonsVector();
         Collections.sort(buttons, buttonComparator);
-        
+
         RolloverButton button;
-        
+
         for (int i = 0, k = buttons.size(); i < k; i++) {
 
-            ToolBarButton tb = (ToolBarButton)buttons.get(i);
-            
+            ToolBarButton tb = (ToolBarButton) buttons.get(i);
+
             if (!tb.isVisible()) {
-            
+
                 continue;
             }
-            
+
             if (tb.isSeparator()) {
 
                 toolBar.addSeparator();
@@ -150,18 +152,20 @@ public class DefaultToolBarManager {
             } else {
 
                 button = new RolloverButton(ActionBuilder.get(tb.getActionId()),
-                                           tb.getName());
+                        tb.getName());
                 button.setText(Constants.EMPTY);
                 toolBar.addButton(button);
             }
 
         }
-        
+        toolBar.addSeparator();
+
         toolBar.buildToolBar();
-        toolBarBase.addToolBar(toolBar, eqtb.getConstraints());
+        toolBarBase.addToolBar(toolBar, new ToolBarConstraints(0, 0));//eqtb.getConstraints());
     }
 
 }
+
 
 
 

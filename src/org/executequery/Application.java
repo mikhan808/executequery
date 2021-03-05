@@ -1,7 +1,7 @@
 /*
  * Application.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -30,32 +30,33 @@ import org.underworldlabs.jdbc.DataSourceException;
 public final class Application {
 
     private static Application application;
-    
-    private Application() {}
-    
+
+    private Application() {
+    }
+
     public static synchronized Application getInstance() {
-        
+
         if (application == null) {
-            
+
             application = new Application();
         }
-        
+
         return application;
     }
-    
+
     /**
      * Program shutdown method.
      * Does some logging and closes connections cleanly.
      */
     public void exitProgram() {
-        
+
         if (promptToSave() && GUIUtilities.getOpenSaveFunctionCount() > 0) {
 
             SaveOnExitDialog exitDialog = new SaveOnExitDialog();
 
             int result = exitDialog.getResult();
             if (result != SaveFunction.SAVE_COMPLETE ||
-                        result != SaveOnExitDialog.DISCARD_OPTION) {
+                    result != SaveOnExitDialog.DISCARD_OPTION) {
 
                 exitDialog = null;
                 return;
@@ -79,14 +80,15 @@ public final class Application {
 
             ConnectionManager.close();
 
-        } catch (DataSourceException e) {}
+        } catch (DataSourceException e) {
+        }
 
         Log.info("Connection pools destroyed");
     }
 
     private boolean promptToSave() {
 
-        return (userProperties().getBooleanProperty("general.save.prompt") 
+        return (userProperties().getBooleanProperty("general.save.prompt")
                 && GUIUtilities.hasValidSaveFunction());
     }
 
@@ -96,6 +98,7 @@ public final class Application {
     }
 
 }
+
 
 
 

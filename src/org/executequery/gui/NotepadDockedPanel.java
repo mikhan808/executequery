@@ -1,7 +1,7 @@
 /*
  * NotepadDockedPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,22 +20,22 @@
 
 package org.executequery.gui;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 
 public class NotepadDockedPanel extends AbstractDockedTabActionPanel {
 
     public static final String TITLE = "Notepad";
 
     public static final String MENU_ITEM_KEY = "viewNotepad";
-    
+
     public static final String PROPERTY_KEY = "system.display.notepad";
 
     private ScratchPadPanel scratchPadPanel;
-    
+
     public NotepadDockedPanel() {
 
         super(new BorderLayout());
-        
+
         scratchPadPanel = new ScratchPadPanel();
         scratchPadPanel.getPanelToolBar().remove(0);
         add(scratchPadPanel, BorderLayout.CENTER);
@@ -69,9 +69,9 @@ public class NotepadDockedPanel extends AbstractDockedTabActionPanel {
         return TITLE;
     }
 
-    
-    
+
 }
+
 
 
 

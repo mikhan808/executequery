@@ -1,7 +1,7 @@
 /*
  * StringBundle.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -29,19 +29,23 @@ import java.util.ResourceBundle;
 /**
  * Resource bundle wrapper.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class StringBundle {
-    
-    /** the wrapped resource */
+
+    /**
+     * the wrapped resource
+     */
     private ResourceBundle bundle;
-    
-    /** the package name this resource belongs to */
+
+    /**
+     * the package name this resource belongs to
+     */
     private String packageName;
-    
-    /** Creates a new instance of StringBundle */
+
+    /**
+     * Creates a new instance of StringBundle
+     */
     public StringBundle(ResourceBundle bundle, String packageName) {
         this.bundle = bundle;
         this.packageName = packageName;
@@ -66,13 +70,13 @@ public class StringBundle {
      * @param key the string value's key
      * @param arg the param argument for position 1
      * @return the string value
-     */    
+     */
     public String getString(String key, Object arg) {
         Object[] args;
         if (arg == null) {
             args = new Object[0];
         } else {
-            args = new Object[] {arg};
+            args = new Object[]{arg};
         }
         return getString(key, args);
     }
@@ -85,7 +89,7 @@ public class StringBundle {
      * @param key the string value's key
      * @param arg the param arguments
      * @return the string value
-     */    
+     */
     public String getString(String key, Object[] args) {
         if (args == null) {
             args = new Object[0];
@@ -94,14 +98,13 @@ public class StringBundle {
         String value = getString(key);
         try {
             return MessageFormat.format(value, args);
-        }
-        catch (IllegalArgumentException ex) {
+        } catch (IllegalArgumentException ex) {
             String msg = "Error formatting i18n string for key '" + key + "'";
             Log.error(msg, ex);
             return msg + ": " + ex.toString();
         }
     }
-    
+
     /**
      * Returns the resource bundle wrapped by this object.
      */
@@ -115,10 +118,12 @@ public class StringBundle {
     public String getPackageName() {
         return packageName;
     }
- 
-    /** resource bundle cache */
-    private static Map<String,StringBundle> bundles = 
-                            new HashMap<String,StringBundle>();
+
+    /**
+     * resource bundle cache
+     */
+    private static Map<String, StringBundle> bundles =
+            new HashMap<String, StringBundle>();
 
     /**
      * Loads the resource bundle for the specified class.
@@ -136,7 +141,7 @@ public class StringBundle {
         String key = packageName.replaceAll("\\.", "/");
         if (!bundles.containsKey(key)) {
             String path = key + "/resource/resources";
-            ResourceBundle bundle = 
+            ResourceBundle bundle =
                     ResourceBundle.getBundle(path, Locale.getDefault());
             bundles.put(key, new StringBundle(bundle, key));
         }
@@ -145,6 +150,7 @@ public class StringBundle {
     }
 
 }
+
 
 
 

@@ -1,7 +1,7 @@
 /*
  * MainCheckBoxMenuItem.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,22 +20,20 @@
 
 package org.underworldlabs.swing.menu;
 
-import java.awt.Dimension;
-
-import javax.swing.Action;
-import javax.swing.JCheckBoxMenuItem;
-
 import org.executequery.gui.GUIConstants;
 
+import javax.swing.*;
+import java.awt.*;
+
 public class MainCheckBoxMenuItem extends JCheckBoxMenuItem {
-    
+
     public MainCheckBoxMenuItem() {
 
         super();
     }
-    
+
     public MainCheckBoxMenuItem(String text) {
-        
+
         super(text);
     }
 
@@ -58,3 +56,4 @@ public class MainCheckBoxMenuItem extends JCheckBoxMenuItem {
     }
 
 }
+

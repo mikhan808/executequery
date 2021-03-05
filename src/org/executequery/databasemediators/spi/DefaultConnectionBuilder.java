@@ -1,7 +1,7 @@
 /*
  * DefaultConnectionBuilder.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,26 +27,33 @@ import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.swing.util.SwingWorker;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DefaultConnectionBuilder implements ConnectionBuilder {
 
-    /** The worker thread to establish the connection */
+    /**
+     * The worker thread to establish the connection
+     */
     private SwingWorker worker;
 
-    /** The connection progress dialog */
+    /**
+     * The connection progress dialog
+     */
     private ConnectionProgressDialog progressDialog;
 
-    /** Indicates whether the process was cancelled */
+    /**
+     * Indicates whether the process was cancelled
+     */
     private boolean cancelled;
 
-    /** The database connection object */
+    /**
+     * The database connection object
+     */
     private DatabaseConnection databaseConnection;
 
-    /** The exception on error */
+    /**
+     * The exception on error
+     */
     private DataSourceException dataSourceException;
 
     public DefaultConnectionBuilder(DatabaseConnection databaseConnection) {
@@ -90,16 +97,20 @@ public class DefaultConnectionBuilder implements ConnectionBuilder {
         return databaseConnection.isConnected();
     }
 
-    public void connect() {
+    public void connect() throws IllegalArgumentException {
 
         progressDialog = new ConnectionProgressDialog(this);
 
         worker = new SwingWorker() {
             public Object construct() {
-
-                createDataSource();
+                try {
+                    createDataSource();
+                } catch (IllegalArgumentException e) {
+                    dataSourceException = new DataSourceException(e);
+                }
                 return null;
             }
+
             public void finished() {
 
                 if (!cancelled && progressDialog != null) {
@@ -115,7 +126,7 @@ public class DefaultConnectionBuilder implements ConnectionBuilder {
 
     }
 
-    private void createDataSource() {
+    private void createDataSource() throws IllegalArgumentException {
 
         try {
 
@@ -129,6 +140,7 @@ public class DefaultConnectionBuilder implements ConnectionBuilder {
     }
 
 }
+
 
 
 

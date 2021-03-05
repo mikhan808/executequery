@@ -1,7 +1,7 @@
 /*
  * TableDataChange.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,14 @@
 
 package org.executequery.databaseobjects;
 
-import java.util.List;
 import org.executequery.gui.resultset.RecordDataItem;
 
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision$
- * @date     $Date$
+ * @author Takis Diakoumis
+ * @version $Revision$
+ * @date $Date$
  */
 public class TableDataChange {
 
@@ -41,4 +41,5 @@ public class TableDataChange {
         return rowDataForRow;
     }
 }
+
 

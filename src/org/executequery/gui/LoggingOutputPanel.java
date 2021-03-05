@@ -1,7 +1,7 @@
 /*
  * LoggingOutputPanel.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,32 +20,23 @@
 
 package org.executequery.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Insets;
-
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextPane;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
-import javax.swing.text.Document;
-import javax.swing.text.JTextComponent;
-
 import org.executequery.UserPreferencesManager;
 import org.executequery.components.BasicPopupMenuListener;
 import org.executequery.components.LoggingOutputPane;
 import org.underworldlabs.swing.plaf.UIUtils;
 
+import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.Document;
+import javax.swing.text.JTextComponent;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
-*/
+ * @author Takis Diakoumis
+ */
 public class LoggingOutputPanel extends JPanel
-                                implements DocumentListener, ReadOnlyTextPane {
+        implements DocumentListener, ReadOnlyTextPane {
 
     private LoggingOutputPane outputPane;
 
@@ -173,7 +164,7 @@ public class LoggingOutputPanel extends JPanel
 
         return outputPane;
     }
-    
+
     public void clear() {
 
         outputPane.setText("");
@@ -196,6 +187,7 @@ public class LoggingOutputPanel extends JPanel
     }
 
 }
+
 
 
 

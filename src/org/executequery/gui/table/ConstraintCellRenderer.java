@@ -1,7 +1,7 @@
 /*
  * ConstraintCellRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,25 +20,19 @@
 
 package org.executequery.gui.table;
 
-import java.awt.Component;
-
-import javax.swing.ImageIcon;
-import javax.swing.JLabel;
-import javax.swing.JTable;
-import javax.swing.table.TableCellRenderer;
-
 import org.executequery.GUIUtilities;
 import org.executequery.gui.browser.ColumnConstraint;
 
+import javax.swing.*;
+import javax.swing.table.TableCellRenderer;
+import java.awt.*;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class ConstraintCellRenderer extends JLabel
-                                    implements TableCellRenderer {
-    
+        implements TableCellRenderer {
+
     private static ImageIcon deleteImage;
     private static ImageIcon newImage;
 
@@ -47,24 +41,25 @@ public class ConstraintCellRenderer extends JLabel
         newImage = GUIUtilities.loadIcon("MarkNew16.png", true);
     }
 
-    /** Creates a new instance of ConstraintCellRenderer */
-    public ConstraintCellRenderer() {}
+    /**
+     * Creates a new instance of ConstraintCellRenderer
+     */
+    public ConstraintCellRenderer() {
+    }
 
     public Component getTableCellRendererComponent(JTable table,
-                                Object value, boolean isSelected, boolean hasFocus,
-                                int row, int column) {
-        
+                                                   Object value, boolean isSelected, boolean hasFocus,
+                                                   int row, int column) {
 
-        ColumnConstraint cc = (ColumnConstraint)value;
+
+        ColumnConstraint cc = (ColumnConstraint) value;
         if (cc.isMarkedDeleted()) {
             setIcon(deleteImage);
             setToolTipText("This value marked to be dropped");
-        }
-        else if (cc.isNewConstraint()) {
+        } else if (cc.isNewConstraint()) {
             setIcon(newImage);
-            setToolTipText("This value marked new");            
-        }
-        else {
+            setToolTipText("This value marked new");
+        } else {
             setIcon(null);
         }
 
@@ -74,6 +69,7 @@ public class ConstraintCellRenderer extends JLabel
     }
 
 }
+
 
 
 

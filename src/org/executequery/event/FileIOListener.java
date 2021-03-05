@@ -1,7 +1,7 @@
 /*
  * FileIOListener.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,19 +24,20 @@ public interface FileIOListener extends ApplicationEventListener {
 
     /**
      * Indicates a file has been read from disk.
-     * 
+     *
      * @param the encapsulating event
      */
     public void inputComplete(FileIOEvent fileIoEvent);
 
     /**
      * Indicates a file has been written to disk.
-     * 
+     *
      * @param the encapsulating event
      */
     public void outputComplete(FileIOEvent fileIoEvent);
-    
+
 }
+
 
 
 

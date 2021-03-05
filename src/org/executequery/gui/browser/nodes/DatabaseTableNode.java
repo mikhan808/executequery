@@ -1,7 +1,7 @@
 /*
  * DatabaseTableNode.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,12 +20,13 @@
 
 package org.executequery.gui.browser.nodes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.executequery.databaseobjects.DatabaseTable;
 import org.executequery.databaseobjects.NamedObject;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.jdbc.DataSourceException;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class DatabaseTableNode extends DatabaseObjectNode {
 
@@ -33,7 +34,7 @@ public class DatabaseTableNode extends DatabaseObjectNode {
 
         super(databaseObject);
     }
-    
+
     @Override
     public List<DatabaseObjectNode> getChildObjects() throws DataSourceException {
 
@@ -45,64 +46,64 @@ public class DatabaseTableNode extends DatabaseObjectNode {
 
         return nodes;
     }
-    
+
     private DatabaseTable databaseTable() {
-        
+
         return (DatabaseTable) getDatabaseObject();
     }
 
     private List<DatabaseObjectNode> asNodes(List<? extends NamedObject> values) {
-        
+
         if (values != null) {
 
             List<DatabaseObjectNode> nodes = new ArrayList<DatabaseObjectNode>();
             for (int i = 0, n = values.size(); i < n; i++) {
-            
+
                 nodes.add(new DatabaseObjectNode(values.get(i)));
             }
-            
+
             return nodes;
         }
 
         return null;
     }
-    
-    
+
+
     class ColumnFolderNode extends TableFolderNode {
-        
+
         @Override
         public List<DatabaseObjectNode> getChildObjects() throws DataSourceException {
 
             return asNodes(databaseTable().getObjects());
         }
-        
+
         @Override
         public String getName() {
-            
-            return "Columns";
+
+            return bundleString("columns");
         }
-        
+
         @Override
         public int getType() {
 
             return NamedObject.COLUMNS_FOLDER_NODE;
         }
-        
+
     }
-    
-    
+
+
     class ForeignKeysFolderNode extends TableFolderNode {
-        
+
         @Override
         public List<DatabaseObjectNode> getChildObjects() throws DataSourceException {
 
             return asNodes(databaseTable().getForeignKeys());
         }
-        
+
         @Override
         public String getName() {
-            
-            return "Foreign Keys";
+
+            return bundleString("foreign-keys");
         }
 
         @Override
@@ -112,19 +113,19 @@ public class DatabaseTableNode extends DatabaseObjectNode {
         }
 
     }
-    
+
     class PrimaryKeysFolderNode extends TableFolderNode {
-        
+
         @Override
         public List<DatabaseObjectNode> getChildObjects() throws DataSourceException {
 
             return asNodes(databaseTable().getPrimaryKeys());
         }
-        
+
         @Override
         public String getName() {
-            
-            return "Primary Keys";
+
+            return bundleString("primary-keys");
         }
 
         @Override
@@ -136,19 +137,19 @@ public class DatabaseTableNode extends DatabaseObjectNode {
     }
 
     class IndexesFolderNode extends TableFolderNode {
-        
+
         @Override
         public List<DatabaseObjectNode> getChildObjects() throws DataSourceException {
 
             return asNodes(databaseTable().getIndexes());
         }
-        
+
         @Override
         public String getName() {
-            
-            return "Indexes";
+
+            return bundleString("indexes");
         }
-     
+
         @Override
         public int getType() {
 
@@ -156,16 +157,22 @@ public class DatabaseTableNode extends DatabaseObjectNode {
         }
 
     }
-    
+
     abstract class TableFolderNode extends DatabaseObjectNode {
+
+        protected String bundleString(String key) {
+
+            return Bundles.get(getClass().getEnclosingClass(), key);
+        }
 
         @Override
         public String getDisplayName() {
 
             return getName();
         }
-        
+
     }
-    
+
 }
+
 

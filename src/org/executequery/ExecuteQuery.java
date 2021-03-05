@@ -1,7 +1,7 @@
 /*
  * ExecuteQuery.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -22,22 +22,20 @@ package org.executequery;
 
 import org.executequery.gui.HelpWindow;
 
-/** 
+/**
  * The entry point for Execute Query.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1661 $
- * @date     $Date: 2016-07-13 20:53:12 +1000 (Wed, 13 Jul 2016) $
+ * @author Takis Diakoumis
  */
 public final class ExecuteQuery {
-    
+
     public ExecuteQuery() {
-        
+
         new ApplicationLauncher().startup();
     }
-    
+
     public static void main(String[] args) {
-        
+
         // make sure the installed java version is at least 1.7
         /*
         if (!MiscUtils.isMinJavaVersion(1, 7)) {
@@ -56,28 +54,29 @@ public final class ExecuteQuery {
         */
 
         if (isHelpStartupOnly(args)) {
-            
+
             HelpWindow.main(args);
-            
+
         } else {
 
             ApplicationContext.getInstance().startup(args);
             new ExecuteQuery();
         }
-            
+
     }
-    
+
     private static boolean isHelpStartupOnly(String[] args) {
-        
+
         if (args.length > 0) {
 
             return args[0].toUpperCase().equals("HELP");
         }
 
-        return false; 
+        return false;
     }
-    
+
 }
+
 
 
 

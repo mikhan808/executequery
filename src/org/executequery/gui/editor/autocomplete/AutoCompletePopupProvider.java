@@ -1,7 +1,7 @@
 /*
  * AutoCompletePopupProvider.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,17 +20,15 @@
 
 package org.executequery.gui.editor.autocomplete;
 
-import javax.swing.Action;
+import javax.swing.*;
+import java.util.List;
 
 public interface AutoCompletePopupProvider {
 
     void firePopupTrigger();
-    
+
     Action getPopupAction();
 
+    void addListItems(List<AutoCompleteListItem> items);
+
 }
-
-
-
-
-

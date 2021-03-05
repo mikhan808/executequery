@@ -1,7 +1,7 @@
 /*
  * PasswordTableCellRenderer.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,55 +20,50 @@
 
 package org.underworldlabs.swing.table;
 
-import java.awt.Component;
-
-import javax.swing.JLabel;
-import javax.swing.JTable;
+import javax.swing.*;
 import javax.swing.table.TableCellRenderer;
+import java.awt.*;
 
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class PasswordTableCellRenderer extends JLabel
-                                       implements TableCellRenderer {
-    
+        implements TableCellRenderer {
+
     private final char echoChar;
 
     public PasswordTableCellRenderer() {
         this('*');
     }
-    
+
     public PasswordTableCellRenderer(char echoChar) {
         this.echoChar = echoChar;
     }
 
-    public Component getTableCellRendererComponent(JTable table, 
+    public Component getTableCellRendererComponent(JTable table,
                                                    Object value,
-                                                   boolean isSelected, 
+                                                   boolean isSelected,
                                                    boolean hasFocus,
-                                                   int row, 
+                                                   int row,
                                                    int column) {
-        
+
         if (isSelected) {
 
             setForeground(table.getSelectionForeground());
             setBackground(table.getSelectionBackground());
 
         } else {
-        
+
             setForeground(table.getForeground());
             setBackground(table.getBackground());
         }
 
         if (value != null) {
-        
+
             setText(passwordChars(value.toString()));
-        
+
         } else {
-            
+
             setText("");
         }
         return this;
@@ -83,11 +78,12 @@ public class PasswordTableCellRenderer extends JLabel
 
             sb.append(echoChar);
         }
-        
+
         return sb.toString();
     }
-    
+
 }
+
 
 
 

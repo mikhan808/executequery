@@ -1,7 +1,7 @@
 /*
  * DatabaseSchemaNode.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,29 +20,30 @@
 
 package org.executequery.gui.browser.nodes;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.executequery.databaseobjects.DatabaseMetaTag;
 import org.executequery.databaseobjects.DatabaseSchema;
 import org.underworldlabs.jdbc.DataSourceException;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public class DatabaseSchemaNode extends DatabaseObjectNode {
-    
-    /** the direct descendants of this object */
+
+    /**
+     * the direct descendants of this object
+     */
     private List<DatabaseObjectNode> children;
-    
-    /** Creates a new instance of DatabaseSchemaNode */
+
+    /**
+     * Creates a new instance of DatabaseSchemaNode
+     */
     public DatabaseSchemaNode(DatabaseSchema schema) {
         super(schema);
     }
-    
+
     /**
      * Returns the children associated with this node.
      *
@@ -54,17 +55,17 @@ public class DatabaseSchemaNode extends DatabaseObjectNode {
         if (children != null) {
             return children;
         }
-        
-        DatabaseSchema schema = (DatabaseSchema)getDatabaseObject();
-        
+
+        DatabaseSchema schema = (DatabaseSchema) getDatabaseObject();
+
         // check for meta tags
         List _children = schema.getMetaObjects();
         if (_children != null && !_children.isEmpty()) {
-            
+
             int count = _children.size();
             children = new ArrayList<DatabaseObjectNode>(count);
             for (int i = 0; i < count; i++) {
-                DatabaseMetaTag metaTag = (DatabaseMetaTag)_children.get(i);
+                DatabaseMetaTag metaTag = (DatabaseMetaTag) _children.get(i);
                 children.add(new DatabaseMetaTagNode(metaTag));
             }
             return children;
@@ -98,4 +99,5 @@ public class DatabaseSchemaNode extends DatabaseObjectNode {
     }
 
 }
+
 

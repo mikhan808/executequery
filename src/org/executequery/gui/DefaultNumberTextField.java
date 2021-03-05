@@ -1,7 +1,7 @@
 /*
  * DefaultNumberTextField.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,14 +20,14 @@
 
 package org.executequery.gui;
 
-import java.awt.Insets;
-
 import org.underworldlabs.swing.NumberTextField;
+
+import java.awt.*;
 
 public class DefaultNumberTextField extends NumberTextField {
 
     public DefaultNumberTextField() {
-        
+
         super();
     }
 
@@ -40,14 +40,15 @@ public class DefaultNumberTextField extends NumberTextField {
 
         return GUIConstants.DEFAULT_FIELD_MARGIN;
     }
-    
+
     public int getHeight() {
 
-        return super.getHeight() < GUIConstants.DEFAULT_FIELD_HEIGHT ? 
+        return super.getHeight() < GUIConstants.DEFAULT_FIELD_HEIGHT ?
                 GUIConstants.DEFAULT_FIELD_HEIGHT : super.getHeight();
     }
-    
+
 }
+
 
 
 

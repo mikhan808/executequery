@@ -1,7 +1,7 @@
 /*
  * DatabaseSource.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,23 +20,21 @@
 
 package org.executequery.databaseobjects;
 
-import java.util.List;
-
 import org.underworldlabs.jdbc.DataSourceException;
+
+import java.util.List;
 
 /**
  * Defines a database 'source' object - typically a catalog or schema.
  *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
 public interface DatabaseSource extends NamedObject {
 
     /**
      * Returns the meta object with the specified name
      *
-     * @param   name the meta tag name
+     * @param name the meta tag name
      * @return the meta tag object
      */
     DatabaseMetaTag getDatabaseMetaTag(String name) throws DataSourceException;
@@ -64,27 +62,27 @@ public interface DatabaseSource extends NamedObject {
 
     /**
      * Returns the procedure with the specified name.
-     * 
+     *
      * @param name
      * @return the named procedure
      */
     DatabaseProcedure getProcedure(String name);
-    
+
     /**
      * Returns the function with the specified name.
-     * 
+     *
      * @param name
      * @return the named function
      */
     DatabaseFunction getFunction(String name);
-    
+
     /**
      * Returns whether this is the default source connection.
      *
      * @return true | false
      */
     boolean isDefault();
-    
+
     /**
      * Returns the parent catalog object.
      *
@@ -100,6 +98,7 @@ public interface DatabaseSource extends NamedObject {
     DatabaseSchema getSchema();
 
 }
+
 
 
 

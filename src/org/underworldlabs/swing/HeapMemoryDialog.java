@@ -1,7 +1,7 @@
 /*
  * HeapMemoryDialog.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,58 +20,41 @@
 
 package org.underworldlabs.swing;
 
-import java.awt.Container;
-import java.awt.Dialog;
-import java.awt.Frame;
-import java.awt.Insets;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
-import javax.swing.JDialog;
-
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1487 $
- * @date     $Date: 2015-08-23 22:21:42 +1000 (Sun, 23 Aug 2015) $
+ * @author Takis Diakoumis
  */
-public class HeapMemoryDialog extends JDialog 
-                              implements ActionListener {
-    
+public class HeapMemoryDialog extends JDialog
+        implements ActionListener {
+
     private HeapMemoryPanel heapPanel;
-    
+
     public HeapMemoryDialog(Frame owner) {
-        super(owner, "Java Heap Memory", false);        
-        try {
-            jbInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        super(owner, "Java Heap Memory", false);
+        init();
     }
 
     public HeapMemoryDialog(Dialog owner) {
         super(owner, "Java Heap Memory", false);
-        try {
-            jbInit();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        init();
     }
 
-    private void jbInit() {
+    private void init() {
+
         heapPanel = new HeapMemoryPanel();
-        
+
         JButton closeButton = new JButton("Close");
         closeButton.addActionListener(this);
-        
+
         Container c = this.getContentPane();
         c.setLayout(new GridBagLayout());
-        
+
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(5,5,5,5);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHWEST;
         gbc.fill = GridBagConstraints.BOTH;
         c.add(heapPanel, gbc);
@@ -81,10 +64,10 @@ public class HeapMemoryDialog extends JDialog
         gbc.insets.bottom = 10;
         gbc.anchor = GridBagConstraints.CENTER;
         c.add(closeButton, gbc);
-        
+
         setResizable(false);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        
+
         pack();
         setLocation(GUIUtils.getPointToCenter(getOwner(), getSize()));
         setVisible(true);
@@ -93,16 +76,15 @@ public class HeapMemoryDialog extends JDialog
     public void actionPerformed(ActionEvent e) {
         dispose();
     }
-    
+
     public void dispose() {
         if (heapPanel != null) {
             heapPanel.stopTimer();
-        }        
+        }
         super.dispose();
     }
-    
-}
 
+}
 
 
 

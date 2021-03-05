@@ -1,7 +1,7 @@
 /*
  * ResultSetTablePopupMenu.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,28 +20,12 @@
 
 package org.executequery.gui.editor;
 
-import java.awt.Point;
-import java.awt.event.ActionEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.print.Printable;
-
-import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenu;
-import javax.swing.JMenuItem;
-import javax.swing.JPopupMenu;
-import javax.swing.JTable;
-import javax.swing.table.TableModel;
-
 import org.executequery.Constants;
 import org.executequery.GUIUtilities;
 import org.executequery.UserPreferencesManager;
+import org.executequery.databaseobjects.DatabaseTableObject;
 import org.executequery.gui.BaseDialog;
-import org.executequery.gui.resultset.LobRecordDataItem;
-import org.executequery.gui.resultset.RecordDataItem;
-import org.executequery.gui.resultset.ResultSetTable;
-import org.executequery.gui.resultset.ResultSetTableModel;
-import org.executequery.gui.resultset.SimpleRecordDataItem;
+import org.executequery.gui.resultset.*;
 import org.executequery.print.PrintingSupport;
 import org.executequery.print.TablePrinter;
 import org.underworldlabs.swing.actions.ActionBuilder;
@@ -50,8 +34,16 @@ import org.underworldlabs.swing.menu.MenuItemFactory;
 import org.underworldlabs.swing.table.TableSorter;
 import org.underworldlabs.util.SystemProperties;
 
+import javax.swing.*;
+import javax.swing.table.TableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.print.Printable;
+
 public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener {
-    
+
     private Point lastPopupPoint;
 
     private ReflectiveAction reflectiveAction;
@@ -62,22 +54,30 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
 
     private boolean doubleClickCellOpensDialog;
 
-    public ResultSetTablePopupMenu(ResultSetTable table, 
-            ResultSetTableContainer resultSetTableContainer) {
+    DatabaseTableObject tableObject;
 
+    public ResultSetTablePopupMenu(ResultSetTable table,
+                                   ResultSetTableContainer resultSetTableContainer) {
+        this(table, resultSetTableContainer, null);
+    }
+
+    public ResultSetTablePopupMenu(ResultSetTable table,
+                                   ResultSetTableContainer resultSetTableContainer, DatabaseTableObject tableObject) {
+
+        this.tableObject = tableObject;
         this.table = table;
         this.resultSetTableContainer = resultSetTableContainer;
-        
+
         doubleClickCellOpensDialog = doubleClickCellOpensDialog();
         reflectiveAction = new ReflectiveAction(this);
-        
+
         // the print sub-menu
         JMenu printMenu = MenuItemFactory.createMenu("Print");
         create(printMenu, "Selection", "printSelection");
         create(printMenu, "Table", "printTable");
 
-        JCheckBoxMenuItem cellOpensDialog = 
-            MenuItemFactory.createCheckBoxMenuItem(reflectiveAction);
+        JCheckBoxMenuItem cellOpensDialog =
+                MenuItemFactory.createCheckBoxMenuItem(reflectiveAction);
         cellOpensDialog.setText("Double-Click Opens Item View");
         cellOpensDialog.setSelected(doubleClickCellOpensDialog());
         cellOpensDialog.setActionCommand("cellOpensDialog");
@@ -90,9 +90,9 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
         addSeparator();
         add(create("Select Row", "selectRow"));
         add(create("Select Column", "selectColumn"));
-        
+
         if (resultSetTableContainer.isTransposeAvailable()) {
-        
+
             add(create("Transpose Row", "transposeRow"));
         }
 
@@ -101,29 +101,29 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
         add(create("Export Table", "exportTable"));
         addSeparator();
         add(createFromAction("editor-show-hide-rs-columns-command", "Show/hide result set columns"));
-        addSeparator();        
+        addSeparator();
         add(create("View", "openDataItemViewer"));
         add(printMenu);
-        addSeparator();        
+        addSeparator();
         add(cellOpensDialog);
 
     }
 
     public void setLastPopupPoint(Point lastPopupPoint) {
-     
+
         this.lastPopupPoint = lastPopupPoint;
     }
-    
+
     private boolean doubleClickCellOpensDialog() {
-        
+
         return UserPreferencesManager.doubleClickOpenItemView();
     }
-    
+
     private JMenuItem create(JMenu menu, String text, String actionCommand) {
-        
+
         JMenuItem menuItem = create(text, actionCommand);
         menu.add(menuItem);
-        
+
         return menuItem;
     }
 
@@ -135,7 +135,7 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
 
         return menuItem;
     }
-    
+
     private JMenuItem create(String text, String actionCommand) {
 
         JMenuItem menuItem = MenuItemFactory.createMenuItem(reflectiveAction);
@@ -144,32 +144,35 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
 
         return menuItem;
     }
-    
+
     private RecordDataItem tableCellDataAtPoint(Point point) {
-        
+
         Object value = table.valueAtPoint(point);
         if (value instanceof RecordDataItem) {
 
             return (RecordDataItem) value;
         }
-        
+
         return null;
     }
 
     private void showViewerForValueAt(Point point) {
-        
+
         RecordDataItem recordDataItem = tableCellDataAtPoint(point);
-        if (recordDataItem != null && !recordDataItem.isValueNull()) {
+        if (recordDataItem != null && !recordDataItem.isDisplayValueNull()) {
 
             if (recordDataItem instanceof SimpleRecordDataItem) {
-                
+
                 showSimpleRecordDataItemDialog(recordDataItem);
-                
+
             } else if (recordDataItem instanceof LobRecordDataItem) {
-            
+
                 showLobRecordDataItemDialog(recordDataItem);
             }
 
+        } else if (recordDataItem instanceof LobRecordDataItem) {
+
+            showLobRecordDataItemDialog(recordDataItem);
         }
 
     }
@@ -179,54 +182,55 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
         BaseDialog dialog = new BaseDialog("Record Data Item Viewer", true);
         dialog.addDisplayComponentWithEmptyBorder(
                 new SimpleDataItemViewerPanel(dialog, (SimpleRecordDataItem) recordDataItem));
-        dialog.display();        
+        dialog.display();
     }
 
     private void showLobRecordDataItemDialog(RecordDataItem recordDataItem) {
+        int row = ((TableSorter) table.getModel()).modelIndex(table.getSelectedRow());
 
         BaseDialog dialog = new BaseDialog("LOB Record Data Item Viewer", true);
         dialog.addDisplayComponentWithEmptyBorder(
-                new LobDataItemViewerPanel(dialog, (LobRecordDataItem) recordDataItem));
+                new LobDataItemViewerPanel(dialog, (LobRecordDataItem) recordDataItem, tableObject, ((ResultSetTableModel) ((TableSorter) table.getModel()).getTableModel()).getRowDataForRow(table.getSelectedRow())));
         dialog.display();
     }
 
     public void cellOpensDialog(ActionEvent e) {
-        
+
         JCheckBoxMenuItem menuItem = (JCheckBoxMenuItem) e.getSource();
 
         doubleClickCellOpensDialog = menuItem.isSelected();
         resultSetTableModel().setCellsEditable(!doubleClickCellOpensDialog);
-        
+
         SystemProperties.setBooleanProperty(
-                Constants.USER_PROPERTIES_KEY, 
+                Constants.USER_PROPERTIES_KEY,
                 "results.table.double-click.record.dialog", doubleClickCellOpensDialog);
 
         UserPreferencesManager.fireUserPreferencesChanged();
     }
-    
+
     private ResultSetTableModel resultSetTableModel() {
 
         TableSorter tableSorter = (TableSorter) table.getModel();
-        
+
         return (ResultSetTableModel) tableSorter.getReferencedTableModel();
     }
 
     public void exportSelection(ActionEvent e) {
-        
+
         TableModel selected = table.selectedCellsAsTableModel();
 
         if (selected != null) {
-         
+
             new QueryEditorResultsExporter(selected);
         }
     }
-    
+
     public void transposeRow(ActionEvent e) {
-        
+
         if (resultSetTableContainer != null) {
-        
+
             table.selectRow(lastPopupPoint);
-    
+
             int selectedRow = table.getSelectedRow();
 
             TableSorter model = (TableSorter) table.getModel();
@@ -234,72 +238,72 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
         }
 
     }
-    
+
     public void selectColumn(ActionEvent e) {
-        
+
         table.selectColumn(lastPopupPoint);
     }
-    
+
     public void selectRow(ActionEvent e) {
-        
+
         table.selectRow(lastPopupPoint);
     }
-    
+
     public void copySelectedCells(ActionEvent e) {
-        
+
         table.copySelectedCells();
     }
-    
+
     public void copySelectedCellsAsCSV(ActionEvent e) {
-        
+
         table.copySelectedCellsAsCSV();
     }
-    
+
     public void copySelectedCellsAsCSVWithNames(ActionEvent e) {
-        
+
         table.copySelectedCellsAsCSVWithNames();
     }
-    
+
     public void copySelectedCellsAsCSVQuoted(ActionEvent e) {
-        
+
         table.copySelectedCellsAsCSVQuoted();
     }
 
     public void copySelectedCellsAsCSVQuotedWithNames(ActionEvent e) {
-        
+
         table.copySelectedCellsAsCSVQuotedWithNames();
     }
-    
+
     public void exportTable(ActionEvent e) {
 
         new QueryEditorResultsExporter(resultSetTableModel());
     }
-    
+
     public void printSelection(ActionEvent e) {
-        
+
         printResultSet(true);
     }
-    
+
     public void printTable(ActionEvent e) {
-        
+
         printResultSet(false);
     }
-    
+
     public void openDataItemViewer(ActionEvent e) {
-        
+
         try {
 
             GUIUtilities.showWaitCursor();
             showViewerForValueAt(lastPopupPoint);
-        
+
         } finally {
-            
+
             GUIUtilities.showNormalCursor();
         }
     }
 
     private void printResultSet(boolean printSelection) {
-        
+
         JTable printTable = null;
 
         if (printSelection) {
@@ -307,7 +311,7 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
             TableModel model = table.selectedCellsAsTableModel();
 
             if (model != null) {
-            
+
                 printTable = new JTable(model);
 
             } else {
@@ -316,14 +320,14 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
             }
 
         } else {
-          
+
             printTable = table;
         }
 
         Printable printable = new TablePrinter(printTable, null);
-        new PrintingSupport().print(printable, "Red Expert - table");
+        new PrintingSupport().print(printable, "RedXpert - table");
     }
-    
+
     public void mousePressed(MouseEvent e) {
 
         maybeShowPopup(e);
@@ -331,14 +335,14 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
 
     public void mouseClicked(MouseEvent e) {
 
-        if (e.getClickCount() >= 2 && doubleClickCellOpensDialog) {
-            
+        if (e.getClickCount() >= 2 && (doubleClickCellOpensDialog || table.getValueAt(table.getSelectedRow(), table.getSelectedColumn()) instanceof LobRecordDataItem)) {
+
             lastPopupPoint = e.getPoint();
             openDataItemViewer(null);
         }
 
     }
-    
+
     public void mouseReleased(MouseEvent e) {
         maybeShowPopup(e);
     }
@@ -346,9 +350,9 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
     private void maybeShowPopup(MouseEvent e) {
 
         if (e.isPopupTrigger()) {
-            
+
             lastPopupPoint = e.getPoint();
-            
+
             if (!table.hasMultipleColumnAndRowSelections()) {
 
                 table.selectCellAtPoint(lastPopupPoint);
@@ -357,7 +361,7 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
             show(e.getComponent(), lastPopupPoint.x, lastPopupPoint.y);
 
         } else {
-          
+
             // re-enable cell selection
             table.setColumnSelectionAllowed(true);
             table.setRowSelectionAllowed(true);
@@ -365,11 +369,15 @@ public class ResultSetTablePopupMenu extends JPopupMenu implements MouseListener
 
     }
 
-    public void mouseEntered(MouseEvent e) {}
-    public void mouseExited(MouseEvent e) {}
+    public void mouseEntered(MouseEvent e) {
+    }
+
+    public void mouseExited(MouseEvent e) {
+    }
 
 
 }
+
 
 
 

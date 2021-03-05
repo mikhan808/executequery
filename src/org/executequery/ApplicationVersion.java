@@ -1,7 +1,7 @@
 /*
  * ApplicationVersion.java
  *
- * Copyright (C) 2002-2015 Takis Diakoumis
+ * Copyright (C) 2002-2017 Takis Diakoumis
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -20,44 +20,97 @@
 
 package org.executequery;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
- *
- * @author   Takis Diakoumis
- * @version  $Revision: 1661 $
- * @date     $Date: 2016-07-13 20:53:12 +1000 (Wed, 13 Jul 2016) $
+ * @author Takis Diakoumis
  */
 public final class ApplicationVersion {
-
     private final String version;
-    
-    private final String build;
 
-    public ApplicationVersion(String version, String build) {
-        super();
-        
+    int x = -1;
+
+    int y = -1;
+
+    int z = -1;
+
+    int abc = 99999;
+
+    String tag = "";
+
+    int build = -1;
+
+    Map<String, Integer> tagsValues = new HashMap<>();
+
+    public ApplicationVersion(String version) {
+        tagsValues.put("SNAPSHOT", 0);
+        tagsValues.put("ALPHA", 1);
+        tagsValues.put("BETA", 2);
+        tagsValues.put("RC", 3);
+        tagsValues.put("", 4);
+
+        Pattern p = Pattern.compile("^(?<x>\\d+)\\.(?<y>\\d+)(\\.(?<z>\\d+))?(.(?<abc>\\d))?(-(?<tag>[a-zA-Z]+)(\\.(?<build>\\d+))?)?$");
+        Matcher m = p.matcher(version);
+        if(m.matches())
+        {
+            x = Integer.parseInt(m.group("x"));
+            y = Integer.parseInt(m.group("y"));
+            if (m.group("z") != null)
+                z = Integer.parseInt(m.group("z"));
+            if (m.group("abc") != null) {
+                abc = Integer.parseInt(m.group("abc"));
+            }
+            if (m.group("tag") != null) {
+                tag = m.group("tag");
+                if (m.group("build") != null)
+                    build = Integer.parseInt(m.group("build"));
+            }
+        }
+        else
+        {
+            throw new java.lang.RuntimeException("Unable to parse version string " + version);
+        }
+
         this.version = version;
-        this.build = build;
+    }
+
+    public String constructVersion() {
+        String s = null;
+        if (z < 0)
+            s = String.format("%d.%d", x, y);
+        else
+            s = String.format("%d.%d.%d", x, y, z);
+        if (!tag.equals("")) {
+            s += "-" + tag;
+            if (build != -1)
+                s += "." + build;
+        }
+        return s;
     }
 
     public boolean isNewerThan(String anotherVersion) {
-
-        if (anotherVersion != null && version != null) {
-            int newVersion = Integer.valueOf(version.replaceAll("\\.", ""));
-            int currentVersion = Integer.valueOf(anotherVersion.replaceAll("\\.", ""));
-            return (newVersion > currentVersion);
-        }
-        
+        ApplicationVersion o = new ApplicationVersion(anotherVersion);
+        if (x == o.x && y == o.y && z == o.z && abc == o.abc && tag.equals(o.tag) && build == o.build)
+            return false;
+        if (x != o.x) return x > o.x;
+        if (y != o.y) return y > o.y;
+        if (z != o.z) return z > o.z;
+        if (abc != o.abc) return abc > o.abc;
+        if (getTagValue() != o.getTagValue()) return getTagValue() > o.getTagValue();
+        if (build != o.build) return build > o.build;
         return false;
     }
-    
+
     public String getVersion() {
 
         return version;
     }
 
-    public String getBuild() {
-        
-        return build;
+    public int getTagValue()
+    {
+        return tagsValues.getOrDefault(tag.toUpperCase(), -1);
     }
-    
 }

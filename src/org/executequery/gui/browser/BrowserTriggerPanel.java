@@ -4,6 +4,7 @@ import org.executequery.GUIUtilities;
 import org.executequery.databaseobjects.impl.DefaultDatabaseTrigger;
 import org.executequery.gui.forms.AbstractFormObjectViewPanel;
 import org.executequery.gui.text.SQLTextPane;
+import org.executequery.localization.Bundles;
 import org.underworldlabs.jdbc.DataSourceException;
 import org.underworldlabs.swing.DefaultComboBox;
 import org.underworldlabs.swing.DisabledField;
@@ -21,22 +22,30 @@ import java.util.Map;
 public class BrowserTriggerPanel extends AbstractFormObjectViewPanel {
     public static final String NAME = "BrowserTriggerPanel";
 
+    private DependenciesPanel dependenciesPanel;
+
     private DisabledField triggerNameField;
-    //private DisabledField schemaNameField;
+    private DisabledField triggerBeforeAfterField;
+    private DisabledField triggerPositionField;
 
     private JLabel objectNameLabel;
 
     private JCheckBox activeCheckbox;
 
-    private JLabel tableNameLabel;
+    private JLabel triggerInfoLabel;
+    private JLabel beforeAfterLabel;
+    private JLabel triggerPositionLabel;
     private JComboBox tableNameCombo;
     JTextPane descriptionPane;
+    JTextPane sqlPane;
 
     private Map cache;
 
     JTextPane textPane;
 
-    /** the browser's control object */
+    /**
+     * the browser's control object
+     */
     private BrowserController controller;
 
     public BrowserTriggerPanel(BrowserController controller) {
@@ -45,43 +54,57 @@ public class BrowserTriggerPanel extends AbstractFormObjectViewPanel {
 
         try {
             init();
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    private void init() throws Exception {
+    private void init() {
 
+        dependenciesPanel = new DependenciesPanel();
         JPanel panel = new JPanel();
 
         panel.setLayout(new BorderLayout());
 
         JPanel paramPanel = new JPanel(new GridBagLayout());
-        paramPanel.setBorder(BorderFactory.createTitledBorder("Parameters"));
+        paramPanel.setBorder(BorderFactory.createTitledBorder(Bundles.getCommon("Parameters")));
 
         JPanel sourcePanel = new JPanel(new BorderLayout());
-        sourcePanel.setBorder(BorderFactory.createTitledBorder("Source"));
+        sourcePanel.setBorder(BorderFactory.createTitledBorder(bundleString("Source")));
         textPane = new SQLTextPane();
         textPane.setEditable(false);
         sourcePanel.add(new JScrollPane(textPane), BorderLayout.CENTER);
 
-        activeCheckbox = new JCheckBox("Is Active", false);
-        paramPanel.add(activeCheckbox, new GridBagConstraints(0, 0, 2, 1, 1, 0,
+        activeCheckbox = new JCheckBox(bundleString("Active"), false);
+        paramPanel.add(activeCheckbox, new GridBagConstraints(0, 0, 1, 1, 1, 0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 0, 5, 5), 0, 0));
 
-        tableNameLabel = new JLabel("For Table:");
-        paramPanel.add(tableNameLabel);
+        triggerInfoLabel = new JLabel(bundleString("ForTable"));
+        paramPanel.add(triggerInfoLabel, new GridBagConstraints(1, 0, 1, 1, 0, 0,
+                GridBagConstraints.CENTER, GridBagConstraints.BOTH, new Insets(5, 0, 5, 5), 0, 0));
 
         tableNameCombo = new DefaultComboBox();
-        paramPanel.add(tableNameCombo);
+        //paramPanel.add(tableNameCombo);
+
+        beforeAfterLabel = new JLabel(bundleString("BeforeAfter"));
+        //paramPanel.add(beforeAfterLabel);
+
+        triggerBeforeAfterField = new DisabledField();
+        //paramPanel.add(triggerBeforeAfterField);
+
+        triggerPositionLabel = new JLabel(bundleString("Position"));
+        //paramPanel.add(triggerPositionLabel);
+
+        triggerPositionField = new DisabledField();
+
+        //paramPanel.add(triggerPositionField);
 
         panel.add(paramPanel, BorderLayout.NORTH);
         panel.add(sourcePanel, BorderLayout.CENTER);
 
         JTabbedPane tabs = new JTabbedPane(JTabbedPane.TOP);
-        tabs.add("Trigger", panel);
+        tabs.add(bundleString("Trigger"), panel);
 
         JPanel descriptionPanel = new JPanel(new BorderLayout());
         descriptionPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -90,14 +113,24 @@ public class BrowserTriggerPanel extends AbstractFormObjectViewPanel {
 
         descriptionPanel.add(descriptionPane, BorderLayout.CENTER);
 
-        tabs.add("Description", descriptionPanel);
+        tabs.add(Bundles.getCommon("description"), descriptionPanel);
+
+        JPanel sqlPanel = new JPanel(new BorderLayout());
+        sqlPanel.setBorder(BorderFactory.createEtchedBorder());
+
+        sqlPane = new SQLTextPane();
+
+        sqlPanel.add(sqlPane, BorderLayout.CENTER);
+
+        tabs.add("Sql", sqlPanel);
+        tabs.add(Bundles.getCommon("dependencies"), dependenciesPanel);
 
         objectNameLabel = new JLabel();
         triggerNameField = new DisabledField();
 
         JPanel base = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
-        Insets insets = new Insets(10,10,5,5);
+        Insets insets = new Insets(10, 10, 5, 5);
         gbc.anchor = GridBagConstraints.NORTHEAST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.gridx++;
@@ -148,7 +181,8 @@ public class BrowserTriggerPanel extends AbstractFormObjectViewPanel {
         cache.clear();
     }
 
-    public void cleanup() {}
+    public void cleanup() {
+    }
 
     public JTable getTable() {
 //        return table;
@@ -156,9 +190,7 @@ public class BrowserTriggerPanel extends AbstractFormObjectViewPanel {
     }
 
     public void removeObject(Object object) {
-        if (cache.containsKey(object)) {
-            cache.remove(object);
-        }
+        cache.remove(object);
     }
 
     public boolean hasObject(Object object) {
@@ -166,35 +198,54 @@ public class BrowserTriggerPanel extends AbstractFormObjectViewPanel {
     }
 
     public void setValues(DefaultDatabaseTrigger trigger) {
-
-        objectNameLabel.setText("Trigger Name:");
-        setHeaderText("Database Trigger");
+        dependenciesPanel.setDatabaseObject(trigger);
+        objectNameLabel.setText(bundleString("TriggerName"));
+        setHeaderText(bundleString("DatabaseTrigger"));
         setHeaderIcon(GUIUtilities.loadIcon("TableTrigger16.png", true));
 
         try {
             triggerNameField.setText(trigger.getName());
-//            model.setValues(executeable.getParametersArray());
             textPane.setText(trigger.getTriggerSourceCode());
             activeCheckbox.setSelected(trigger.isTriggerActive());
+            activeCheckbox.setEnabled(false);
+            if (!trigger.getStringTriggerType().toLowerCase().contains("before") &&
+                    !trigger.getStringTriggerType().toLowerCase().contains("after"))
+                beforeAfterLabel.setText(bundleString("Event"));
+            else if (trigger.getStringTriggerType().toLowerCase().contains("before"))
+                beforeAfterLabel.setText(bundleString("Before"));
+            else if (trigger.getStringTriggerType().toLowerCase().contains("after"))
+                beforeAfterLabel.setText(bundleString("After"));
+            else
+                beforeAfterLabel.setText(bundleString("BeforeAfter"));
+            triggerBeforeAfterField.setText(trigger.getStringTriggerType());
             tableNameCombo.removeAllItems();
-            tableNameCombo.addItem(trigger.getTriggerTableName());
+            if (trigger.getTriggerTableName() != null && !trigger.getTriggerTableName().isEmpty()) {
+                triggerInfoLabel.setText(bundleString("ForTable") + trigger.getTriggerTableName().trim());
+                //tableNameCombo.setVisible(true);
+                //tableNameCombo.addItem(trigger.getTriggerTableName());
+            } else {
+                triggerInfoLabel.setText("");
+                //tableNameCombo.setVisible(false);
+            }
+            triggerPositionField.setText(String.valueOf(trigger.getTriggerSequence()));
             descriptionPane.setText(trigger.getTriggerDescription());
-        }
-        catch (DataSourceException e) {
+            sqlPane.setText(trigger.getCreateSQLText());
+            triggerInfoLabel.setText(triggerInfoLabel.getText() + "       " + triggerBeforeAfterField.getText() + "       " + triggerPositionLabel.getText() + triggerPositionField.getText());
+        } catch (DataSourceException e) {
             controller.handleException(e);
         }
 
     }
 
     public void setValues(BaseDatabaseObject metaObject) {
-        DefaultDatabaseTrigger trigger = (DefaultDatabaseTrigger)cache.get(metaObject);
+        DefaultDatabaseTrigger trigger = (DefaultDatabaseTrigger) cache.get(metaObject);
         setValues(metaObject, trigger);
     }
 
     public void setValues(BaseDatabaseObject metaObject, DefaultDatabaseTrigger trigger) {
 
-        objectNameLabel.setText("Trigger Name:");
-        setHeaderText("Database Trigger");
+        objectNameLabel.setText(bundleString("TriggerName"));
+        setHeaderText(bundleString("Database Trigger"));
         setHeaderIcon("Trigger16.png");
 
         if (trigger != null) {
